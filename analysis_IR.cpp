@@ -23,9 +23,7 @@ void OpenFileAndDeal(string &file_name) {
     return;
   }
   
-  //precedure section of the program 
-  //the beginning of program
-  ProgramBegin();
+ 
 
   string single_line;
   while(getline(IR_file, single_line)){//get every line
@@ -104,5 +102,5 @@ void OpenFileAndDeal(string &file_name) {
     default: break;
     }
   }
-  ProgramHint(); //the interrupt of the program 
+ 
 };

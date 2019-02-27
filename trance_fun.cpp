@@ -478,12 +478,12 @@ void TranceStore(SplitWord wordCon, string IR_name){
     string op_src2 = wordCon.vaCol[4];
     string op_src1_type = wordCon.vaCol[1];
     string op_src2_type = wordCon.vaCol[3];
-    
+    /*
     //the first variable %1 don't nedd to allocated addr
     if(!op_src2.compare("%1")){
       return ;
     }
-
+    */
     RegManage* reg_manage_obj = RegManage::getInstance();
     regex res("\%.*");
     //Instr: store R to R
@@ -1340,7 +1340,7 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
 }
 
 void TranceDefine(SplitWord wordCon, string IR_name){
-
+  
   if(firstFun == true){ //used for main
     firstFun = false;
     OutPutJump("bra", "begin", IR_name);

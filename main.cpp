@@ -10,6 +10,8 @@
 #include <regex>
 #include "analysis_IR.h"
 #include "out_put_fun.h"
+#include "trance_fun.h"
+
 
 using namespace::std;
 
@@ -55,11 +57,19 @@ int main(int argv, char **argc){
   //open outputFile
   OpenOutPutFile(output_file_name);
 
+
+  //precedure section of the program 
+  //the beginning of program
+   ProgramBegin();
   //deal with mutifiles
   for(auto elem : input_file_name){
   //open inputFile
     OpenFileAndDeal(elem);
+    OutPutOrg("\n;;;----Another file", " ");
   }
+  //the interrupt of the program 
+   ProgramHint();
+  
   //close outputFile
   CloseOutPutFile();
   
