@@ -39,7 +39,6 @@ struct DataStoreInfo {
 
 };
 
-
 class MemoryManage {
  public:
   //caculate how many reg will be needed
@@ -69,6 +68,11 @@ class MemoryManage {
     return call_level_stack.size();
   }
 
+  //deal with the wihch fun stack
+  void SetValueToWhichFunStack(string);
+  string GetValueFromWhichFunStack();
+  void PopValueFromWhichFunStack();
+
  protected:
   //string stand for the var name;
   //DataStoreInfo stand for the concrete info of store addr
@@ -97,6 +101,11 @@ class MemoryManage {
   static unordered_map<string, vector<string>> variable_decalare_map;
 
   
+  //Which function is processing now
+  //in every function, the begining IR actual addr is same
+  //so we shold add the fun name to indentifier same actual
+  //addr in different fun.
+  static stack<string> which_fun;
 };
 
 #endif 

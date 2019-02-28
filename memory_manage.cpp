@@ -15,6 +15,8 @@ unordered_map<string, int> MemoryManage::var_store_which_map;
 
 unordered_map<string, vector<string>> MemoryManage::variable_decalare_map;
 
+stack<string> MemoryManage::which_fun;
+
 //caculate how many reg will need
 int MemoryManage::HowBigType(string var_type){
   
@@ -90,4 +92,22 @@ MemoryManage::GetRecordVarDecalare(string var_name){
     //  variable_decalare_map.find(var_name)->second;
   //return res;
   return variable_decalare_map.find(var_name)->second;
+}
+
+void MemoryManage::SetValueToWhichFunStack(string fun_name){
+  which_fun.push(fun_name);
+}
+
+string MemoryManage::GetValueFromWhichFunStack(){
+  string fun_name;
+  if(which_fun.empty()){
+    return fun_name;
+  }
+  fun_name =  which_fun.top();
+  return fun_name;
+}
+
+void MemoryManage::PopValueFromWhichFunStack(){
+  if(which_fun.empty()) return;
+  which_fun.pop();
 }

@@ -54,10 +54,9 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
   //Every elem in the var_name may have different type.YES, it is
   //a struct.
   if(elem_num == 999){
-    RegManage* reg_manage_obj = RegManage::getInstance();
     //get all elem type about this struct 
     const vector<string>& type_vec = 			\
-      reg_manage_obj->GetRecordVarDecalare(var_type);
+      this->GetRecordVarDecalare(var_type);
   
     //    DataStoreInfo core_info;
     core_info.virtual_addr = var_name;
@@ -165,6 +164,7 @@ void RegManage::AllocateRegToGenVal(string var_name, string var_type, int elem_n
 //if var_name is a single variable, elem_index will equal 0
 vector<string> 
 RegManage::GetActualAddrFromGenVal(string var_name, int elem_index) {
+  
   DataStoreInfo core_info = this->GetAllInfoFromGenVal(var_name);
   vector<string> addr = core_info.actual_addr;
   string type = core_info.data_type;
@@ -201,7 +201,7 @@ RegManage::GetActualAddrFromGenVal(string var_name, int elem_index) {
 
 vector<string> 
 RegManage::GetAllActualAddrFromGenVal(string var_name){
-  
+
   if(reg_addr_map.find(var_name) == reg_addr_map.end()){
     cout << "This var haven't actual addr!" << endl;
     abort();
@@ -211,6 +211,7 @@ RegManage::GetAllActualAddrFromGenVal(string var_name){
 }
 
 DataStoreInfo RegManage::GetAllInfoFromGenVal(string var_name){
+
   if(reg_addr_map.find(var_name) == reg_addr_map.end()){
     cout << "This var don't store in the map!" << endl;
     abort();
@@ -220,6 +221,7 @@ DataStoreInfo RegManage::GetAllInfoFromGenVal(string var_name){
 }
 
 DataStoreInfo RegManage::GetAllInfoFromGlobalVal(string var_name){
+
   if(global_addr_map.find(var_name) == global_addr_map.end()){
     cout << "This var don't store in the map!" << endl;
     abort();
@@ -316,6 +318,7 @@ void RegManage::CreateMapForGlobalVal(string var_name, \
 //one element.
 vector<string> RegManage::GetActualAddrFromGlobalVal(string var_name,\
 						     int elem_index){
+
   if(global_addr_map.find(var_name) == global_addr_map.end()){
     cout << "This var haven't actual addr!" << endl;
     abort();
