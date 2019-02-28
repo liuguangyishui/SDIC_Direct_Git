@@ -520,8 +520,14 @@ void TranceStore(SplitWord wordCon, string IR_name){
 						   elem_index);
       
       for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", src_addr_or_value_vec[i], IR_name);
-	OutPut("movwf", elem_addr_vec[i], IR_name);
+	OutPut("movlw", src_addr_or_value_vec[j], IR_name);
+	OutPut("movwf", "tablat", IR_name);
+	OutPut("movlw", elem_addr_vec[i].substr(0,2), IR_name);
+	OutPut("movwf", "tblptrh", IR_name);
+	OutPut("movlw", elem_addr_vec[i].substr(2,4), IR_name);
+	OutPut("movwf", "tblptrl", IR_name);
+	OutPut("tblwr", "*", IR_name);
+	
       }
     } 
   }
