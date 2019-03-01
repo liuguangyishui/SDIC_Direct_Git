@@ -1830,7 +1830,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
     
   }
   //this is fun call and there are parameter to deliver
-  /*
+  
   else if(find(VEC.begin(), VEC.end(), "signext") != VEC.end()){ 
     regex reg("\%.+");
     //because call fun will return value or don't return value,
@@ -1862,7 +1862,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
 	  }
 	  //get the parameter addr
 	  vector<string> parameter_addr_vec = reg_manage_obj-> \
-	    GetActualAddrFromGenVal(each_parameter_name);
+	    GetActualAddrFromGenVal(each_parameter_name, 1);
 	  //deliver the parameter_addr to reserve_reg
 	  for(int i = 0; i < parameter_addr_vec.size(); i++){
 	    OutPut("movf", parameter_addr_vec[i], IR_name);
@@ -1921,7 +1921,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
 	  }
 	  //get the parameter addr
 	  vector<string> parameter_addr_vec = reg_manage_obj-> \
-	    GetActualAddrFromGenVal(each_parameter_name);
+	    GetActualAddrFromGenVal(each_parameter_name, 1);
 	  //deliver the parameter_addr to reserve_reg
 	  for(int i = 0; i < parameter_addr_vec.size(); i++){
 	    OutPut("movf", parameter_addr_vec[i], IR_name);
@@ -2005,7 +2005,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
     // }
     
     }
-  */
+  
     //this is fun call and there aren't parameter to deliver
   else {
     //the fun no return value and parameter

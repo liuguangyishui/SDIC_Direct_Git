@@ -67,10 +67,10 @@ void OutPut(string instr_name, string op, string IR_name){
 
 void OutPut(string instr_name, string op,int index1 = 0, \
 	    int index2 = 1, string IR_name = " "){
-  string content_1 = "\t" + instr_name + "\t\t" + op + "\t"	\
-    + to_string(index1) + "\t" + to_string(index2);
-  string content_2 = "\t" + instr_name + "\t\t" + op + "\t"	\
-    + to_string(index1) + "\t" + to_string(index2);
+  string content_1 = "\t" + instr_name + "\t\t" + op + ",\t"	\
+    + to_string(index1) + ",\t" + to_string(index2);
+  string content_2 = "\t" + instr_name + "\t\t" + op + ",\t"	\
+    + to_string(index1) + ",\t" + to_string(index2);
 
   DebugInfo debug_info_object = DebugInfo();
   
