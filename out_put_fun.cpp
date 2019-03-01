@@ -41,17 +41,17 @@ void OutPut(string instr_name, string op, string IR_name){
   }
   else if(instr_name_one_para.find(instr_name) != \
 	  instr_name_one_para.end()){
-    content_1 = "\t" +  instr_name + "\t\t" + op + "\t1"; 
-    content_2 = "\t" +  instr_name + "\t\t" + op + "\t1";
+    content_1 = "\t" +  instr_name + "\t\t" + op + ",\t1"; 
+    content_2 = "\t" +  instr_name + "\t\t" + op + ",\t1";
   }
   else if(instr_name_two_para.find(instr_name) != \
 	  instr_name_two_para.end()){
-    content_1 = "\t" +  instr_name + "\t\t" + op + "\t0\t1"; 
-    content_2 = "\t" +  instr_name + "\t\t" + op + "\t0\t1";
+    content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1"; 
+    content_2 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1";
   
   } else {
-    content_1 = "\t" +  instr_name + "\t\t" + op + "\t0\t1"; 
-    content_2 = "\t" +  instr_name + "\t\t" + op + "\t0\t1";
+    content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1"; 
+    content_2 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1";
   }
   
   DebugInfo debug_info_object = DebugInfo();
