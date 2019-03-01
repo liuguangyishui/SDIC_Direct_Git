@@ -130,6 +130,12 @@ int getNum(string);
 //get struct value from IR instr
 vector<string> GetStructValueFromIRInstr(SplitWord);
 
+//get parameter name and parameter type when we deal with
+//call fun
+void GetParameterNameAndParameterType(SplitWord,		\
+				       vector<string>&,		\
+				       vector<string>&);
+
 //for ret instr
 void TranceRet(SplitWord, string);
 

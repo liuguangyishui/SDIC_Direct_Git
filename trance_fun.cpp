@@ -1830,6 +1830,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
     
   }
   //this is fun call and there are parameter to deliver
+  /*
   else if(find(VEC.begin(), VEC.end(), "signext") != VEC.end()){ 
     regex reg("\%.+");
     //because call fun will return value or don't return value,
@@ -2004,7 +2005,8 @@ void TranceCall(SplitWord wordCon, string IR_name){
     // }
     
     }
-  //this is fun call and there aren't parameter to deliver
+  */
+    //this is fun call and there aren't parameter to deliver
   else {
     //the fun no return value and parameter
     if(!VEC[0].compare("call")){
@@ -2762,13 +2764,14 @@ GetParameterNameAndParameterType(SplitWord wordCon,		  \
   for(int i = 0; i < VEC.size(); i++){
     //befor the variable is signext
     //ex:  %14 = call i32 @max(i32 signext %12, i32 signext %13)
-    if(!strcmp(VEC[i].size(), "signext") == 0) {
+    if(!strcmp(VEC[i].c_str(), "signext") == 0) {
       if(i+1 >= VEC.size()) return;
       string op_src = VEC[++i];
       string op_src_type = VEC[i - 2];
       
       parameter_name.push_back(op_src);
       parameter_type.push_back(op_src_type);
+    }
   }
 }
 
