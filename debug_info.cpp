@@ -25,12 +25,25 @@ void DebugInfo::CreateAAddrDebugRecord(string var_name){
 void DebugInfo::AddAddrDebugInfoToRecord(string var_name, \
 					 string addr_name){
   if(!addr_debug_info_vec.empty()){
-    AddrDebugInfoElem core_info = addr_debug_info_vec.back();
+    AddrDebugInfoElem &core_info = addr_debug_info_vec.back();
     if(!var_name.compare(core_info.IR_name)){
       core_info.allocated_addr.push_back(addr_name);
     }
   }
 }
+
+void DebugInfo::AddAdditionalDebugInfoToRecord(string var_name, \
+					       string additional_info){
+ 
+  for(auto &elem : addr_debug_info_vec){
+    if(!var_name.compare(elem.IR_name)){
+      elem.allocated_addr.insert(elem.allocated_addr.begin(), \
+				 additional_info);
+    }
+  }
+
+}
+
 
 void DebugInfo::CreateAInstrDebugRecord(string instr_name, string instr){
   InstrDebugInfoElem core_info;
@@ -41,11 +54,12 @@ void DebugInfo::CreateAInstrDebugRecord(string instr_name, string instr){
 
 void DebugInfo::AddInstrDebugInfoToRecord(string instr_name, string trance_instr) {
   if(!instr_debug_info_vec.empty()){
-    InstrDebugInfoElem core_info = instr_debug_info_vec.back();
+    InstrDebugInfoElem &core_info = instr_debug_info_vec.back();
     if(!instr_name.compare(core_info.Instr_name)){
       core_info.after_trance_instr_vector.push_back(trance_instr);
     }
   }
+
 }
 
 void DebugInfo::PrintInstrDebugInfo(){
@@ -58,17 +72,23 @@ void DebugInfo::PrintInstrDebugInfo(){
   }
 
   for(auto outer_elem : instr_debug_info_vec){
-    fout << outer_elem.Instr_name << ":" << endl;
+    fout << "Original Instr: " << endl;;
     vector<string>  core_info = outer_elem.after_trance_instr_vector;
-    for(auto inner_elem: core_info){
-      fout << "\t\t" << inner_elem << endl;
+    for(int i = 0; i < core_info.size(); i++){
+      if(i == 0){
+	fout << core_info[i] << endl;
+	fout << "Transalate Instr: " << endl;
+      }
+      else {
+	fout << "\t\t" << core_info[i] << endl;
+      }
     }
     fout << endl;
   }
 }
 
 void DebugInfo::PrintAddrDebugInfo(){
-  char file_name[] = "addr_info_instr.txt";
+  char file_name[] = "debug_info_addr.txt";
   std::ofstream fout;
   fout.open(file_name, ios_base::out);
   if(!fout.is_open()){
@@ -76,7 +96,7 @@ void DebugInfo::PrintAddrDebugInfo(){
     return ;
   }
   for(auto outer_elem: addr_debug_info_vec){
-    fout << outer_elem.IR_name << ":" << endl;
+    fout << outer_elem.IR_name << ": " << endl;
     vector<string> core_info = outer_elem.allocated_addr;
     for(auto inner_elem: core_info){
       fout << "\t\t" << inner_elem << endl;

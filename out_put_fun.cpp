@@ -33,12 +33,30 @@ void CloseOutPutFile(){
 }
 
 void OutPut(string instr_name, string op, string IR_name){
-  string content_1 = "\t" +  instr_name + "\t\t" + op + "\t0\t1"; 
-  string content_2 = "\t" +  instr_name + "\t\t" + op + "\t0\t1";
+  string content_1, content_2;
+  if(instr_name_no_para.find(instr_name) !=	\
+     instr_name_no_para.end()){
+    content_1 = "\t" +  instr_name + "\t\t" + op; 
+    content_2 = "\t" +  instr_name + "\t\t" + op;
+  }
+  else if(instr_name_one_para.find(instr_name) != \
+	  instr_name_one_para.end()){
+    content_1 = "\t" +  instr_name + "\t\t" + op + "\t1"; 
+    content_2 = "\t" +  instr_name + "\t\t" + op + "\t1";
+  }
+  else if(instr_name_two_para.find(instr_name) != \
+	  instr_name_two_para.end()){
+    content_1 = "\t" +  instr_name + "\t\t" + op + "\t0\t1"; 
+    content_2 = "\t" +  instr_name + "\t\t" + op + "\t0\t1";
+  
+  } else {
+    content_1 = "\t" +  instr_name + "\t\t" + op + "\t0\t1"; 
+    content_2 = "\t" +  instr_name + "\t\t" + op + "\t0\t1";
+  }
   
   DebugInfo debug_info_object = DebugInfo();
 
-  if(out_put_file_name.empty() && f_out.is_open()){
+  if(!out_put_file_name.empty() && f_out.is_open()){
     debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
     f_out << content_1 << endl;
   } else {
@@ -56,7 +74,7 @@ void OutPut(string instr_name, string op,int index1 = 0, \
 
   DebugInfo debug_info_object = DebugInfo();
   
-  if(out_put_file_name.empty() && f_out.is_open()){
+  if(!out_put_file_name.empty() && f_out.is_open()){
     debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
     f_out << content_1 << endl;
   } else {
@@ -66,7 +84,7 @@ void OutPut(string instr_name, string op,int index1 = 0, \
 }
 
 void OutPutOrg(string instrName, string op){
-  if(out_put_file_name.empty() && f_out.is_open()){
+  if(!out_put_file_name.empty() && f_out.is_open()){
     f_out << "\t" << instrName << "\t\t" << op << "\t" << endl;
   } else {
     cout << "\t" << instrName << "\t\t" << op << "\t" << endl;
@@ -79,7 +97,7 @@ void OutPutJump(string instr_name, string op, string IR_name){
 
   DebugInfo debug_info_object = DebugInfo();
 
-  if(out_put_file_name.empty() && f_out.is_open()){
+  if(!out_put_file_name.empty() && f_out.is_open()){
     debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
     f_out << content_1 << endl;
   } else {
@@ -89,7 +107,7 @@ void OutPutJump(string instr_name, string op, string IR_name){
 }
 
 void OutPutLabel(string orderName, string IR_name){
-  if(out_put_file_name.empty() && f_out.is_open()){
+  if(!out_put_file_name.empty() && f_out.is_open()){
     f_out << "\n" << flush;
     f_out << "Label" << "_" << orderName << ":" << endl;
   } else {

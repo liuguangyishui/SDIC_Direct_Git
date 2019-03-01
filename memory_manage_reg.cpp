@@ -26,8 +26,10 @@ unordered_map<string, DataStoreInfo> RegManage::global_addr_map;
 vector<string> RegManage::available_use_reg;
 vector<string> RegManage::have_used_reg;
 
-vector<string> RegManage::reserve_reg = {"1F8", "1F9", "1FA", "1FB", 
-			      "1FC", "1FD", "1FE", "1FF"};
+vector<string> RegManage::reserve_reg = {"0x1100", "0x1101", 
+					 "0x1102", "0x1103", 
+					 "0x1104", "0x1105",
+					 "0x1106", "0x1107"};
 
 RegManage::RegManage(int total_reg){
   for(int i = 0; i < total_reg; i++){
@@ -138,6 +140,8 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
 //elem_num dedicated the variable whether a array or a single 
 //variable. if it is a array, then we should allocate more than
 //one addr fro the var_name according to the elem_num
+//if elem_num equal 0, then we just create a racord in reg_addr_map
+//but not allocate actual addr for var_name
 void RegManage::AllocateRegToGenVal(string var_name, string var_type, int elem_num) {
   
   DataStoreInfo core_info;
@@ -392,9 +396,26 @@ bool RegManage::CheckAllOperatorType(string op_1, string op_2,	\
   return (op_1_num == op_2_num == op_3_num);
 }
 
-
+//delete a reacord in reg_addr_map and recycle the addr if this 
+//var_name have been allocated addr
 void RegManage::DeleteRecordInGenVal(string var_name){
- 
-  reg_addr_map.erase(var_name);
+  if(reg_addr_map.find(var_name) == reg_addr_map.end()){
+    return ;
+  }
 
+  DataStoreInfo core_info = reg_addr_map.find(var_name)->second;
+  vector<string> addr_vec = core_info.actual_addr;
+  reg_addr_map.erase(var_name);
+  //reuse the addr 
+  if(!addr_vec.empty()){
+    for(auto elem : addr_vec){
+      available_use_reg.push_back(elem);
+    }
+  }
+ 
+  DebugInfo debug_info_obj = DebugInfo();
+  debug_info_obj.AddAdditionalDebugInfoToRecord(var_name, \
+					  "!!! Have been recycle");
+
+  
 }

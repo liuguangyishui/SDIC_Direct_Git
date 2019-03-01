@@ -34,6 +34,7 @@ class DebugInfo {
   void CreateAAddrDebugRecord(string);
   //add addr info into exited record via var_name(first parameter)
   void AddAddrDebugInfoToRecord(string, string);
+  void AddAdditionalDebugInfoToRecord(string, string);
   //Create a instr debug info record in instr debug map
   void CreateAInstrDebugRecord(string, string);
   //add info into exited record

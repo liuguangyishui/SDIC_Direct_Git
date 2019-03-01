@@ -5,7 +5,7 @@
 /*
 
  */
-
+#include <regex>
 #include "debug_info.h"
 #include "tool_fun.h"
 #include "memory_manage_data.h"
@@ -155,16 +155,38 @@ vector<string> DataAreaManage::GetActualAddrFromVal(string var_name, \
 						    int elem_index){
   
   if(data_area_addr_map.find(var_name) == data_area_addr_map.end()){
-   abort();
+    cout << "GetActualAddrFromVal(): No this variable in "\
+      "data area map" << endl;
+    abort();
   }
   DataStoreInfo core_info = data_area_addr_map.find(var_name)->second;
   vector<string> addr = core_info.actual_addr;
   string type = core_info.data_type;
-  int type_num = this->HowBigType(type);
-  
   vector<string> res;
-  for(int i = 0; i < type_num; i++){
-    res.push_back(addr[elem_index * type_num + i]);
+  //this type is struct type, we will get the elem_index elem
+  //in var_name
+  regex which_type_struct("%struct.*");
+  if(regex_match(type, which_type_struct)){
+    const vector<string> &struct_elem_type_vec = \
+      this->GetRecordVarDecalare(type);
+    int elem_base = 0;
+    
+    for(int i = 0; i < elem_index; i++){
+      elem_base += this->HowBigType(struct_elem_type_vec[i]);
+    }
+    int reg_num = this->HowBigType(struct_elem_type_vec[elem_index]);
+    for(int i = 0; i < reg_num; i++){
+      res.push_back(addr[elem_base + i]);
+    }
+    return res;
+  }
+  //this type is array or single variable
+  else {
+    int type_num = this->HowBigType(type);
+    for(int i = 0; i < type_num; i++){
+      res.push_back(addr[elem_index * type_num + i]);
+    }
+    return res;
   }
   return res;
 }

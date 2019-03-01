@@ -55,52 +55,135 @@ void OpenFileAndDeal(string &file_name) {
 
     switch(word_con.instrName){
     case alloc: { 
-      debug_info_object.CreateAInstrDebugRecord("alloc", \
-						single_line_debug); 
+      debug_info_object.CreateAInstrDebugRecord("alloc",    \
+					      single_line_debug); 
       TranceAlloca(word_con, "alloc"); break; }
-    case load:               TranceLoad(word_con, "load");   break;
-    case store:              TranceStore(word_con, "store");  break;
-    case add:                TranceAdd(word_con, "add");    break;
-    case sub:                TranceSub(word_con, "sub");    break;
-    case ret:                TranceRet(word_con, "ret");    break;
-    case fcmp:               TranceFcmp(word_con, "fcmp");   break;
-    case br:                 TranceBr(word_con, "br");     break;
-    case label:              TranceLabel(word_con, "label");  break;
-    case globa:              TranceGlobal(word_con, "globa"); break;
-    case defin:              TranceDefine(word_con, "defin"); break;
-    case call:               TranceCall(word_con, "call");   break;
-    case anda:               TranceAnd(word_con, "and");    break;
-    case ora:                TranceOr(word_con, "ora");     break;
-    case xora:               TranceXor(word_con, "xora");    break;
-    case shl:                TranceShl(word_con, "shl");    break;
-    case ashr:               TranceAshr(word_con, "ashr");   break;
-    case zext:               TranceZext(word_con, "zext");   break;
-    case phi:                TrancePhi(word_con, "phi");    break;
-    case constant:           TranceConstant(word_con, "constant"); break;
-    case type:               TranceType(word_con, "type");  break;
+    case load:  {
+      debug_info_object.CreateAInstrDebugRecord("load",	  \
+						single_line_debug); 
+      TranceLoad(word_con, "load");   break;}
+    case store: {
+      debug_info_object.CreateAInstrDebugRecord("store",	   \
+						single_line_debug); 
+      TranceStore(word_con, "store");  break;}
+    case add: {
+      debug_info_object.CreateAInstrDebugRecord("add",	\
+						single_line_debug); 
+      TranceAdd(word_con, "add");    break;}
+    case sub: {
+      debug_info_object.CreateAInstrDebugRecord("sub",	   \
+						single_line_debug); 
+      TranceSub(word_con, "sub");    break;}
+    case ret: {
+      debug_info_object.CreateAInstrDebugRecord("ret",	   \
+						single_line_debug); 
+      TranceRet(word_con, "ret");    break;}
+    case fcmp: {
+      debug_info_object.CreateAInstrDebugRecord("fcmp",	  \
+						single_line_debug); 
+      TranceFcmp(word_con, "fcmp");   break;}
+    case br:  {
+      debug_info_object.CreateAInstrDebugRecord("br",	  \
+						single_line_debug); 
+      TranceBr(word_con, "br");     break;}
+    case label: {
+      debug_info_object.CreateAInstrDebugRecord("label",	   \
+						single_line_debug); 
+      TranceLabel(word_con, "label");  break;}
+    case globa: {
+      debug_info_object.CreateAInstrDebugRecord("global",	  \
+						single_line_debug); 
+      TranceGlobal(word_con, "global"); break;}
+    case defin: {
+      debug_info_object.CreateAInstrDebugRecord("define",	   \
+						single_line_debug); 
+      TranceDefine(word_con, "define"); break;}
+    case call:  {
+      debug_info_object.CreateAInstrDebugRecord("call",	   \
+						single_line_debug); 
+      TranceCall(word_con, "call");   break;}
+    case anda: {
+      debug_info_object.CreateAInstrDebugRecord("and",	   \
+						single_line_debug); 
+      TranceAnd(word_con, "and");    break;}
+    case ora:  {
+      debug_info_object.CreateAInstrDebugRecord("or",	  \
+						single_line_debug); 
+      TranceOr(word_con, "or");     break;}
+    case xora: {
+      debug_info_object.CreateAInstrDebugRecord("xor",	  \
+						single_line_debug); 
+      TranceXor(word_con, "xor");    break;}
+    case shl:  {
+      debug_info_object.CreateAInstrDebugRecord("shl",	    \
+						single_line_debug); 
+      TranceShl(word_con, "shl");    break;}
+    case ashr: {
+      debug_info_object.CreateAInstrDebugRecord("ashr",	   \
+						single_line_debug); 
+      TranceAshr(word_con, "ashr");   break;}
+    case zext: {
+      debug_info_object.CreateAInstrDebugRecord("zext",	   \
+						single_line_debug); 
+      TranceZext(word_con, "zext");   break;}
+    case phi:  {
+      debug_info_object.CreateAInstrDebugRecord("phi",	   \
+						single_line_debug); 
+      TrancePhi(word_con, "phi");    break;}
+    case constant: {
+      debug_info_object.CreateAInstrDebugRecord("constant",	    \
+						single_line_debug); 
+      TranceConstant(word_con,"constant");break;}
+    case type: {
+      debug_info_object.CreateAInstrDebugRecord("type",	   \
+						single_line_debug); 
+      TranceType(word_con, "type");  break;}
     case getelementptr: {
-      
       if(find(word_con.vaCol.begin(), word_con.vaCol.end(), \
 	      "store")!= word_con.vaCol.end()){
+	
+	debug_info_object.CreateAInstrDebugRecord("store",	   \
+						  single_line_debug); 
 	TranceStore(word_con, "store");
       }
       else if(find(word_con.vaCol.begin(), word_con.vaCol.end(), \
 		   "call") != word_con.vaCol.end()){
+	debug_info_object.CreateAInstrDebugRecord("call",	     \
+						  single_line_debug); 
 	TranceCall(word_con, "call"); 
 	
       }
       else if(find(word_con.vaCol.begin(), word_con.vaCol.end(), \
 		   "load") != word_con.vaCol.end()){
+	debug_info_object.CreateAInstrDebugRecord("load",	   \
+						  single_line_debug); 
 	TranceLoad(word_con, "load");
       }
       else{
+	debug_info_object.CreateAInstrDebugRecord("getelementptr", \
+						  single_line_debug); 
 	TranceGetelementptr(word_con, "getelementptr");      
+	
       }
       break;
     }
-    case bitcast:            TranceBitcast(word_con, "bitcast"); break;
+    case bitcast: {
+      if(find(word_con.vaCol.begin(), word_con.vaCol.end(), \
+	      "call") != word_con.vaCol.end()){
+	debug_info_object.CreateAInstrDebugRecord("call",	 \
+						single_line_debug); 
+	TranceCall(word_con, "call");
+      }
+      else {
+	debug_info_object.CreateAInstrDebugRecord("bitcast",	  \
+						  single_line_debug); 
+	TranceBitcast(word_con, "bitcast"); break;}
+    }
     default: break;
     }
+
+    //    debug_info_object.CreateAInstrDebugRecord(case_name,	   \
+    //					      single_line_debug); 
   }
  
 };

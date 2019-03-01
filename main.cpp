@@ -11,6 +11,7 @@
 #include "analysis_IR.h"
 #include "out_put_fun.h"
 #include "trance_fun.h"
+#include "debug_info.h"
 
 
 using namespace::std;
@@ -60,15 +61,21 @@ int main(int argv, char **argc){
 
   //precedure section of the program 
   //the beginning of program
-   ProgramBegin();
+  ProgramBegin();
   //deal with mutifiles
-  for(auto elem : input_file_name){
-  //open inputFile
-    OpenFileAndDeal(elem);
-    OutPutOrg("\n;;;----Another file", " ");
+  for(int i = 0; i < input_file_name.size(); i++){
+    //open inputFile
+    OpenFileAndDeal(input_file_name[i]);
+    if(i != input_file_name.size() - 1){
+      OutPutOrg("\n;;;    Another file", " ");
+    }
   }
   //the interrupt of the program 
    ProgramHint();
+
+   DebugInfo debug_info_obj = DebugInfo();
+   debug_info_obj.PrintAddrDebugInfo();
+   debug_info_obj.PrintInstrDebugInfo();
   
   //close outputFile
   CloseOutPutFile();

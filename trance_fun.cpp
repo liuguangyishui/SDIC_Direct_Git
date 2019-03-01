@@ -335,10 +335,10 @@ void TranceLoad(SplitWord wordCon, string IR_name){
     //destination variable type
     string op_des_type = VEC[3];
     //struct name
-    string struct_name = VEC[9].substr(1);
+    string struct_name = VEC[9];
     //which elem
     int elem_index = ChangeStrToDec(VEC[13]);
-    
+
     RegManage * reg_manage_obj = RegManage::getInstance(); 
     MemoryManage memory_manage_obj = MemoryManage();   
     //add fun name before variable
@@ -386,6 +386,7 @@ void TranceLoad(SplitWord wordCon, string IR_name){
       reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
       vector<string> op_des_addr =				\
 	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+
       if(elem_addr.size() != op_des_addr.size()){
 	cout << "TranceLoad(): op_des size and op_src size no "\
 	  "equal!" << endl;
@@ -414,9 +415,9 @@ void TranceLoad(SplitWord wordCon, string IR_name){
     DataStoreInfo core_info; //reg_name;
     //the two regex are used to distict global var or general var
     //global var
-    regex reg1("@.+"); 
+    regex reg1(".*@.+"); 
     // general var
-    regex reg2("\%.+"); 
+    regex reg2(".*\%.+"); 
     RegManage* reg_manage_obj = RegManage::getInstance();
     
     //add fun name before variable
@@ -432,6 +433,7 @@ void TranceLoad(SplitWord wordCon, string IR_name){
     } else if(regex_match(op_src, reg2)){
       core_info = reg_manage_obj->GetAllInfoFromGenVal(op_src);
     }
+
     reg_manage_obj->CopyAMapForGenVal(op_des, core_info);
   }
 #undef VEC
@@ -439,7 +441,7 @@ void TranceLoad(SplitWord wordCon, string IR_name){
 
 void TranceStore(SplitWord wordCon, string IR_name){
 #define VEC wordCon.vaCol
-           
+
   regex regular_expr_struct("%struct.*");
   //Store the value to the elem in array
   if(find(VEC.begin(), VEC.end(), "getelementptr") != VEC.end() && \
@@ -520,7 +522,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 						   elem_index);
       
       for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", src_addr_or_value_vec[j], IR_name);
+	OutPut("movlw", src_addr_or_value_vec[i], IR_name);
 	OutPut("movwf", "tablat", IR_name);
 	OutPut("movlw", elem_addr_vec[i].substr(0,2), IR_name);
 	OutPut("movwf", "tblptrh", IR_name);
@@ -544,23 +546,36 @@ void TranceStore(SplitWord wordCon, string IR_name){
 
     RegManage *reg_manage_obj = RegManage::getInstance();
     int reg_num = reg_manage_obj->HowBigType(op_src_type);
-
-    vector<string> op_src_vec = \
-      reg_manage_obj->GetSplitSectionOfANum(op_src, reg_num);
-    //we should know where the struct_var_name store?
-    int where_struct_var_name_store = \
-      reg_manage_obj->VarStoreWhichMap(struct_var_name);
-    vector<string> elem_addr_vec;
-    //the struct_var_name store in reg_addr_map
-    if(where_struct_var_name_store == 1){
-
+    //source variable, it may be a reg addr or split value
+    vector<string> src_addr_or_value_vec;
+    //decide the op_src wheather a register or a constance
+    //the reg_or_constant match register
+    //get the src value
+    regex reg_or_constant(".*\%.*");
+    if(regex_match(op_src, reg_or_constant)){
       //add fun name before variable
       string current_fun_name =				\
 	reg_manage_obj->GetValueFromWhichFunStack();
       if(!current_fun_name.empty()){
-	struct_var_name = current_fun_name + "." + struct_var_name;
+	op_src = current_fun_name + "." + op_src;
       }
-      
+
+      src_addr_or_value_vec = \
+	reg_manage_obj->GetActualAddrFromGenVal(op_src, 0);
+    }
+    //the src is constant
+    else {
+      src_addr_or_value_vec = \
+	reg_manage_obj->GetSplitSectionOfANum(op_src,reg_num);
+    }
+
+    //we should know where the struct_var_name store?
+    int where_struct_var_name_store = \
+      reg_manage_obj->VarStoreWhichMap(struct_var_name);
+
+    //the struct_var_name store in reg_addr_map
+    if(where_struct_var_name_store == 1){
+ 
       reg_manage_obj->GetActualAddrFromGenVal(struct_var_name,  \
 					      elem_index);	    
     } 
@@ -568,34 +583,48 @@ void TranceStore(SplitWord wordCon, string IR_name){
     //the shruct_var_name don't be stored in data area map.
     //because the variable store in data area map is constant
     else if(where_struct_var_name_store == 2){
-      elem_addr_vec = \
+      vector<string> elem_addr_vec =			       \
 	reg_manage_obj->GetActualAddrFromGlobalVal(struct_var_name,\
+						   elem_index); 
+      for(int i = 0; i < reg_num; i++){
+	OutPut("movlw", src_addr_or_value_vec[i], IR_name);
+	OutPut("movwf", elem_addr_vec[i], IR_name); 
+      }
+    }
+    //struc var_name store in data_area_map;
+    else if(where_struct_var_name_store == 4){
+      DataAreaManage *data_area_manage_obj = \
+	DataAreaManage::getInstance();
+      vector<string> elem_addr_vec =		\
+	data_area_manage_obj->GetActualAddrFromVal(struct_var_name,\
 						   elem_index);
+      for(int i = 0; i < reg_num; i++){
+	OutPut("movlw", src_addr_or_value_vec[i], IR_name);
+	OutPut("movwf", "tablat", IR_name);
+	OutPut("movlw", elem_addr_vec[i].substr(0,2), IR_name);
+	OutPut("movwf", "tblptrh", IR_name);
+	OutPut("movlw", elem_addr_vec[i].substr(2,4), IR_name);
+	OutPut("movwf", "tblptrl", IR_name);
+	OutPut("tblwr", "*", IR_name);
+      }
     }
     
-    for(int i = 0; i < reg_num; i++){
- 
-      OutPut("movlw", op_src_vec[i], IR_name);
-      OutPut("movwf", elem_addr_vec[i], IR_name); 
-    }
-
-
- 
   }
   //Store the value to the single variabel
   else{
-
+    
     string op_src1 = wordCon.vaCol[2];
     string op_src2 = wordCon.vaCol[4];
     string op_src1_type = wordCon.vaCol[1];
     string op_src2_type = wordCon.vaCol[3];
 
     RegManage* reg_manage_obj = RegManage::getInstance();
-            
+
     regex res(".*\%.*");
     //Instr: store R to R
     if(regex_match(op_src1, res)){
-    //if no fun parameter
+            
+      //if no fun parameter
       if(!reg_manage_obj->WhetherHaveFunPara()) { 
 	//add fun name before variable
 	string current_fun_name =			\
@@ -640,10 +669,16 @@ void TranceStore(SplitWord wordCon, string IR_name){
     } 
     //Instr: store Constant to R
     else {    
+      //add fun name before variable
+      string current_fun_name =				\
+	reg_manage_obj->GetValueFromWhichFunStack();
+      if(!current_fun_name.empty()){
+	op_src2 = current_fun_name + "." + op_src2;
+      }
 
       vector<string> reg_name_src =				\
 	reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
- 
+
       //Store a constance value into reg. Because a reg is only 
       //8 bit,
       //we have to splice a constant if this constant is large.
@@ -654,7 +689,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
       //trange the op_src1 to split section num
       vector<string> val_vec =					\
 	reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
-      
+
       for(int i = 0; i < val_vec.size(); i++){      
 	OutPut("movlw", val_vec[i], IR_name);
 	OutPut("movwf", reg_name_src[i], IR_name);
@@ -667,7 +702,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 
 void TranceAlloca(SplitWord wordCon, string IR_name){
 #define VEC wordCon.vaCol 
-  
+
   string var_name = wordCon.opCol[0];
   
   string var_type = wordCon.vaCol[3];
@@ -675,8 +710,8 @@ void TranceAlloca(SplitWord wordCon, string IR_name){
   //there is something that we should know.
   //the struct var_name is local variable, so we will 
   //store it into reg_addr_map
-  regex regular_expr_1("%struct.*");
-  if(regex_match(var_type, regular_expr_1)){
+  regex regular_expr_struct("%struct.*");
+  if(regex_match(var_type, regular_expr_struct)){
     RegManage* reg_manage_obj = RegManage::getInstance();
 
     //add fun name before variable
@@ -1478,7 +1513,7 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
      regex_match(VEC[4], regular_expr_struct)){
     RegManage* reg_manage_obj = RegManage::getInstance();
     //ex: @outer ,remove @
-    string struct_name = wordCon.vaCol[0].substr(1);
+    string struct_name = wordCon.vaCol[0];
     string struct_name_type = wordCon.vaCol[4];
     //allocate addr for the struct, -1 parameter represent the 
     //type is struct, each elem have different type
@@ -1509,7 +1544,7 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
 	  regex_match(VEC[3], regular_expr_struct)){
     RegManage* reg_manage_obj = RegManage::getInstance();
     //ex: @outer ,remove @
-    string struct_name = wordCon.vaCol[0].substr(1);
+    string struct_name = wordCon.vaCol[0];
     string struct_name_type = wordCon.vaCol[3];
     //allocate addr for the struct, -1 parameter represent the 
     //type is struct, each elem have different type
@@ -1542,18 +1577,64 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
   else if(find(VEC.begin(), VEC.end(), "global") != VEC.end() &&   \
 	  find(VEC.begin(), VEC.end(), "common") != VEC.end() &&   \
 	  find(VEC.begin(), VEC.end(), "x") != VEC.end() &&	   \
-	  find(VEC.begin(), VEC.end(), "zeroinitializer")!= VEC.end()){
+	  find(VEC.begin(), VEC.end(), "zeroinitializer") != \
+	  VEC.end()){
     
     RegManage* reg_manage_obj = RegManage::getInstance();
-    string op_des = wordCon.vaCol[0];
+    string array_name = wordCon.vaCol[0];
     //get the size of this array from IR instr
     int array_elem_num = GetArrayElemNum(wordCon);
     //get the elem type of the array from IR instr
     string array_elem_type = GetArrayElemType(wordCon);
     //allocate addr for the array
-    reg_manage_obj->AllocateRegToGlobalVal(wordCon.vaCol[0], \
+    reg_manage_obj->AllocateRegToGlobalVal(array_name, \
 					   array_elem_type, \
 					   array_elem_num);
+    vector<string> array_addr_vec = \
+      reg_manage_obj->GetAllActualAddrFromGlobalVal(array_name);
+    int reg_num = reg_manage_obj->HowBigType(array_elem_type);
+    
+    int k = 0;
+    for(int i = 0; i < array_elem_num; i++){  
+      vector<string> split_value =				\
+	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+      for(int j = 0; j < reg_num; j++){
+	OutPut("movlw", split_value[j], IR_name);
+	OutPut("movwf", array_addr_vec[k], IR_name);
+	++k;
+      }
+    }
+  }
+  //it is a global array, with zeroinitializer
+  else if(find(VEC.begin(), VEC.end(), "global") != VEC.end() && \
+	  find(VEC.begin(), VEC.end(), "x") != VEC.end() && \
+	  find(VEC.begin(), VEC.end(), "zeroinitializer") \
+	  != VEC.end()){
+    
+    RegManage* reg_manage_obj = RegManage::getInstance();
+    string array_name = wordCon.vaCol[0];
+    //get the size of this array from IR instr
+    int array_elem_num = GetArrayElemNum(wordCon);
+    //get the elem type of the array from IR instr
+    string array_elem_type = GetArrayElemType(wordCon);
+    //allocate addr for the array
+    reg_manage_obj->AllocateRegToGlobalVal(array_name,	    \
+					   array_elem_type, \
+					   array_elem_num);
+    vector<string> array_addr_vec =				\
+      reg_manage_obj->GetAllActualAddrFromGlobalVal(array_name);
+    int reg_num = reg_manage_obj->HowBigType(array_elem_type);
+    
+    int k = 0;
+    for(int i = 0; i < array_elem_num; i++){  
+      vector<string> split_value =				\
+	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+      for(int j = 0; j < reg_num; j++){
+	OutPut("movlw", split_value[j], IR_name);
+	OutPut("movwf", array_addr_vec[k], IR_name);
+	++k;
+      }
+    }
   }
   //it is a global array
   else if(find(VEC.begin(), VEC.end(), "global") != VEC.end() &&  \
@@ -1632,7 +1713,7 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
 }
 
 void TranceDefine(SplitWord wordCon, string IR_name){
-  
+
   if(firstFun == true){ //used for main
     firstFun = false;
     OutPutJump("bra", "begin", IR_name);
@@ -1650,7 +1731,7 @@ void TranceDefine(SplitWord wordCon, string IR_name){
   MemoryManage memory_manage_obj = MemoryManage();
   //updata the fun name that now doing process
   memory_manage_obj.SetValueToWhichFunStack(fun_name);
- 
+
   numPara = 0; //fun para number
   for(auto elem : wordCon.vaCol){ //How many para 
     if(strcmp(elem.c_str(), "signext") == 0){
@@ -1702,7 +1783,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
   else if(find(VEC.begin(), VEC.end(), "bitcast") != VEC.end() && \
 	  find(VEC.begin(), VEC.end(), "x") != VEC.end() && \
 	  find(VEC.begin(), VEC.end(), "to") != VEC.end()) {
-    string op_src = VEC[10].substr(1);
+    string array_name = VEC[10];
     string op_des = VEC[4];
 
     RegManage *reg_manage_obj = RegManage::getInstance();
@@ -1710,23 +1791,23 @@ void TranceCall(SplitWord wordCon, string IR_name){
     string current_fun_name = \
       reg_manage_obj->GetValueFromWhichFunStack();
     if(!current_fun_name.empty()){
-      op_src = current_fun_name + "." + op_src;
       op_des = current_fun_name + "." + op_des;
     }
     string last_op_des = IR_var_correspond_map.find(op_des)->second;
     IR_var_correspond_map.erase(op_des);
 
     DataStoreInfo core_info_op_src =			\
-      reg_manage_obj->GetAllInfoFromGenVal(op_src);
+      reg_manage_obj->GetAllInfoFromGenVal(array_name);
     //first delete the older record, and creat a new record
     //with actual addr core_info_op_src
     reg_manage_obj->DeleteRecordInGenVal(last_op_des);
     reg_manage_obj->CreateMapForGenVal(last_op_des, \
 				       core_info_op_src);
   }
-  else if(find(VEC.begin(), VEC.end(), "bitcast") != VEC.end() &&
-	  regex_match(VEC[6], regular_expr_struct)){
-    string op_src = wordCon.vaCol[8];
+  else if(find(VEC.begin(), VEC.end(), "bitcast") != VEC.end() && \
+	  find(VEC.begin(), VEC.end(), "to") != VEC.end() && \
+	  regex_match(VEC[7], regular_expr_struct)){
+    string struct_name = wordCon.vaCol[8];
     string op_des = wordCon.vaCol[4];
     
     RegManage *reg_manage_obj = RegManage::getInstance();
@@ -1734,7 +1815,6 @@ void TranceCall(SplitWord wordCon, string IR_name){
     string current_fun_name =				\
       reg_manage_obj->GetValueFromWhichFunStack();
     if(!current_fun_name.empty()){
-      op_src = current_fun_name + "." + op_src;
       op_des = current_fun_name + "." + op_des;
     }
     
@@ -1742,13 +1822,14 @@ void TranceCall(SplitWord wordCon, string IR_name){
     IR_var_correspond_map.erase(op_des);
 
     DataStoreInfo core_info_op_src = \
-      reg_manage_obj->GetAllInfoFromGenVal(op_src);
+      reg_manage_obj->GetAllInfoFromGenVal(struct_name);
     
+    reg_manage_obj->DeleteRecordInGenVal(last_op_src);
     reg_manage_obj->CreateMapForGenVal(last_op_src, \
 				       core_info_op_src);
     
   }
-  //this is fun call
+  //this is fun call and there are parameter to deliver
   else if(find(VEC.begin(), VEC.end(), "signext") != VEC.end()){ 
     regex reg("\%.+");
     
@@ -1779,8 +1860,9 @@ void TranceCall(SplitWord wordCon, string IR_name){
 	    OutPut("movf", op_src_vec[i], IR_name);
 	    OutPut("movwf", reg_name_fun_para[i], IR_name);
 	  }
-	} else {                     //the parameter is an constant
-       
+	} 
+	//the parameter is an constant
+	else {                    
 	  vector<string> op_src_vec = \
 	    reg_manage_obj->GetSplitSectionOfANum(op_src, reg_num);
 	  for(int i = 0; i < reg_num; i++){
@@ -1804,7 +1886,31 @@ void TranceCall(SplitWord wordCon, string IR_name){
     }
     */
   }
+  //this is fun call and there aren't parameter to deliver
+  else {
+    string op_des = VEC[0];
+    string op_des_type = VEC[3];
+    //change @fun_name to fun_name
+    string fun_name = VEC[4].substr(1);
+    RegManage *reg_manage_obj = RegManage::getInstance();
+    //add fun name before variable
+    string current_fun_name =				\
+      reg_manage_obj->GetValueFromWhichFunStack();
+    if(!current_fun_name.empty()){
+      op_des = current_fun_name + "." + op_des;
+    }
 
+    reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
+    vector<string> op_des_addr_vec = \
+      reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+    //call fun_name
+    OutPutJump("call", fun_name, IR_name);
+    //receive the return value to op_des
+    for(int i = 0; i < op_des_addr_vec.size(); i++){
+      OutPut("movf", RegManage::reserve_reg[i], IR_name);
+      OutPut("movwf", op_des_addr_vec[i], IR_name);
+    }
+  }
 #undef VEC
 }
 
@@ -2060,7 +2166,7 @@ void TranceConstant(SplitWord wordCon, string IR_name){
     //get the elem type of this array
     string array_elem_type = GetArrayElemType(wordCon);
     //array name
-    string array_name = wordCon.vaCol[0].substr(1);
+    string array_name = wordCon.vaCol[0];
     //allocate addr to this array variable, but these addr will 
     //store in the variable together
     reg_manage_obj->AllocateRegToGenVal(array_name, \
@@ -2112,7 +2218,7 @@ void TranceConstant(SplitWord wordCon, string IR_name){
     
     RegManage *reg_manage_obj = RegManage::getInstance();
     //struct variable name
-    string struct_name = VEC[0].substr(1);
+    string struct_name = VEC[0];
     //the type of the struct
     string struct_type = VEC[5];
 
@@ -2153,6 +2259,7 @@ void TranceConstant(SplitWord wordCon, string IR_name){
 	  find(VEC.begin(), VEC.end(), "constant") != VEC.end() && \
 	  find(VEC.begin(), VEC.end(), "zeroinitializer") != \
 	  VEC.end()){
+
     //get how manay elem the array have
     int array_elem_num = GetArrayElemNum(wordCon);
     //get the type of the array
@@ -2174,7 +2281,8 @@ void TranceConstant(SplitWord wordCon, string IR_name){
     if(addr_name.size() != 0){
       //k  is for the whole addr
       int k = 0;
-      for(int i = 0; i < addr_name.size(); i++){
+
+      for(int i = 0; i < array_elem_num; i++){
 	// string addr = ManageDataArea::getAddr_plus();
 	vector<string> value_vec = \
 	  data_area_manage_obj->GetSplitSectionOfANum("0", \
@@ -2191,6 +2299,7 @@ void TranceConstant(SplitWord wordCon, string IR_name){
 	}
       }
     }
+   
   }
   //inter constant array and global constant array, these variable
   //should be stored in the data area
@@ -2253,7 +2362,7 @@ void TranceConstant(SplitWord wordCon, string IR_name){
     DataAreaManage *data_area_manage_obj = \
       DataAreaManage::getInstance();
     //struct variable name
-    string struct_name = VEC[0].substr(1);
+    string struct_name = VEC[0];
     //the type of the struct
     string struct_type = VEC[3];
     //allocate addr for the struct, -1 parameter represent the 
@@ -2329,20 +2438,22 @@ void TranceType(SplitWord wordCon, string IR_name) {
 
 void TranceGetelementptr(SplitWord wordCon, string IR_name){
 #define VEC wordCon.vaCol  
-
+  
   regex regular_expr_struct("%struct.*");
   //get elem addr from struct variable
   if(regex_match(VEC[4], regular_expr_struct)){
     //struct name
-
-    string struct_name = wordCon.vaCol[6];
+    string struct_name = VEC[6];
     //op_destination 
-    string op_des = wordCon.vaCol[0];
+    string op_des = VEC[0];
+    string op_des_type = VEC[9];
     //which elem addr that we should take
     int elem_index = ChangeHexToDec(wordCon.vaCol[10]);
     
     RegManage *reg_manage_obj = RegManage::getInstance();
-
+    //the size of the elem that we need
+    int reg_num =					\
+      reg_manage_obj->HowBigType(op_des_type);
     //add fun name before variable
     string current_fun_name =				\
       reg_manage_obj->GetValueFromWhichFunStack();
@@ -2350,41 +2461,25 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
       struct_name = current_fun_name + "." + struct_name;
       op_des = current_fun_name + "." + op_des;
     }
+    
+    //get elem_index addr of this struct variable
+    vector<string> elem_addr_vec =				\
+      reg_manage_obj->GetActualAddrFromGenVal(struct_name,elem_index);
 
-    //get all addr of this struct variable
-    vector<string> addr_vec =				\
-      reg_manage_obj->GetActualAddrFromGenVal(struct_name, 1);
-    /*
-    MemoryManage memory_manage_obj = MemoryManage();
-    //get all elem type of the struct from the 
-    //variable_decalare_map
-    vector<string> each_elem_type =				\
-      memory_manage_obj.GetRecordVarDecalare(struct_name);
-    //the beginning elem addr that the elem we nedd 
-    int elem_addr;
-    for(int i = 0; i < elem_index; i++){
-      elem_addr += reg_manage_obj->HowBigType(each_elem_type[i]);
-    }
-    */
-    //the size of the elem that we need
-
-    int reg_num =					\
-      reg_manage_obj->HowBigType(wordCon.vaCol[9]);
-
-    //create a map in reg_addr_map, but not allocate actual addr
-    reg_manage_obj->AllocateRegToGenVal(op_des, VEC[9], reg_num);
-    //get the record of the op_des from map
-    vector<string> op_des_addr_vec =		     		\
-      reg_manage_obj->GetActualAddrFromGenVal(op_des, 1);
-
+    DataStoreInfo core_info;
+    core_info.virtual_addr = op_des;
+    core_info.data_type = op_des_type;
     //put the actual addr into the addr of the op_des 
-    for(int i = 0; i < addr_vec.size(); i++){
-      op_des_addr_vec.push_back(addr_vec[i]);
+    for(int i = 0; i < elem_addr_vec.size(); i++){
+      core_info.actual_addr.push_back(elem_addr_vec[i]);
+
     }
+    reg_manage_obj->CreateMapForGenVal(op_des, core_info);
+
   }
   //get elem addr from array variable
   else if(find(VEC.begin(), VEC.end(), "x") != VEC.end()){
-    string op_src = VEC[10];
+    string array_name = VEC[10];
     string op_des = VEC[0];
     string op_des_type = VEC[6].substr(0, VEC[6].size()-1);
     int elem_index = ChangeStrToDec(VEC[14]);
@@ -2395,23 +2490,21 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
     string current_fun_name =				\
       reg_manage_obj->GetValueFromWhichFunStack();
     if(!current_fun_name.empty()){
-      op_src = current_fun_name + "." + op_src;
+      array_name = current_fun_name + "." + array_name;
       op_des = current_fun_name + "." + op_des;
     }
 
     vector<string> elem_addr_vec =				   \
-      reg_manage_obj->GetActualAddrFromGenVal(op_src, elem_index);
+      reg_manage_obj->GetActualAddrFromGenVal(array_name, elem_index);
 
-    reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-    vector<string> op_des_addr_vec = \
-      reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-  
+    DataStoreInfo core_info;
+    core_info.virtual_addr = op_des;
+    core_info.data_type = op_des_type;
     for(int i = 0; i < elem_addr_vec.size(); i++){
-      OutPut("movf", elem_addr_vec[i], IR_name);
-      OutPut("movwf", op_des_addr_vec[i], IR_name);
+      core_info.actual_addr.push_back(elem_addr_vec[i]);
     }
+    reg_manage_obj->CreateMapForGenVal(op_des, core_info);	
   }
-
 
 }
 
@@ -2439,7 +2532,8 @@ void TranceBitcast(SplitWord wordCon, string IR_name){
     IR_var_correspond_map.insert(make_pair(op_des, op_src));
   }
   //deal with like "%4 = bitcat %struct.mystruct* %2 to i8*"
-  else if(regex_match(VEC[3], regular_expr_struct)){
+  else if(regex_match(VEC[3], regular_expr_struct) && 
+	  find(VEC.begin(), VEC.end(), "to") != VEC.end()){
     string op_des = wordCon.vaCol[0];
     string op_src = wordCon.vaCol[4];
 
@@ -2529,35 +2623,44 @@ GetStructValueFromIRInstr(SplitWord wordCon){
 
 
 void TranceRet(SplitWord wordCon, string IR_name){
-  // string opDes = wordCon.opCol[0];
-  string op_des = wordCon.vaCol[2];
-  string op_des_type = wordCon.vaCol[1];//?
-  RegManage* reg_manage_obj = RegManage::getInstance();
-  int reg_num = reg_manage_obj->HowBigType(op_des_type);
-  
-  regex reg("\%.+");
-  if(regex_match(op_des, reg)){ //return a constant or a variable 
-    //string addr = storeMap.find(op_des)->second;
-    vector<string> op_src = \
-      reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-
-    for(int i = 0; i < reg_num; i++){
-      //OutPut("movf", addr, IR_name);
-      OutPut("movf", op_src[i], IR_name);
-      OutPut("movwf", RegManage::reserve_reg[i], IR_name);
-    } 
-  } else {
-    vector<string> op_des_vec = \
-      reg_manage_obj->GetSplitSectionOfANum(op_des, reg_num);
-    //string op_src = op_des;
-    for(int i = 0; i < reg_num; i++){
-      OutPut("movlw", op_des_vec[i], IR_name);
-      OutPut("movwf", reg_manage_obj->reserve_reg[i], IR_name);
-    }
+  string second_para = wordCon.vaCol[1];
+  //if the fun not return value
+  if(!second_para.compare("void")){
+    return ;
   }
   
-  //OutPut("movwf", "0x1", IR_name);
-  
+  string op_src = wordCon.vaCol[2];
+  RegManage* reg_manage_obj = RegManage::getInstance();
+  int reg_num = reg_manage_obj->HowBigType(second_para);
+ 
+  regex reg("\%.+");
+  //return a constant or a variable
+  //the first is variable
+  if(regex_match(op_src, reg)){
+    //add fun name before variable
+    string current_fun_name =				\
+      reg_manage_obj->GetValueFromWhichFunStack();
+    if(!current_fun_name.empty()){
+      op_src = current_fun_name + "." + op_src;
+    }
+    
+    vector<string> op_src_addr_vec = \
+      reg_manage_obj->GetActualAddrFromGenVal(op_src, 0);
+    for(int i = 0; i < reg_num; i++){
+      OutPut("movf", op_src_addr_vec[i], IR_name);
+      OutPut("movwf", RegManage::reserve_reg[i], IR_name);
+    } 
+  }
+  //the fun return a constant
+  else {
+    vector<string> op_src_split_vec =			    	\
+      reg_manage_obj->GetSplitSectionOfANum(op_src, reg_num);
+
+    for(int i = 0; i < reg_num; i++){
+      OutPut("movlw", op_src_split_vec[i], IR_name);
+      OutPut("movwf", reg_manage_obj->reserve_reg[i], IR_name);
+    }
+  }  
 }
 
 
