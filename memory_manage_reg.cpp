@@ -393,7 +393,8 @@ bool RegManage::CheckAllOperatorType(string op_1, string op_2,	\
   int op_1_num = this->HowBigType(op_1);
   int op_2_num = this->HowBigType(op_2);
   int op_3_num = this->HowBigType(op_3);
-  return (op_1_num == op_2_num == op_3_num);
+  
+  return (op_1_num == op_2_num && op_2_num == op_3_num);
 }
 
 //delete a reacord in reg_addr_map and recycle the addr if this 

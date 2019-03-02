@@ -1027,16 +1027,18 @@ void TranceSub(SplitWord wordCon, string IR_name){
 	}
       }
     }
-  } else if(wordCon.opCol.size() >= 3){ //Instr: a = R - R
+  }
+  //Instr: a = R - R
+  else if(wordCon.opCol.size() >= 3){
     string op_des = wordCon.opCol[0];
     string op_src1 = wordCon.opCol[1];
     string op_src2 = wordCon.opCol[2];
-    
+
     string op_des_type = wordCon.vaCol[4];
     string op_src1_type = wordCon.vaCol[4];
     string op_src2_type = wordCon.vaCol[4];
     
-        //add fun name before variable
+    //add fun name before variable
     string current_fun_name =				\
       reg_manage_obj->GetValueFromWhichFunStack();
     if(!current_fun_name.empty()){
@@ -1045,12 +1047,7 @@ void TranceSub(SplitWord wordCon, string IR_name){
       op_src2 = current_fun_name + "." + op_src2;
     }
 
-    //    allocaReg(opDes);
     reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-
-    //string regNameSrc1 = getRegValue(opSrc1);
-    //string regNameSrc2 = getRegValue(opSrc2);
-    //string regNameDes = getRegValue(opDes);
 
     vector<string> op_src1_vec = \
       reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
@@ -1067,7 +1064,8 @@ void TranceSub(SplitWord wordCon, string IR_name){
 	OutPut("movf", op_src2_vec[0], IR_name);
 	OutPut("subwf", op_src1_vec[0], IR_name);
 	OutPut("movwf", reg_name[0], IR_name);
-      } else if(reg_num != 1){
+      }
+      else if(reg_num != 1){
 	
 	for(int i = 0; i < reg_num; i++){
 	  OutPut("movf", op_src2_vec[i], IR_name);
@@ -1471,10 +1469,12 @@ void TranceZext(SplitWord wordCon, string IR_name){
 //
 void TranceLabel(SplitWord wordCon, string IR_name){
   string label_name = wordCon.vaCol[2];
-  string label_name_type = wordCon.vaCol[1];//?
+  //string label_name_type = wordCon.vaCol[1];//?
   
   OutPutLabel(label_name, IR_name);
   
+  //?????????????
+  /*
   label_name = "%" + label_name;
 
   RegManage* reg_manage_obj = RegManage::getInstance();
@@ -1490,7 +1490,8 @@ void TranceLabel(SplitWord wordCon, string IR_name){
       OutPut("movlw", constant_1[i], IR_name);
       OutPut("movwf", op_des[i], IR_name);
     }
-  }
+    }*/
+
   //
   //if(getRegValue(labelName).compare(" ")){
    //string regName = getRegValue(labelName);
@@ -1713,24 +1714,63 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
 }
 
 void TranceDefine(SplitWord wordCon, string IR_name){
-
-  if(firstFun == true){ //used for main
+  //used for main, if this fun is main then we should
+  //do something
+  if(firstFun == true){ 
     firstFun = false;
     OutPutJump("bra", "begin", IR_name);
     OutPutLabel("begin", IR_name);
     OutPutJump("bra","main", IR_name);
   } 
-  
+
   string op_des = wordCon.vaCol[2];
   int index = op_des.find("(");
   string fun_name = op_des.substr(1, index-1);
- 
-  OutPutLabel(fun_name, IR_name);  //print fun name label
+  //print fun name label
+  OutPutLabel(fun_name, IR_name); 
 
-  
   MemoryManage memory_manage_obj = MemoryManage();
   //updata the fun name that now doing process
   memory_manage_obj.SetValueToWhichFunStack(fun_name);
+  
+  //this fun will receive parameter
+  //ex: define void @max(i32 signext, i32 signext) #0 {
+  if(find(wordCon.vaCol.begin(), wordCon.vaCol.end(), "signext") != \
+     wordCon.vaCol.end()){
+    vector<string> parameter_name;
+    vector<string> parameter_type;
+    //get the parameter name and type
+    GetParameterNameAndParameterType(wordCon, \
+				     parameter_name,
+				     parameter_type);
+    //how many parameter the fun have?
+    int parameter_num = parameter_type.size();
+    RegManage* reg_manage_obj = RegManage::getInstance();
+    //deliever the parameter
+    //put the reserve_reg to the local addr
+    int k = 0;
+    for(int i = 0; i < parameter_num; i++){
+      string op_des = "%" + to_string(i);
+      string op_des_type = parameter_type[i];
+      //add fun name before variable
+      string current_fun_name =					\
+	reg_manage_obj->GetValueFromWhichFunStack();
+      if(!current_fun_name.empty()){
+	op_des = current_fun_name + "." + op_des;
+      }
+      reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
+      vector<string> op_des_addr_vec =				\
+	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+      
+      for(int j = 0; j < op_des_addr_vec.size(); j++){
+	OutPut("movf", RegManage::reserve_reg[k++], IR_name);
+	OutPut("movwf", op_des_addr_vec[j], IR_name);
+      }
+    }
+    
+  }
+
+
 
   numPara = 0; //fun para number
   for(auto elem : wordCon.vaCol){ //How many para 
@@ -1739,10 +1779,6 @@ void TranceDefine(SplitWord wordCon, string IR_name){
     }
   }
 
-  // if(storeMap.size() > 0){
-  //  storeMap.clear();
-  //}
- 
 }
 
 void TranceCall(SplitWord wordCon, string IR_name){
@@ -1862,7 +1898,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
 	  }
 	  //get the parameter addr
 	  vector<string> parameter_addr_vec = reg_manage_obj-> \
-	    GetActualAddrFromGenVal(each_parameter_name, 1);
+	    GetActualAddrFromGenVal(each_parameter_name, 0);
 	  //deliver the parameter_addr to reserve_reg
 	  for(int i = 0; i < parameter_addr_vec.size(); i++){
 	    OutPut("movf", parameter_addr_vec[i], IR_name);
@@ -1885,7 +1921,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
     else if(!VEC[2].compare("call")){
       string op_des = VEC[0];
       string op_des_type = VEC[3];
-      
+
       vector<string> parameter_name;
       vector<string> parameter_type;
       //get the parameter name and type
@@ -1898,11 +1934,10 @@ void TranceCall(SplitWord wordCon, string IR_name){
       if(!current_fun_name.empty()){
 	op_des = current_fun_name + "." + op_des;
       }
-      
+
       reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
       vector<string> op_des_addr_vec = \
 	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-
       //the index of the reserve_reg
       int k = 0;
       //deal with each parameter
@@ -1921,7 +1956,8 @@ void TranceCall(SplitWord wordCon, string IR_name){
 	  }
 	  //get the parameter addr
 	  vector<string> parameter_addr_vec = reg_manage_obj-> \
-	    GetActualAddrFromGenVal(each_parameter_name, 1);
+	    GetActualAddrFromGenVal(each_parameter_name, 0);
+
 	  //deliver the parameter_addr to reserve_reg
 	  for(int i = 0; i < parameter_addr_vec.size(); i++){
 	    OutPut("movf", parameter_addr_vec[i], IR_name);
@@ -1948,65 +1984,11 @@ void TranceCall(SplitWord wordCon, string IR_name){
 	OutPut("movf", RegManage::reserve_reg[i], IR_name);
 	OutPut("movwf", op_des_addr_vec[i], IR_name);
       }
-
+      
     }
 
-    //get the variable of the parameter
-    //call void @max(i32 signext %11, i32 signext %12)
-    for(int i = 0; i < wordCon.vaCol.size(); i++){
-      if(strcmp(wordCon.vaCol[i].c_str(), "signext") == 0){
-	if(i+1 >= wordCon.vaCol.size()) return;
-	string op_src = wordCon.vaCol[++i];
-	string op_src_type = wordCon.vaCol[i - 2];
-	//add fun name before variable
-	string current_fun_name =			\
-	  reg_manage_obj->GetValueFromWhichFunStack();
-	if(!current_fun_name.empty()){
-	  op_src = current_fun_name + "." + op_src;
-	}
-       
-	int reg_num = reg_manage_obj->HowBigType(op_src_type);
-	//string regName_funPara = allocaReg_funPara(opSrc);
-	reg_manage_obj->AllocateRegToFunPara(op_src, op_src_type, 1);
-	vector<string> reg_name_fun_para =			\
-	  reg_manage_obj->GetActualAddrFromFunPara(op_src, 0);
-	
-	if(regex_match(op_src, reg)){
-	  //string regName = getRegValue(opSrc); 
-	  vector<string> op_src_vec = \
-	    reg_manage_obj->GetActualAddrFromGenVal(op_src, 0);
-	  for(int i = 0; i < reg_num; i++){
-	    OutPut("movf", op_src_vec[i], IR_name);
-	    OutPut("movwf", reg_name_fun_para[i], IR_name);
-	  }
-	} 
-	//the parameter is an constant
-	else {                    
-	  vector<string> op_src_vec = \
-	    reg_manage_obj->GetSplitSectionOfANum(op_src, reg_num);
-	  for(int i = 0; i < reg_num; i++){
-	    OutPut("movlw", op_src_vec[i], IR_name);
-	    OutPut("movwf", reg_name_fun_para[i], IR_name);
-	  }
-	}
-      	
-
-      }
-    }
-    string funName = wordCon.vaCol[4];  //change @funName to %funName
-    string subfunName = "%" + funName.substr(1);
-    OutPutJump("call", subfunName, IR_name);
-
-    
-    //if this fun have return value
-    //string opRet = wordCon.vaCol[0];
-    //if(regex_match(opRet, reg)){  
-    //  storeMap[opRet] = "0x1"; //all return value store in 0x1H
-    // }
-    
-    }
-  
-    //this is fun call and there aren't parameter to deliver
+  }  
+  //this is fun call and there aren't parameter to deliver
   else {
     //the fun no return value and parameter
     if(!VEC[0].compare("call")){
@@ -2760,19 +2742,38 @@ GetParameterNameAndParameterType(SplitWord wordCon,		  \
 				 vector<string>& parameter_name,   \
 				 vector<string>& parameter_type){
 #define VEC wordCon.vaCol
-  
-  for(int i = 0; i < VEC.size(); i++){
-    //befor the variable is signext
-    //ex:  %14 = call i32 @max(i32 signext %12, i32 signext %13)
-    if(!strcmp(VEC[i].c_str(), "signext") == 0) {
-      if(i+1 >= VEC.size()) return;
-      string op_src = VEC[++i];
-      string op_src_type = VEC[i - 2];
-      
-      parameter_name.push_back(op_src);
-      parameter_type.push_back(op_src_type);
+  //the IR instr is call a fun
+  if(find(VEC.begin(), VEC.end(), "call") != VEC.end()){
+
+    for(int i = 0; i < VEC.size(); i++){
+      //befor the variable is signext
+      //ex:  %14 = call i32 @max(i32 signext %12, i32 signext %13)
+      if(strcmp(VEC[i].c_str(), "signext") == 0) {
+	if(i+1 >= VEC.size()) return;
+	string op_src = VEC[++i];
+	string op_src_type = VEC[i - 2];
+	
+	parameter_name.push_back(op_src);
+	parameter_type.push_back(op_src_type);
+      }
     }
   }
+  //the IR instr is define a fun
+  else if(find(VEC.begin(), VEC.end(), "define") != VEC.end()){
+    
+    for(int i = 0; i < VEC.size(); i++){
+      //befor the variable is signext
+      //ex:  define i32 @max(i32 signext, i32 signext) #0 {
+      if(strcmp(VEC[i].c_str(), "signext") == 0) {
+	string op_src = " ";
+	string op_src_type = VEC[i - 1];
+	
+	parameter_name.push_back(op_src);
+	parameter_type.push_back(op_src_type);
+      }
+    }
+  }
+  
 }
 
 void TranceRet(SplitWord wordCon, string IR_name){
