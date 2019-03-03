@@ -52,8 +52,10 @@ void ProgramHint(){
   OutPutOrg("end", " ");
 }
 
-void coreAdd_And(SplitWord wordCon, string namewf, \
-		 string namelw, string IR_name){
+//coreAdd_And
+//core fun or logic operatore
+void CoreFunOfLogicOperator(SplitWord wordCon, string namewf, \
+			    string namelw, string IR_name){
   //Instr: a = R + Constant or reverse
   if(wordCon.opCol.size() <= 2){ 
     string op_des = wordCon.opCol[0];
@@ -70,92 +72,80 @@ void coreAdd_And(SplitWord wordCon, string namewf, \
     string current_fun_name = \
       reg_manage_obj->GetValueFromWhichFunStack();
     if(!current_fun_name.empty()){
-      op_src1 = current_fun_name + "." + op_src1;
-      op_src2 = current_fun_name + "." + op_src2;
       op_des = current_fun_name + "." + op_des;
     }
+    //deal with op_des
+    reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
+    vector<string> op_des_addr =			     	\
+      reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+    int reg_num = reg_manage_obj->HowBigType(op_src1_type);
     
     vector<string> value1, value2;
-    
     regex reg(".*\%.*");
     if(regex_match(op_src1, reg)){
+      op_src1 = current_fun_name + "." + op_src1;
       value1 = reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
     } else{
       //     value1 = opSrc1;
     }
     //Instr: a = Constant + R
     if(regex_match(op_src2, reg)){  
+      if(!current_fun_name.empty()){
+	op_src2 = current_fun_name + "." + op_src2;
+      }
       value2 = reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
-      int reg_num = reg_manage_obj->HowBigType(op_src1_type);
       value1 = reg_manage_obj->GetSplitSectionOfANum(op_src1, \
 						     reg_num);
- 
-      reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-      vector<string> reg_name =			\
-	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-
       if(reg_manage_obj->CheckAllOperatorType(op_src1_type,	\
     					     op_src2_type,	\
 					     op_des_type)){
 	for(int i = 0; i < reg_num; i++){
 	  OutPut("movf", value2[i], IR_name);
 	  OutPut(namelw, value1[i], IR_name);
-	  OutPut("movwf", reg_name[i], IR_name);
+	  OutPut("movwf", op_des_addr[i], IR_name);
 	}
       }
       return; 
     } 
     //Instr: a = R + Constant
     else {                      
+      //Instr: ~A
       if(!op_src2.compare("-1") && !namelw.compare("xorlw")){
 	
-	reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-	vector<string> reg_name =			\
-	  reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-	int reg_num = reg_manage_obj->HowBigType(op_src1_type);
 	if(reg_manage_obj->CheckAllOperatorType(op_src1_type, \
-					      op_des_type)){
-	  
+					      op_des_type)){  
 	  for(int i = 0; i < reg_num; i++){
 	    OutPut("comf", value1[i], IR_name); //Instr: ~A
-	    OutPut("movwf", reg_name[i], IR_name);
+	    OutPut("movwf", op_des_addr[i], IR_name);
 	  }
 	} 
-      } else if(!op_src2.compare("true") && \
+      }
+      //Instr: B = !A
+      else if(!op_src2.compare("true") &&	\
 		!namelw.compare("xorlw")){
 	//Instr: B = !A
-	reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-	vector<string> reg_name =			\
-	  reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-
-	int reg_num = reg_manage_obj->HowBigType(op_des_type);
 	vector<string> constant = \
 	  reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
-	
 	if(reg_manage_obj->CheckAllOperatorType(op_src1_type, \
 					       op_des_type)){
 	  for(int i = 0; i < reg_num; i++){
 	    OutPut("movlw", constant[i], IR_name);
 	    //OutPut("movlw", "1");
 	    OutPut(namelw, value1[i], IR_name);
-	    OutPut("movwf", reg_name[i], IR_name);
+	    OutPut("movwf", op_des_addr[i], IR_name);
 	  }
 	}
 	
-      } else {
-	reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-	vector<string> reg_name =				\
-	  reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-	int reg_num = reg_manage_obj->HowBigType(op_des_type);
+      }
+      else {
 	vector<string> constant = \
 	  reg_manage_obj->GetSplitSectionOfANum(op_src2, reg_num);
-	
 	if(reg_manage_obj->CheckAllOperatorType(op_src1_type, \
 					       op_des_type)){
 	  for(int i = 0; i < reg_num; i++){
 	    OutPut("movf", value1[i], IR_name);
 	    OutPut(namelw, constant[i], IR_name);
-	    OutPut("movwf", reg_name[i], IR_name);
+	    OutPut("movwf", op_des_addr[i], IR_name);
 	  }
 	}
       }
@@ -167,7 +157,7 @@ void coreAdd_And(SplitWord wordCon, string namewf, \
     string op_src1 = wordCon.opCol[1];
     string op_src2 = wordCon.opCol[2];
 
-    string op_des_type = wordCon.vaCol[4];//?
+    string op_des_type = wordCon.vaCol[3];
     
     RegManage* reg_manage_obj = RegManage::getInstance();
     
@@ -187,12 +177,10 @@ void coreAdd_And(SplitWord wordCon, string namewf, \
     reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
     vector<string> reg_name =			\
       reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-    //string value1 = getRegValue(opSrc1);
-    //string value2 = getRegValue(opSrc2);
-    //allocaReg(opDes);
-    //string reg_name = getRegValue(opDes);
+
     int reg_num = reg_name.size();
-    if(value1.size() == value2.size() == reg_name.size()){
+    if(value1.size() == value2.size() && \
+       value2.size() == reg_name.size()){
       for(int i = 0; i < reg_num; i++){
 	
 	OutPut("movf", value1[i], IR_name);
@@ -623,7 +611,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
     regex res(".*\%.*");
     //Instr: store R to R
     if(regex_match(op_src1, res)){
-            
+
       //if no fun parameter
       if(!reg_manage_obj->WhetherHaveFunPara()) { 
 	//add fun name before variable
@@ -633,9 +621,10 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	  op_src1 = current_fun_name + "." + op_src1;
 	  op_src2 = current_fun_name + "." + op_src2;
 	}
-
+	
 	vector<string> reg_name_src1 =				\
 	  reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
+
 	vector<string> reg_name_src2 =				\
 	  reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
 
@@ -762,34 +751,39 @@ void TranceAlloca(SplitWord wordCon, string IR_name){
 }
 
 void  TranceAdd(SplitWord wordCon, string IR_name){
-  
+
   RegManage* reg_manage_obj = RegManage::getInstance();  
   //Instr: a = R + Constant or reverse
   if(wordCon.opCol.size() <= 2){ 
     string op_des = wordCon.opCol[0];
     string op_src1 = wordCon.vaCol[5];
     string op_src2 = wordCon.vaCol[6];
-    
-    string op_des_type = wordCon.opCol[4];
+
+    string op_des_type = wordCon.vaCol[4];
     string op_src1_type = wordCon.vaCol[4];
     string op_src2_type = wordCon.vaCol[4];
-    
+  
     vector<string> value1, value2;
-
     //add fun name before variable
     string current_fun_name =				\
       reg_manage_obj->GetValueFromWhichFunStack();
     if(!current_fun_name.empty()){
       op_des = current_fun_name + "." + op_des;
-      op_src1 = current_fun_name + "." + op_src1;
-      op_src2 = current_fun_name + "." + op_src2;
     }
-
+    //deal with destination
+    reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);      
+    vector<string> op_des_addr =			       \
+      reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+    
     //the section judge op_src1 whether is a reg or a constant
     regex reg("\%.*");
-    if(regex_match(op_src1, reg)){
+    if(regex_match(op_src1, reg)){  
+      if(!current_fun_name.empty()){
+	op_src1 = current_fun_name + "." + op_src1;
+      }
       value1 = reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
-    } else{
+    } 
+    else{
       //value1 = op_src1; //?
     }
     
@@ -797,21 +791,21 @@ void  TranceAdd(SplitWord wordCon, string IR_name){
     if(regex_match(op_src2, reg)){  
       //deal with the data type
       int reg_num = reg_manage_obj->HowBigType(op_src2_type);
+      if(!current_fun_name.empty()){
+	op_src2 = current_fun_name + "." + op_src2;
+      }
       //get reg value2 addr 
       value2 = reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
       //get constant
       vector<string> constant = \
 	reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
-      //deal with destination
-      reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);      
-      vector<string> reg_name = \
-	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
       if(reg_num == 1){
 	//value2 is reg, value1 is constant 
 	OutPut("movf", value2[0], IR_name);
 	OutPut("addlw", constant[0], IR_name);
-	OutPut("movwf", reg_name[0], IR_name);
-      } //if the data type not 8 bit, then still deal with 
+	OutPut("movwf", op_des_addr[0], IR_name);
+      }
+      //if the data type not 8 bit, then still deal with 
       else if(reg_num != 1){
 	for(int i = 0; i < reg_num; i++){
 	  OutPut("movf", constant[i], IR_name);
@@ -821,11 +815,13 @@ void  TranceAdd(SplitWord wordCon, string IR_name){
 	    OutPut("addwf", RegManage::reserve_reg[0], IR_name);
 	  else 	        
 	    OutPut("addwfc", RegManage::reserve_reg[0], IR_name);
-	  OutPut("movwf", reg_name[i], IR_name);
+	  OutPut("movwf", op_des_addr[i], IR_name);
 	}
       }
       return;  
-    } else {                      //Instr: a = R + Constant
+    } 
+    //Instr: a = R + Constant
+    else {                      
       //for descrement. change add to sub
       if(!op_src2.compare("-1")){   
 	//get number reg by data type
@@ -858,22 +854,21 @@ void  TranceAdd(SplitWord wordCon, string IR_name){
 	    OutPut("movwf", reg_name[i], IR_name);
 	  }
 	}
-      } else {
+      } 
+      else {
 	int reg_num = reg_manage_obj->HowBigType(op_src2_type);
 	vector<string> constant = \
 	  reg_manage_obj->GetSplitSectionOfANum(op_src2, reg_num);
 
-	reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-	vector<string> reg_name = \
-	  reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-	
 	if(reg_num == 1){
 	  //value2 is reg, value1 is constant 
 	  OutPut("movf", value1[0], IR_name);
 	  OutPut("addlw", constant[0], IR_name);
-	  OutPut("movwf", reg_name[0], IR_name);
-	} //if the data type not 8 bit, then still deal with 
+	  OutPut("movwf", op_des_addr[0], IR_name);
+	}
+	//if the data type not 8 bit, then still deal with 
 	else if(reg_num != 1){
+
 	  for(int i = 0; i < reg_num; i++){
 	    OutPut("movf", constant[i], IR_name);
 	    OutPut("movwf", RegManage::reserve_reg[0], IR_name);
@@ -882,15 +877,9 @@ void  TranceAdd(SplitWord wordCon, string IR_name){
 	      OutPut("addwf", RegManage::reserve_reg[0], IR_name);
 	    else         
 	      OutPut("addwfc", RegManage::reserve_reg[0], IR_name);   
-	    OutPut("movwf", reg_name[i], IR_name);
+	    OutPut("movwf", op_des_addr[i], IR_name);
 	  }
 	}
-
-		
-	//value2 = op_src2;
-	//OutPut("movf", value1);
-	//OutPut("addlw", value2);
-	//OutPut("movwf", reg_name);
 	
       }
     }
@@ -956,38 +945,41 @@ void TranceSub(SplitWord wordCon, string IR_name){
       reg_manage_obj->GetValueFromWhichFunStack();
     if(!current_fun_name.empty()){
       op_des = current_fun_name + "." + op_des;
-      op_src1 = current_fun_name + "." + op_src1;
-      op_src2 = current_fun_name + "." + op_src2;
     }
-
+    reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
+    vector<string> op_des_addr =			       \
+      reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+    int reg_num = reg_manage_obj->HowBigType(op_src1_type);
+    
     vector<string> value1, value2;
 
     regex res("\%.*");
     if(regex_match(op_src1, res)){
-      //value1 = getRegValue(opSrc1);
+      if(!current_fun_name.empty()){
+	op_src1 = current_fun_name + "." + op_src1;
+      }
       value1 = reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
     } else {  //op_src1 represent a constant value
       //value1 = op_src1;
     } 
-    if(regex_match(op_src2, res)){ //Instr: a = constant - R
+    //Instr: a = constant - R
+    if(regex_match(op_src2, res)){ 
       //value2 is Reg and value1 is a constant
+      if(!current_fun_name.empty()){
+	op_src2 = current_fun_name + "." + op_src2;
+      }      
       value2 = reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
-      int reg_num = reg_manage_obj->HowBigType(op_src1_type);
       value1 = reg_manage_obj->GetSplitSectionOfANum(op_src1, \
 						    reg_num);
-      
-      reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-      vector<string> reg_name =				\
-	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-      
       if(reg_manage_obj->CheckAllOperatorType(op_src1_type, \
 					     op_src2_type, \
 					     op_des_type)){
 	if(reg_num == 1){
 	  OutPut("movf", value2[0], IR_name);
 	  OutPut("sublw", value1[0], IR_name);
-	  OutPut("movwf", reg_name[0], IR_name);
-	} else if(reg_num != 1){
+	  OutPut("movwf", op_des_addr[0], IR_name);
+	} 
+	else if(reg_num != 1){
 	  for(int i = 0; i < reg_num; i++){
 	    OutPut("movf", value1[i], IR_name);
 	    OutPut("movwf", RegManage::reserve_reg[0], IR_name);
@@ -996,7 +988,7 @@ void TranceSub(SplitWord wordCon, string IR_name){
 	      OutPut("subwf", RegManage::reserve_reg[0], IR_name);
 	    else       
 	      OutPut("subwfb", RegManage::reserve_reg[0], IR_name);
-	    OutPut("movwf", reg_name[i], IR_name);
+	    OutPut("movwf", op_des_addr[i], IR_name);
 	  }
 	}
       }
@@ -1004,26 +996,22 @@ void TranceSub(SplitWord wordCon, string IR_name){
     } 
     //Instr: a = R - Constant
     else {                    
-      reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-      vector<string> reg_name = \
-	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
       //value2 is constant and value1 is reg
-      int reg_num = reg_manage_obj->HowBigType(op_src2_type);
       value2 =							\
 	reg_manage_obj->GetSplitSectionOfANum(op_src2, reg_num);
-      //      value2 = op_src2;
 
       if(reg_num == 1){
 	OutPut("movlw", value2[0], IR_name);
 	OutPut("subwf", value1[0], IR_name);
-	OutPut("movwf", reg_name[0], IR_name);
-      } else if(reg_num != 1){
+	OutPut("movwf", op_des_addr[0], IR_name);
+      }
+      else if(reg_num != 1){
 	
 	for(int i = 0; i < reg_num; i++){
 	  OutPut("movlw", value2[i], IR_name);
 	  if(i == 0)	  OutPut("subwf", value1[i], IR_name);
 	  else            OutPut("subwfb", value1[i], IR_name);
-	  OutPut("movwf", reg_name[i], IR_name);
+	  OutPut("movwf", op_des_addr[i], IR_name);
 	}
       }
     }
@@ -1116,245 +1104,198 @@ void TranceFcmp(SplitWord wordCon, string IR_name){
 //btfsc: if the bit is 0, then ignore the next statement;
 //btfss: if the bit is 1, then ignore the next statement
 //
- void TranceBr(SplitWord wordCon, string IR_name){
-  if(wordCon.opCol.size() >= 2){ //Instr: for br %x %x %x
-    string instrName = lastInstrName;     //decide by last instrName
-    
-    string beforeOpBlock1 = wordCon.vaCol[4];
-    string beforeOpBlock2 = wordCon.vaCol[6];
-
-    string beforeOpBlock1_type = "i8";
-    string beforeOpBlock2_type = "i8";
-    
+void TranceBr(SplitWord wordCon, string IR_name){
+  //Instr: for br %x %x %x
+  if(wordCon.opCol.size() >= 2){ 
+    //lastInstrName is global variable. it write in trancefcmp() fun
+    //because this instr need some info from last instr
+    string instrName = lastInstrName;   
     RegManage* reg_manage_obj = RegManage::getInstance();
-    
     //add fun name before variable
     string current_fun_name =				\
       reg_manage_obj->GetValueFromWhichFunStack();
+    
+    //----------
+    string beforeOpBlock1 = wordCon.vaCol[4];
+    string beforeOpBlock2 = wordCon.vaCol[6];
+    
+    //add fun name before variable
     if(!current_fun_name.empty()){
       beforeOpBlock1 = current_fun_name + "." + beforeOpBlock1;
       beforeOpBlock2 = current_fun_name + "." + beforeOpBlock2;
     }
 
-    //allocaReg(beforeOpBlock1);
-    //allocaReg(beforeOpBlock2);
-    
     reg_manage_obj->AllocateRegToGenVal(beforeOpBlock1,		\
-					beforeOpBlock1_type, 1);
+					"i8", 1);
     reg_manage_obj->AllocateRegToGenVal(beforeOpBlock2,\
-					beforeOpBlock2_type, 1);
-
+					"i8", 1);
     vector<string> res_op1 =					\
       reg_manage_obj->GetActualAddrFromGenVal(beforeOpBlock1, 0);
     vector<string> res_op2 =					\
       reg_manage_obj->GetActualAddrFromGenVal(beforeOpBlock2, 0);
 
-    int reg_num = reg_manage_obj->HowBigType(beforeOpBlock1_type);
-    vector<string> constant =					\
-      reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
-
-    for(int i = 0; i < reg_num; i++){
-
-      OutPut("movlw", constant[i], IR_name);
-      //OutPut("movwf", getRegValue(beforeOpBlock1));
-      //OutPut("movwf", getRegValue(beforeOpBlock2));
+    OutPut("movlw", "0", IR_name);
+    for(int i = 0; i < 1; i++){
       OutPut("movwf", res_op1[i], IR_name);
       OutPut("movwf", res_op2[i], IR_name);
-    }
-    string opBlock1 = wordCon.vaCol[4].substr(1);
-    string opBlock2 = wordCon.vaCol[6].substr(1);
+     }
+     //-------------    
+        
+     string test_name = wordCon.vaCol[2];
+     string inner_label = wordCon.vaCol[2].substr(1);
+     //add fun name before variable
+     if(!current_fun_name.empty()){
+       test_name = current_fun_name + "." + test_name;
+     }
+     vector<string> reg_name_test =				\
+       reg_manage_obj->GetActualAddrFromGenVal(test_name, 0);
+     int reg_num = reg_name_test.size();
     
-    if(!instrName.compare("le")){         //Instr: a <= b
-      OutPut("btfsc", "STATUS", 0, 1, IR_name);
-      OutPutJump("bra", opBlock1, IR_name);
-      OutPutJump("bra", opBlock2, IR_name);
-    } else if(!instrName.compare("ge")){  //Instr: a >= b
-      OutPut("btfss", "STATUS", 0, 1, IR_name);
-      OutPutJump("bra", opBlock1, IR_name);
-      OutPutJump("bra", opBlock2, IR_name);
-
-    } else if(!instrName.compare("lt")){ //Instr: a < b
-      string test_name = wordCon.vaCol[2];
-      string test_name_type = wordCon.vaCol[1];//?
-      
-      //add fun name before variable
-      string current_fun_name =				\
-	reg_manage_obj->GetValueFromWhichFunStack();
-      if(!current_fun_name.empty()){
-	test_name = current_fun_name + "." + test_name;
-      }
-
-      vector<string> reg_name_test = \
-	reg_manage_obj->GetActualAddrFromGenVal(test_name, 0);
-      int reg_num = reg_manage_obj->HowBigType(test_name_type);
-      vector<string> constant = \
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
-      
-      for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", constant[i], IR_name);
-	OutPut("cpfseq", reg_name_test[i], IR_name);
-      }
-      OutPut("btfss", "STATUS", 0, 1, IR_name);
-      OutPutJump("bra", opBlock2, IR_name);
-      OutPutJump("bra", opBlock1, IR_name);
+     string opBlock1 = wordCon.vaCol[4].substr(1);
+     string opBlock2 = wordCon.vaCol[6].substr(1);
+     //Instr: a <= b
+     if(!instrName.compare("le")){
+       OutPut("btfsc", "STATUS", 0, 1, IR_name);
+       OutPutJump("bra", opBlock1, IR_name);
+       OutPutJump("bra", opBlock2, IR_name);
+     } 
+     //Instr: a >= b
+     else if(!instrName.compare("ge")){  
+       OutPut("btfss", "STATUS", 0, 1, IR_name);
+       OutPutJump("bra", opBlock1, IR_name);
+       OutPutJump("bra", opBlock2, IR_name);
+     } 
+     //Instr: a < b
+     else if(!instrName.compare("lt")){
+       OutPut("movlw", "0", IR_name);
+       for(int i = 0; i < reg_num - 1; i++){
+	 OutPut("cpfseq", reg_name_test[i], IR_name);
+	 OutPutJump("bra", inner_label, IR_name);
+       }
+       OutPut("cpfseq", reg_name_test[reg_num - 1], IR_name);
+       OutPutLabel(inner_label, IR_name);
+       OutPut("btfss", "STATUS", 0, 1, IR_name);
+       OutPutJump("bra", opBlock2, IR_name);
+       OutPutJump("bra", opBlock1, IR_name);    
+     }
+     //Instr: a > b
+     else if(!instrName.compare("gt")){
+       OutPut("movlw", "0", IR_name);      
+       for(int i = 0; i < reg_num - 1; i++){
+	 OutPut("cpfseq", reg_name_test[i], IR_name);
+	 OutPutJump("bra", inner_label, IR_name);
+       }
+       OutPut("cpfseq", reg_name_test[reg_num - 1], IR_name);
+       OutPutLabel(inner_label, IR_name);
+       OutPut("btfsc", "STATUS", 0, 1, IR_name);
+       OutPutJump("bra", opBlock2, IR_name);
+       OutPutJump("bra", opBlock1, IR_name);
+     }
+     //Instr: a != b ?
+     else if(!instrName.compare("ne")){
+       OutPut("movlw", "0", IR_name);
+       for(int i = 0; i < reg_num - 1; i++){
+	 OutPut("cpfseq", reg_name_test[i], IR_name);
+	 OutPutJump("bra", inner_label, IR_name);
+       }
+       OutPut("cpfseq", reg_name_test[reg_num - 1], IR_name);
+       OutPutLabel(inner_label, IR_name);
+       OutPutJump("bra", opBlock1, IR_name);
+       OutPutJump("bra", opBlock2, IR_name);
+     }
+     //Instr: a == b?
+     else if(!instrName.compare("eq")){
+       OutPut("movlw", "0", IR_name);
+       for(int i = 0; i < reg_num - 1; i++){
+	 OutPut("cpfseq", reg_name_test[i], IR_name);
+	 OutPutJump("bra", inner_label, IR_name);
+       }
+       OutPut("cpfseq", reg_name_test[reg_num - 1], IR_name);
+       OutPutLabel(inner_label, IR_name);
+       OutPutJump("bra", opBlock2, IR_name);
+       OutPutJump("bra", opBlock1, IR_name);
+     }
     
-    } else if(!instrName.compare("gt")){ //Instr: a > b
-      string test_name = wordCon.vaCol[2];
-      string test_name_type = wordCon.vaCol[1];//?
-
-      //add fun name before variable
-      string current_fun_name =				\
-	reg_manage_obj->GetValueFromWhichFunStack();
-      if(!current_fun_name.empty()){
-	test_name = current_fun_name + "." + test_name;
-      }
-
-      vector<string> reg_name_test =				\
-	reg_manage_obj->GetActualAddrFromGenVal(test_name, 0);
-      int reg_num = reg_manage_obj->HowBigType(test_name_type);
-      vector<string> constant =			\
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
-      
-      for(int i = 0; i < reg_num; i++){
-
-	OutPut("movlw", constant[i], IR_name);
-	OutPut("cpfseq", reg_name_test[i], IR_name);
-      }
-      OutPut("btfsc", "STATUS", 0, 1, IR_name);
-      OutPutJump("bra", opBlock2, IR_name);
-      OutPutJump("bra", opBlock1, IR_name);
-    } else if(!instrName.compare("ne")){ //Instr: a != b ?
-      string test_name = wordCon.vaCol[2];
-      string test_name_type = wordCon.vaCol[1];//?
-
-      //add fun name before variable
-      string current_fun_name =				\
-	reg_manage_obj->GetValueFromWhichFunStack();
-      if(!current_fun_name.empty()){
-	test_name = current_fun_name + "." + test_name;
-      }
-      
-      vector<string> reg_name_test = \
-	reg_manage_obj->GetActualAddrFromGenVal(test_name, 0);
-      int reg_num = reg_manage_obj->HowBigType(test_name_type);
-      vector<string> constant = \
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
-      
-      for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", constant[i], IR_name);
-	OutPut("cpfseq", reg_name_test[i], IR_name);
-      }
-      
-      OutPutJump("bra", opBlock1, IR_name);
-      OutPutJump("bra", opBlock2, IR_name);
-    } else if(!instrName.compare("eq")){ //Instr: a == b?
-      string test_name = wordCon.vaCol[2];
-      string test_name_type = wordCon.vaCol[1];//?
-
-      //add fun name before variable
-      string current_fun_name =				\
-	reg_manage_obj->GetValueFromWhichFunStack();
-      if(!current_fun_name.empty()){
-	test_name = current_fun_name + "." + test_name;
-      }
-
-      //string regNameTest = getRegValue(testName);
-      vector<string> reg_name_test = \
-	reg_manage_obj->GetActualAddrFromGenVal(test_name, 0);
-      int reg_num = reg_manage_obj->HowBigType(test_name_type);
-      vector<string> constant = \
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
-
-      for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", constant[i], IR_name);
-	OutPut("cpfseq", reg_name_test[i], IR_name);
-      }
-     
-      OutPutJump("bra", opBlock2, IR_name);
-      OutPutJump("bra", opBlock1, IR_name);
-    }
-    lastInstrName = " ";
-  } else if(wordCon.opCol.size() <= 1){ //Instr: br label %x
+  } 
+//   //Instr: br label %x
+  else if(wordCon.opCol.size() <= 1){ 
     string opBlock = wordCon.opCol[0].substr(1);
     OutPutJump("bra", opBlock, IR_name);
   }
+  lastInstrName = " ";
 }
 
 
-//  
-//
+
+
 void TranceZext(SplitWord wordCon, string IR_name){
-    string op_des = wordCon.opCol[0];
-    string op_src1 = wordCon.vaCol[4];
+  string op_des = wordCon.opCol[0];
+  string op_src1 = wordCon.vaCol[4];
     
-    string op_des_type = wordCon.vaCol[1];//?
-    string op_src1_type = wordCon.vaCol[3];//?
+  string op_des_type = wordCon.vaCol[6];
+  //    string op_src1_type = wordCon.vaCol[6];
 
-    RegManage* reg_manage_obj = RegManage::getInstance();
+  RegManage* reg_manage_obj = RegManage::getInstance();
 
-        //add fun name before variable
-    string current_fun_name =				\
-      reg_manage_obj->GetValueFromWhichFunStack();
-    if(!current_fun_name.empty()){
-      op_des = current_fun_name + "." + op_des;
+  //add fun name before variable
+  string current_fun_name =				\
+    reg_manage_obj->GetValueFromWhichFunStack();
+  if(!current_fun_name.empty()){
+    op_des = current_fun_name + "." + op_des;
       op_src1 = current_fun_name + "." + op_src1;
     }
 
-    //reg_name_test =	
     vector<string> op_src1_vec =			\
       reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
-    
-    reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-    //reg_name =		
+    //deal with op_des
+    reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);      
     vector<string> op_des_vec =				\
       reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
 
-    
     string instrName = lastInstrName;
+    int reg_num = op_src1_vec.size();
+    string inner_label = wordCon.vaCol[0].substr(1);
+    //regNam=(regNameTest==0)?1:0;
 
-
-    if(!instrName.compare("eq")){//regNam=(regNameTest==0)?1:0;
-      int reg_num = reg_manage_obj->HowBigType(op_des_type);
-      vector<string> constant_0 =				\
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
-      vector<string> constant_1 =				\
+    //m = (j == 0)
+    if(!instrName.compare("eq")){
+ 
+      vector<string> constant_1 = \
 	reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
       
       for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", constant_1[i], IR_name);                
+	OutPut("movlw", constant_1[i], IR_name);
 	OutPut("movwf", op_des_vec[i], IR_name);          
       }
+      OutPut("movlw", "0", IR_name);
       for(int j = 0; j < reg_num; j++){
-	OutPut("movlw", constant_0[j], IR_name);
 	OutPut("cpfseq", op_src1_vec[j], IR_name); 
 	OutPut("movwf", op_des_vec[j], IR_name);
       }
       //regName=(regNameTest==0)?0:1;
-    } else if(!instrName.compare("ne")){
-      
-      int reg_num = reg_manage_obj->HowBigType(op_des_type);
+    } 
+    //m = (j != 0)
+    else if(!instrName.compare("ne")){
+
       vector<string> constant_1 = \
 	reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
-      vector<string> constant_0 = \
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+      
       for(int i = 0; i < reg_num; i++){
 	OutPut("movlw", constant_1[i], IR_name);
 	OutPut("movwf", op_des_vec[i], IR_name);
       }
+      OutPut("movlw", "0", IR_name);
       for(int j = 0; j < reg_num; j++){	
-	OutPut("movlw", constant_0[j], IR_name);
 	OutPut("cpfseq", op_src1_vec[j], IR_name);
-	OutPutJump("bra", "next", IR_name);
+	OutPutJump("bra", inner_label + "_next", IR_name);
 	OutPut("movwf", op_des_vec[j], IR_name);
       }
-      OutPutLabel("next", IR_name);
+      OutPutLabel(inner_label + "_next", IR_name);
 
 	
-    } else if(!instrName.compare("gt")){ //Instr: (a > b)
-
-      int reg_num = reg_manage_obj->HowBigType(op_des_type);
-      vector<string> constant_0 =				\
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+    }
+    //Instr: (a > b)
+    else if(!instrName.compare("gt")){
       vector<string> constant_1 =				\
 	reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
 
@@ -1362,126 +1303,138 @@ void TranceZext(SplitWord wordCon, string IR_name){
 	OutPut("movlw", constant_1[i], IR_name);
 	OutPut("movwf", op_des_vec[i], IR_name);
       }
-      
+      OutPut("movlw", "0", IR_name);
       for(int j = 0; j < reg_num; j++){
-	OutPut("movlw", constant_0[j], IR_name);
 	OutPut("cpfseq", op_src1_vec[j], IR_name);
 	OutPut("btfsc", "STATUS", 0, 1, IR_name);
 	OutPut("movwf", op_des_vec[j], IR_name);   
       }
-    } else if(!instrName.compare("lt")){ //Instr: (a < b)
-
-      int reg_num = reg_manage_obj->HowBigType(op_des_type);
-      vector<string> constant_0 =				\
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+    } 
+    //Instr: (a < b)
+    else if(!instrName.compare("lt")){
       vector<string> constant_1 =				\
 	reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
 
-      
       for(int i = 0; i < reg_num; i++){
 	OutPut("movlw", constant_1[i], IR_name);
 	OutPut("movwf", op_des_vec[i], IR_name);
       }
-      
+      OutPut("movlw", "0", IR_name);      
       for(int j = 0; j < reg_num; j++){
-	OutPut("movlw", constant_0[j], IR_name);
 	OutPut("cpfseq", op_src1_vec[j], IR_name);
 	OutPut("btfss", "STATUS", 0, 1, IR_name);
 	OutPut("movwf", op_des_vec[j], IR_name);
       }
-    } else if(!instrName.compare("ge")){ //Instr: (a >= b)
-
-      int reg_num = reg_manage_obj->HowBigType(op_des_type);
-      vector<string> constant_0 =				\
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+    } 
+    //Instr: (a >= b)
+    else if(!instrName.compare("ge")){ 
       vector<string> constant_1 =				\
 	reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
 
-      
-
+      OutPut("movlw", "0", IR_name);
       for(int i = 0; i < reg_num; i++){
-
-	OutPut("movlw", constant_0[i], IR_name);
 	OutPut("cpfseq", op_src1_vec[i], IR_name); //if equal, jump 
-	
-	OutPutJump("bra", "outer", IR_name);
+	OutPutJump("bra", inner_label + "_next", IR_name);
       }
 
-      OutPutLabel("outer", IR_name);
+      OutPutLabel(inner_label + "_next", IR_name);
 
       OutPut("btfss", "STATUS", 0, 1, IR_name);   //if equal 1, jump
-      OutPutJump("bra", "next2", IR_name);
-      OutPutJump("bra", "next1", IR_name);
+      OutPutJump("bra", inner_label + "_next2", IR_name);
+      OutPutJump("bra", inner_label + "_next1", IR_name);
       
-   
-      OutPutLabel("next1", IR_name);  
+      OutPutLabel(inner_label + "_next1", IR_name);  
+      OutPut("movlw", "0", IR_name);
       for(int j = 0; j < reg_num; j++){
-	OutPut("movlw", constant_0[j], IR_name);
 	OutPut("movwf", op_des_vec[j], IR_name);
       }
-      OutPutJump("bra", "next3", IR_name);
+
+      OutPutJump("bra", inner_label + "_next3", IR_name);      
       
-      OutPutLabel("next2", IR_name);
+      OutPutLabel(inner_label + "_next2", IR_name);
       for(int j = 0; j < reg_num; j++){
 	OutPut("movlw", constant_1[j], IR_name);
 	OutPut("movwf", op_des_vec[j], IR_name);
       }
-      OutPutLabel("next3", IR_name);
+      OutPutLabel(inner_label + "_next3", IR_name);
     
-    } else if(!instrName.compare("le")){ //Instr: (a <= b)
-      
-      int reg_num = reg_manage_obj->HowBigType(op_des_type);
-      vector<string> constant_0 = \
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+    }
+    //Instr: (a <= b)
+    else if(!instrName.compare("le")){
+
       vector<string> constant_1 = \
 	reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
-      
-      for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", constant_0[i], IR_name);
-	OutPut("cpfseq", op_src1_vec[i], IR_name);
 
-	OutPutJump("bra", "outer", IR_name);
+      OutPut("movlw", "0", IR_name);
+      for(int i = 0; i < reg_num; i++){
+	OutPut("cpfseq", op_src1_vec[i], IR_name);
+	OutPutJump("bra", inner_label + "_next", IR_name);
       }
-      OutPutLabel("outer", IR_name);
+      OutPutLabel(inner_label + "_next", IR_name);
       
       OutPut("btfsc", "STATUS", 0, 1, IR_name);
 
-      OutPutJump("bra", "next2", IR_name);
-      OutPutJump("bra", "next1", IR_name);
-      OutPutLabel("next1", IR_name);
+      OutPutJump("bra", inner_label + "_next2", IR_name);
+      OutPutJump("bra", inner_label + "_next1", IR_name);
+      OutPutLabel(inner_label + "_next1", IR_name);
+      OutPut("movlw", "0", IR_name);
       for(int j = 0; j < reg_num; j++){
-	OutPut("movlw", constant_0[j], IR_name);
 	OutPut("movwf", op_des_vec[j], IR_name);
       }
-      OutPutJump("bra", "next3", IR_name);
+      OutPutJump("bra", inner_label + "_next3", IR_name);
       
-      OutPutLabel("next2", IR_name);
+      OutPutLabel(inner_label + "_next2", IR_name);
       for(int j = 0; j < reg_num; j++){
 	OutPut("movlw", constant_1[j], IR_name);
 	OutPut("movwf", op_des_vec[j], IR_name);
       }
-      OutPutLabel("next3", IR_name);
+      OutPutLabel(inner_label + "_next3", IR_name);
     }
     lastInstrName = " ";
+    
+    //extension type
+    int des_num = reg_manage_obj->HowBigType(op_des_type);
+    //both tyep is equal, so we don't need to extension
+    if(des_num == op_src1_vec.size()) return;
+    //if destintion type bigger than op_src type
+    if(des_num > op_src1_vec.size()){
+      OutPut("movlw", "0", IR_name);
+      for(int i = 0; i < des_num - op_src1_vec.size(); i++){
+	OutPut("movwf", op_des_vec[op_src1_vec.size() + i], IR_name);
+      }
+    }
+    //if op_src type bigger than destination type
+    else{
+
+    }
+
+
+
+    
+
 }
 
 //print the label as a signal of jump statement
 //
 void TranceLabel(SplitWord wordCon, string IR_name){
   string label_name = wordCon.vaCol[2];
-  //string label_name_type = wordCon.vaCol[1];//?
-  
   OutPutLabel(label_name, IR_name);
   
-  //?????????????
   /*
-  label_name = "%" + label_name;
-
+  //?
   RegManage* reg_manage_obj = RegManage::getInstance();
+  label_name = "%" + label_name;
+  //add fun name before variable
+  string current_fun_name =				\
+    reg_manage_obj->GetValueFromWhichFunStack();
+  if(!current_fun_name.empty()){
+    label_name = current_fun_name + "." + label_name;
+  }
 
-  int reg_num = reg_manage_obj->HowBigType(label_name_type);
   vector<string> op_des = \
     reg_manage_obj->GetActualAddrFromGenVal(label_name, 0);
+
+  int reg_num = op_des.size();
   vector<string> constant_1 = \
     reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
 
@@ -1490,8 +1443,8 @@ void TranceLabel(SplitWord wordCon, string IR_name){
       OutPut("movlw", constant_1[i], IR_name);
       OutPut("movwf", op_des[i], IR_name);
     }
-    }*/
-
+  }
+  */
   //
   //if(getRegValue(labelName).compare(" ")){
    //string regName = getRegValue(labelName);
@@ -2031,31 +1984,31 @@ void TranceCall(SplitWord wordCon, string IR_name){
 // and operator
 //
 void TranceAnd(SplitWord wordCon, string IR_name){
-  coreAdd_And(wordCon, "andwf", "andlw", IR_name);
+  CoreFunOfLogicOperator(wordCon, "andwf", "andlw", IR_name);
 }
 
 // or operator
 //
 void TranceOr(SplitWord wordCon, string IR_name){
-  coreAdd_And(wordCon, "iorwf", "iorlw", IR_name);
+  CoreFunOfLogicOperator(wordCon, "iorwf", "iorlw", IR_name);
 }
 
 // xor operator
 //
 void TranceXor(SplitWord wordCon, string IR_name){
-  coreAdd_And(wordCon, "xorwf", "xorlw", IR_name);
+  CoreFunOfLogicOperator(wordCon, "xorwf", "xorlw", IR_name);
 }
 
 // << operator
 //
 void TranceShl(SplitWord wordCon, string IR_name){
-  coreAdd_And(wordCon, "rlncf", "rlncf", IR_name);
+  CoreFunOfLogicOperator(wordCon, "rlncf", "rlncf", IR_name);
 }
 
 // >> operator
 //
 void TranceAshr(SplitWord wordCon, string IR_name){
-  coreAdd_And(wordCon, "rrncf", "rrncf", IR_name);
+  CoreFunOfLogicOperator(wordCon, "rrncf", "rrncf", IR_name);
 }
 
 //&& and || operator
@@ -2066,14 +2019,12 @@ void TrancePhi(SplitWord wordCon, string IR_name){
   
   string index_op = wordCon.vaCol[5]; 
   string op_des = wordCon.vaCol[0];
-  string op_des_type = wordCon.vaCol[1];//?
-
   string op_src1 = wordCon.vaCol[9];
   string op_src2 = wordCon.vaCol[10];
 
-  string op_src1_type = wordCon.vaCol[7];//?
-  string op_src2_type = wordCon.vaCol[8];//?
-  
+  string op_des_type = "i8";
+  string op_src2_type = "i8";
+
   //add fun name before variable
   string current_fun_name =				\
     reg_manage_obj->GetValueFromWhichFunStack();
@@ -2083,59 +2034,59 @@ void TrancePhi(SplitWord wordCon, string IR_name){
     op_des = current_fun_name + "." + op_des;
   }
 
-  reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
-  
+  reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);  
   vector<string> reg_des = \
     reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
-    
-  if(!index_op.compare("true")){ //Instr: for || operator
-    regex reg("\%.+");
+  int reg_num =						\
+    reg_manage_obj->HowBigType(op_src2_type);
+  string inner_label = wordCon.vaCol[0].substr(1);
+
+  //Instr: for || operator
+  if(!index_op.compare("true")){
+    regex reg(".*\%.+");
     if(regex_match(op_src1, reg)){
-      //string regOpSrc1 = getRegValue(opSrc1);
-      //string regOpSrc2 = getRegValue(opSrc2);
 
       vector<string> op_src1_vec = \
 	reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
       vector<string> op_src2_vec = \
 	reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
       
-      int reg_num = reg_manage_obj->HowBigType(op_src1_type);
       vector<string> constant_0 = \
 	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
       vector<string> constant_1 = \
 	reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
+      
+      OutPut("movlw", "0", IR_name);
       for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", constant_0[i], IR_name);
 	OutPut("cpfseq", op_src2_vec[i], IR_name);
-	OutPutJump("bra", "next1", IR_name);
+	OutPutJump("bra", inner_label + "_next1", IR_name);
       }
-
-      for(int  i = 0; i < reg_num; i++){
-	OutPut("movlw", constant_0[i], IR_name);
+      OutPut("movlw", "0", IR_name);
+      for(int  i = 0; i < op_src1_vec.size(); i++){
 	OutPut("cpfseq", op_src1_vec[i], IR_name);
-	OutPutJump("bra", "next1", IR_name);
+	OutPutJump("bra", inner_label + "_next1", IR_name);
       }
       
-      OutPutJump("bra", "next2", IR_name);
+      OutPutJump("bra", inner_label + "_next2", IR_name);
       
-      OutPutLabel("next1", IR_name);
+      OutPutLabel(inner_label + "_next1", IR_name);
       for(int i = 0; i < reg_num; i++){
 	OutPut("movlw", constant_1[i], IR_name);
 	OutPut("movwf", reg_des[i], IR_name);
       }
-      OutPutJump("bra", "next3", IR_name);
+      OutPutJump("bra", inner_label + "_next3", IR_name);
 
-      OutPutLabel("next2", IR_name);
+      OutPutLabel(inner_label + "_next2", IR_name);
       for(int i = 0; i < reg_num; i++){
 	OutPut("movlw", constant_0[i], IR_name);
 	OutPut("movwf", reg_des[i], IR_name);
       }
 
-      OutPutLabel("next3", IR_name);
-    } else {
+      OutPutLabel(inner_label + "_next3", IR_name);
+    }
+    else {
       if(!op_src1.compare("true")){
-	int reg_num = \
-	  reg_manage_obj->HowBigType(op_src1_type);
+	
 	vector<string> constant_1 = \
 	  reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
 	for(int i = 0; i < reg_num; i++){
@@ -2143,114 +2094,109 @@ void TrancePhi(SplitWord wordCon, string IR_name){
 	  OutPut("movwf", reg_des[i], IR_name);
 	
 	}
-      } else if(!op_src2.compare("false")){
-	int reg_num = \
-	  reg_manage_obj->HowBigType(op_src2_type);
-	vector<string> res_op = \
+      }
+      else if(!op_src2.compare("false")){
+	
+	vector<string> op_src2_addr = \
 	  reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
-	vector<string> constant_0 =				\
-	  reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+
 	vector<string> constant_1 =				\
 	  reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
 	
+	OutPut("movlw", "0", IR_name);
 	for(int i = 0; i < reg_num; i++){
-	  OutPut("movlw", constant_0[i], IR_name);
-	  OutPut("cpfseq", res_op[i], IR_name);
-	  OutPutJump("bra", "next1", IR_name);
+	  OutPut("cpfseq", op_src2_addr[i], IR_name);
+	  OutPutJump("bra", inner_label + "_next1", IR_name);
 	  OutPut("movwf", reg_des[i], IR_name);
 	}
 	
-	OutPutJump("bra", "next2", IR_name);
+	OutPutJump("bra", inner_label + "_next2", IR_name);
 	
-	OutPutLabel("next1", IR_name);
+	OutPutLabel(inner_label + "_next1", IR_name);
 	for(int i = 0; i < reg_num; i++){
 	  OutPut("movlw", constant_1[i], IR_name);
 	  OutPut("movwf", reg_des[i], IR_name);
 	}
-	OutPutLabel("next2", IR_name);
+	OutPutLabel(inner_label + "_next2", IR_name);
       }
 
     }
-  } else if(!index_op.compare("false")){ //Instr: for && operator
-    regex reg("\%.+");
+  } 
+  //Instr: for && operator
+  else if(!index_op.compare("false")){ 
+    regex reg(".*\%.+");
     if(regex_match(op_src1, reg)){
-      //string regOpSrc1 = getRegValue(opSrc1);
-      //string regOpSrc2 = getRegValue(opSrc2);
-      vector<string> reg_op_src1 = \
+
+      vector<string> reg_op_src1 =				\
 	reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
       vector<string> reg_op_src2 = \
 	reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
-      int reg_num = reg_manage_obj->HowBigType(op_src1_type);
-      vector<string> constant_0 =				\
-	reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+
+      reg_manage_obj->AllocateRegToGenVal(op_des, "i8", 1);  
+      vector<string> reg_des =					\
+	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+
       vector<string> constant_1 =				\
 	reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
-
-
+      
       for(int i = 0; i < reg_num; i++){
 	OutPut("movlw", constant_1[i], IR_name);
 	OutPut("movwf", reg_des[i], IR_name);
       }
-      
-      for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", constant_0[i], IR_name);
+
+      OutPut("movlw", "0", IR_name);
+      for(int i = 0; i < reg_op_src1.size(); i++){
 	OutPut("cpfseq", reg_op_src1[i], IR_name);
-	OutPutJump("bra", "next1", IR_name);
+	OutPutJump("bra", inner_label + "_next1", IR_name);
       }
-      OutPutJump("bra", "next2", IR_name);
+      OutPutJump("bra", inner_label + "_next2", IR_name);
       
-      OutPutLabel("next1", IR_name);
+      OutPutLabel(inner_label + "_next1", IR_name);
+      OutPut("movlw", "0", IR_name);
       for(int i = 0; i < reg_num; i++){
-	  OutPut("movlw", constant_0[i], IR_name);
 	  OutPut("cpfseq", reg_op_src2[i], IR_name);      
-	  OutPutJump("bra", "next3", IR_name);
+	  OutPutJump("bra", inner_label + "_next3", IR_name);
       }
 
-      OutPutJump("bra", "next2", IR_name);
-      OutPutLabel("next2", IR_name);
+      OutPutJump("bra", inner_label + "_next2", IR_name);
+      OutPutLabel(inner_label + "_next2", IR_name);
       
+      OutPut("movlw", "0", IR_name);
       for(int i = 0; i < reg_num; i++){
-	OutPut("movlw", constant_0[i], IR_name);
 	OutPut("movwf", reg_des[i], IR_name);
       }
-      OutPutLabel("next3", IR_name);
+      OutPutLabel(inner_label + "_next3", IR_name);
     
-    } else {
+    } 
+    else {
       if(!op_src1.compare("false")){
-	int reg_num = \
-	  reg_manage_obj->HowBigType(op_des_type);
-	vector<string> constant_0 =				\
-	  reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
-	
+
+	OutPut("movlw", "0", IR_name);
 	for(int i = 0; i < reg_num; i++){
-	  OutPut("movlw", constant_0[i], IR_name);
 	  OutPut("movwf", reg_des[i], IR_name);
 	}
-      } else if(!op_src1.compare("true")){
-	vector<string> res_op = \
+      }
+      else if(!op_src1.compare("true")){
+	vector<string> op_src2_addr = \
 	  reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
-	int reg_num = \
-	  reg_manage_obj->HowBigType(op_src2_type);
-	vector<string> constant_0 = \
-	  reg_manage_obj->GetSplitSectionOfANum("0", reg_num);
+
 	vector<string> constant_1 = \
 	  reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
 	
+	OutPut("movlw", "0", IR_name);
 	for(int i = 0; i < reg_num; i++){
-	  OutPut("movlw", constant_0[i], IR_name);
-   
-	  OutPut("cpfseq", res_op[i], IR_name);
-	  OutPutJump("bra", "next1", IR_name);
+	  OutPut("cpfseq", op_src2_addr[i], IR_name);
+	  OutPutJump("bra", inner_label + "_next1", IR_name);
 	  OutPut("movwf", reg_des[i], IR_name);
 	}
-	OutPutJump("bra", "next2", IR_name);
+	OutPutJump("bra", inner_label + "_next2", IR_name);
 	
-	OutPutLabel("next1", IR_name);
+	OutPutLabel(inner_label + "_next1", IR_name);
 	for(int i = 0; i < reg_num; i++){
 	  OutPut("movlw", constant_1[i], IR_name);
 	  OutPut("movwf", reg_des[i], IR_name);
 	}
-        OutPutLabel("next2", IR_name);
+        OutPutLabel(inner_label + "_next2", IR_name);
       }
     }
     

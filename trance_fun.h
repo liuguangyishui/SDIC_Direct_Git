@@ -49,7 +49,7 @@ void ProgramBegin();
 void ProgramHint();
 
 //core code of add, and, xor and other
-void coreAdd_And(SplitWord, string, string);
+void CoreFunOfLogicOperator(SplitWord, string, string);
 
 //for load instr
 void TranceLoad(SplitWord, string);   
