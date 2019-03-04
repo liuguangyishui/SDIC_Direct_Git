@@ -40,9 +40,9 @@ class DebugInfo {
   //add info into exited record
   void AddInstrDebugInfoToRecord(string, string);
 
-  void PrintAddrDebugInfo();
+  void PrintAddrDebugInfo(string);
   
-  void PrintInstrDebugInfo();
+  void PrintInstrDebugInfo(string);
   
  private:
   /* When we allocated addr for a var, we should record the map info

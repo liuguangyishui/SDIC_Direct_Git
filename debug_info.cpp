@@ -62,8 +62,8 @@ void DebugInfo::AddInstrDebugInfoToRecord(string instr_name, string trance_instr
 
 }
 
-void DebugInfo::PrintInstrDebugInfo(){
-  string file_name("debug_info_instr.txt");
+void DebugInfo::PrintInstrDebugInfo(string output_file_name){
+  string file_name(output_file_name);
   std::ofstream fout;
   fout.open(file_name.c_str(), ios_base::out);
   if(!fout.is_open()) {
@@ -87,10 +87,11 @@ void DebugInfo::PrintInstrDebugInfo(){
   }
 }
 
-void DebugInfo::PrintAddrDebugInfo(){
-  char file_name[] = "debug_info_addr.txt";
+void DebugInfo::PrintAddrDebugInfo(string output_file_name){
+  //  char file_name[] = output_file_name;
+  string file_name(output_file_name);
   std::ofstream fout;
-  fout.open(file_name, ios_base::out);
+  fout.open(file_name.c_str(), ios_base::out);
   if(!fout.is_open()){
     cout << "this flie open failed!" << endl;
     return ;

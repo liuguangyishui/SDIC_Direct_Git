@@ -72,11 +72,27 @@ int main(int argv, char **argc){
   }
   //the interrupt of the program 
    ProgramHint();
-
+   //debug info file name
+   string debug_file_name = output_file_name;
+   
    DebugInfo debug_info_obj = DebugInfo();
-   debug_info_obj.PrintAddrDebugInfo();
-   debug_info_obj.PrintInstrDebugInfo();
-  
+   //if output file name is NULL
+   if(debug_file_name.empty()){
+     debug_file_name = "output";
+   }
+   //if a . carater in the debug_file_name, remove
+   string::size_type idex;
+   idex = debug_file_name.find(".");
+   if(idex != string::npos){
+     debug_file_name = debug_file_name.substr(0, idex);
+   }
+   //output the addr debug info to debug_file_name
+   debug_info_obj.PrintAddrDebugInfo(debug_file_name + \
+				     "_addr_debug_info.txt");
+   //output the instr debug info to debug_file_name
+   debug_info_obj.PrintInstrDebugInfo(debug_file_name + \
+				      "_instr_debug_info.txt");
+   
   //close outputFile
   CloseOutPutFile();
   
