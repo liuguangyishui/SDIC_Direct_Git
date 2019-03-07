@@ -2500,6 +2500,7 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
 #define VEC wordCon.vaCol  
   
   regex regular_expr_struct("%struct.*");
+  regex regular_expr_ir("%.*");
   //get elem addr from struct variable
   if(regex_match(VEC[4], regular_expr_struct)){
     //struct name
@@ -2565,8 +2566,29 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
     }
     reg_manage_obj->CreateMapForGenVal(op_des, core_info);	
   }
+  //get elem addr from a reg variable
+  else if(regex_match(VEC[6], regular_expr_ir)){
+    string op_src = VEC[6];
+    string op_src_type = VEC[4];
+    string op_des = VEC[0];
+    string index_num = VEC[8];
+    
+    RegManage* reg_manage_obj = RegManage::getInstance();
+    int reg_num = reg_manage_obj->HowBigType(op_src_type);
+    vector<string> op_src_addr = \
+      reg_manage_obj->GetActualAddrFromGenVal(op_src, 0);
 
+    DataStoreInfo core_info;
+    
+    for(int i = 0; i < op_src_addr.size(); i++){
+      string addr = AddTwoStrHex(op_src_addr[i], index_num);
+      core_info.actual_addr.push_back(addr);
+    }
+    reg_manage_obj->CreateMapForGenVal(op_des, core_info);
+  }
+    
 }
+
 
 void TranceBitcast(SplitWord wordCon, string IR_name){
 #define VEC wordCon.vaCol
@@ -2615,12 +2637,15 @@ void getDataFromInstr(vector<string> &dataVec, SplitWord wordCon){
   int num = GetArrayElemNum(wordCon);
   index += 2;
   
-  if((*index)[0] == 'c'){ //char array
+  //char array
+  if((*index)[0] == 'c'){ 
   string data = (*(index)).substr(2);
     for(int i = 0; i < data.size()-1; i++){
       dataVec.push_back(to_string(data[i]));
     }
-  } else {   //int array
+  } 
+  //int array
+  else {   
 
     index += 1;
     for(int i = 0; i < num; i++){

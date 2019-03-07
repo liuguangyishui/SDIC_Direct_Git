@@ -4,6 +4,7 @@
 
 /*This file include some useful tool fun.
  */
+#include <regex>
 #include "tool_fun.h"
 
 //Change dec number to hex number
@@ -69,10 +70,21 @@ int ChangeStrToDec(string str_src){
   if(str_src.size() == 0 ) return 0;
   int src_num = str_src.size();
   int res = 0;
-
-  for(int i = src_num - 1, j = 0; i >= 0; i--, j++){
-    int value = str_src[i] - '0';
-    res += value * pow(10, j);
+  regex reg_minus("^-.*");
+  //the number is minus
+  if(regex_match(str_src, reg_minus)){
+    for(int i = src_num - 1, j = 0; i >= 1; i--, j++){
+      int value = str_src[i] - '0';
+      res += value * pow(10, j);
+    }
+    res = 0 - res;
+  }
+  //the number is positive
+  else {
+    for(int i = src_num - 1, j = 0; i >= 0; i--, j++){
+      int value = str_src[i] - '0';
+      res += value * pow(10, j);
+    }
   }
 
   return res;

@@ -6,6 +6,7 @@
 
  */
 #include <cstring>
+#include <regex>
 #include "memory_manage.h"
 #include "tool_fun.h"
 
@@ -19,13 +20,17 @@ stack<string> MemoryManage::which_fun;
 
 //caculate how many reg will need
 int MemoryManage::HowBigType(string var_type){
-  
+  //char type
   if(!var_type.compare("i8") || !var_type.compare("i8*")){
     return 1;
-  } else if(!var_type.compare("i32") || !var_type.compare("i32*")){
+  } 
+  //int, long int, 
+  else if(!var_type.compare("i32") || !var_type.compare("i32*")){
+    return 2;
+  } 
+  //long long int,
+  else if(!var_type.compare("i64") || !var_type.compare("i64*")){
     return 4;
-  } else if(!var_type.compare("i64") || !var_type.compare("i64*")){
-    return 8;
   }
   return 0;
 }
@@ -42,22 +47,35 @@ string MemoryManage::GetBelongWhatCallName(){
 //when a constant number cant't store in 8 bit reg, then we should
 //split it and store it more than ont reg. Firstly, we change string
 //type src_val_str to int type data.
-vector<string> MemoryManage::GetSplitSectionOfANum(string src_val_str, int var_type){
+vector<string> \
+MemoryManage::GetSplitSectionOfANum(string src_val_str,\
+				    int var_type){
   int src_val = ChangeStrToDec(src_val_str);
   vector<string> res;
   int temp = src_val;
-
-  while(temp >= 256){
-    int mod = temp % 256;
-    temp /= 256;
-    res.push_back(to_string(mod));
+  regex reg_minus("^-.*");
+  //src_val_str is null
+  if(src_val_str.empty()){
+    for(int i = 0; i < var_type; i++){
+      res.push_back("0");
+    }
   }
-  res.push_back(to_string(temp));
-  //align the bit between res and reg number
-  for(int i = res.size(); i < var_type; i++){
-    res.push_back("0");
+  else if(regex_match(src_val_str, reg_minus)){
+    
   }
-
+  else {
+    while(temp >= 256){
+      int mod = temp % 256;
+      temp /= 256;
+      res.push_back(to_string(mod));
+    }
+    res.push_back(to_string(temp));
+    //align the bit between res and reg number
+    for(int i = res.size(); i < var_type; i++){
+      res.push_back("0");
+    }
+    
+  }
   return res;
 }
 
