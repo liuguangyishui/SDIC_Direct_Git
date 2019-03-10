@@ -415,13 +415,13 @@ void TranceLoad(SplitWord wordCon, string IR_name){
       op_src = current_fun_name + "." + op_src;
       op_des = current_fun_name + "." + op_des;
     }
-
+   
     if(regex_match(op_src, reg1)){
       core_info = reg_manage_obj->GetAllInfoFromGlobalVal(op_src);
     } else if(regex_match(op_src, reg2)){
       core_info = reg_manage_obj->GetAllInfoFromGenVal(op_src);
     }
-
+   
     reg_manage_obj->CopyAMapForGenVal(op_des, core_info);
   }
 #undef VEC
@@ -627,7 +627,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 
 	vector<string> reg_name_src2 =				\
 	  reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
-
+	
 	if(reg_name_src1.size() != reg_name_src2.size()){
 	  cout << "TranceStore():Source src size not"	\
 	    "equal des src size!" << endl;
@@ -1759,6 +1759,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
   
     DataStoreInfo core_info_op_src =			\
       reg_manage_obj->GetAllInfoFromGenVal(op_src);
+    core_info_op_src.virtual_addr = last_op_src;
 
     reg_manage_obj->DeleteRecordInGenVal(last_op_src);
     
@@ -1788,6 +1789,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
 
     DataStoreInfo core_info_op_src =			\
       reg_manage_obj->GetAllInfoFromGenVal(array_name);
+    core_info_op_src.virtual_addr = last_op_des;
     //first delete the older record, and creat a new record
     //with actual addr core_info_op_src
     reg_manage_obj->DeleteRecordInGenVal(last_op_des);
@@ -1813,7 +1815,8 @@ void TranceCall(SplitWord wordCon, string IR_name){
 
     DataStoreInfo core_info_op_src = \
       reg_manage_obj->GetAllInfoFromGenVal(struct_name);
-    
+    core_info_op_src.virtual_addr = last_op_src;
+
     reg_manage_obj->DeleteRecordInGenVal(last_op_src);
     reg_manage_obj->CreateMapForGenVal(last_op_src, \
 				       core_info_op_src);
@@ -2523,13 +2526,15 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
       struct_name = current_fun_name + "." + struct_name;
       op_des = current_fun_name + "." + op_des;
     }
-    
+
+    DataStoreInfo core_info_op_src =			\
+      reg_manage_obj->GetAllInfoFromGenVal(struct_name);
     //get elem_index addr of this struct variable
     vector<string> elem_addr_vec =				\
       reg_manage_obj->GetActualAddrFromGenVal(struct_name,elem_index);
-
+    
     DataStoreInfo core_info;
-    core_info.virtual_addr = op_des;
+    core_info.virtual_addr = core_info_op_src.virtual_addr;
     core_info.data_type = op_des_type;
     //put the actual addr into the addr of the op_des 
     for(int i = 0; i < elem_addr_vec.size(); i++){
@@ -2556,11 +2561,14 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
       op_des = current_fun_name + "." + op_des;
     }
 
+    DataStoreInfo core_info_op_src =			\
+      reg_manage_obj->GetAllInfoFromGenVal(array_name);
     vector<string> elem_addr_vec =				   \
-      reg_manage_obj->GetActualAddrFromGenVal(array_name, elem_index);
+      reg_manage_obj->GetActualAddrFromGenVal(array_name,elem_index);
 
     DataStoreInfo core_info;
-    core_info.virtual_addr = op_des;
+    //record the array name
+    core_info.virtual_addr = core_info_op_src.virtual_addr;
     core_info.data_type = op_des_type;
     for(int i = 0; i < elem_addr_vec.size(); i++){
       core_info.actual_addr.push_back(elem_addr_vec[i]);
@@ -2572,18 +2580,32 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
     string op_src = VEC[6];
     string op_src_type = VEC[4];
     string op_des = VEC[0];
-    string index_num = VEC[8];
-    
+    int index_num = ChangeStrToDec(VEC[8]);
+
     RegManage* reg_manage_obj = RegManage::getInstance();
+    //add fun name before variable
+    string current_fun_name =				\
+      reg_manage_obj->GetValueFromWhichFunStack();
+    if(!current_fun_name.empty()){
+      op_src = current_fun_name + "." + op_src;
+      op_des = current_fun_name + "." + op_des;
+    }
+    
     int reg_num = reg_manage_obj->HowBigType(op_src_type);
+    DataStoreInfo core_info_op_src =			\
+      reg_manage_obj->GetAllInfoFromGenVal(op_src);
+    //get the array name
+    string array_name = core_info_op_src.virtual_addr;
+    
     vector<string> op_src_addr = \
-      reg_manage_obj->GetActualAddrFromGenVal(op_src, 0);
+      reg_manage_obj->GetActualAddrFromGenVal(array_name, index_num);
 
     DataStoreInfo core_info;
     
+    core_info.virtual_addr = array_name;
+    core_info.data_type = op_src_type;
     for(int i = 0; i < op_src_addr.size(); i++){
-      string addr = AddTwoStrHex(op_src_addr[i], index_num);
-      core_info.actual_addr.push_back(addr);
+      core_info.actual_addr.push_back(op_src_addr[i]);
     }
     reg_manage_obj->CreateMapForGenVal(op_des, core_info);
   }
@@ -2640,9 +2662,14 @@ void getDataFromInstr(vector<string> &dataVec, SplitWord wordCon){
   
   //char array
   if((*index)[0] == 'c'){ 
-  string data = (*(index)).substr(2);
+    string data = (*(index)).substr(2);
     for(int i = 0; i < data.size()-1; i++){
-      dataVec.push_back(to_string(data[i]));
+      if(data[i] == '\\'){
+	string elem_ = data.substr(i+1, 2);
+	i = i + 2;
+      } 
+      else 
+	dataVec.push_back(to_string(data[i]));
     }
   } 
   //int array
