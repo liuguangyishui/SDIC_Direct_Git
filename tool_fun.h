@@ -32,6 +32,6 @@ int ChangeHexToDec(string);
 string AddTwoStrHex(string, string);
 
 //change string number to dec number.
-int ChangeStrToDec(string); // == getNum(string)
+long long int ChangeStrToDec(string); // == getNum(string)
 
 #endif
