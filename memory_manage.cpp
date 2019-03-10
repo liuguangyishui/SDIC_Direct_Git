@@ -24,9 +24,13 @@ int MemoryManage::HowBigType(string var_type){
   if(!var_type.compare("i8") || !var_type.compare("i8*")){
     return 1;
   } 
+  //short int 
+  else if(!var_type.compare("i16") || !var_type.compare("i16")){
+    return 2;
+  }
   //int, long int, 
   else if(!var_type.compare("i32") || !var_type.compare("i32*")){
-    return 2;
+    return 4;
   } 
   //long long int,
   else if(!var_type.compare("i64") || !var_type.compare("i64*")){
@@ -50,22 +54,43 @@ string MemoryManage::GetBelongWhatCallName(){
 vector<string> \
 MemoryManage::GetSplitSectionOfANum(string src_val_str,\
 				    int var_type){
-  int src_val = ChangeStrToDec(src_val_str);
+  long long int src_val = ChangeStrToDec(src_val_str);
   vector<string> res;
-  int temp = src_val;
-  regex reg_minus("^-.*");
+  regex reg_minus("-.*");
+  
   //src_val_str is null
   if(src_val_str.empty()){
     for(int i = 0; i < var_type; i++){
       res.push_back("0");
     }
+    return res;
   }
-  else if(regex_match(src_val_str, reg_minus)){
+  
+  //if the src_val is minus data
+  if(regex_match(src_val_str, reg_minus)){
+    //deal with 8 bit char type minus data
+    if(var_type == 1){
+      src_val = 256 + src_val;
+    }
+    //deal with 16 bits type minus data
+    else if(var_type == 2){
+      src_val = 65536 + src_val;
+    }
+    //deal with 32 bit int type minus data
+    else if(var_type == 4){
+      long long int limit_num1 = 4294967296;
+      src_val = 4294967296 + src_val;
+    } 
+    else if(var_type == 8){
+      //long long int limit_num = 18446744073709552000;
+      //src_val = limit_num + src_val;
     
+    }
   }
-  else {
+  
+   long long int temp = src_val;
     while(temp >= 256){
-      int mod = temp % 256;
+      long long int mod = temp % 256;
       temp /= 256;
       res.push_back(to_string(mod));
     }
@@ -75,7 +100,6 @@ MemoryManage::GetSplitSectionOfANum(string src_val_str,\
       res.push_back("0");
     }
     
-  }
   return res;
 }
 
