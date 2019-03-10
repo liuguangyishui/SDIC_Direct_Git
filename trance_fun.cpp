@@ -1744,19 +1744,19 @@ void TranceCall(SplitWord wordCon, string IR_name){
      find(VEC.begin(), VEC.end(), "x") != VEC.end() ){
     string op_src = wordCon.vaCol[14];
     string op_des = wordCon.vaCol[4];
-  
+
     RegManage *reg_manage_obj = RegManage::getInstance();  
     //add fun name before variable
     string current_fun_name =				\
       reg_manage_obj->GetValueFromWhichFunStack();
     if(!current_fun_name.empty()){
-      op_src = current_fun_name + "." + op_src;
+      //      op_src = current_fun_name + "." + op_src;
       op_des = current_fun_name + "." + op_des;
     }
     
     string last_op_src = IR_var_correspond_map.find(op_des)->second;
     IR_var_correspond_map.erase(op_des);
-
+  
     DataStoreInfo core_info_op_src =			\
       reg_manage_obj->GetAllInfoFromGenVal(op_src);
 
@@ -1764,6 +1764,7 @@ void TranceCall(SplitWord wordCon, string IR_name){
     
     reg_manage_obj->CreateMapForGenVal(last_op_src, \
 				       core_info_op_src);
+
   }
   //for array variable have been initial
   //------
