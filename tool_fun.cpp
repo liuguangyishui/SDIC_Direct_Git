@@ -24,8 +24,18 @@ int ChangeHexToDec(string hex_str_val){
   int res = 0;
   
   for(int i = hex_str_val.size() - 1, j = 0; i >= 0; i--, j++){
-    int val = hex_str_val[i] - '0';
-    res += val * pow(10, j);
+    char elem = hex_str_val[i];
+    int val = 0;
+    if(elem >= 'a' && elem <= 'z'){
+      val = elem - 'a' + 10;
+    }
+    else if(elem >= 'A' && elem <= 'Z'){
+      val = elem - 'A' + 10;
+    }
+    else if(elem >= '0' && elem <= '9'){
+      val = hex_str_val[i] - '0';
+    }
+    res += val * pow(16, j);
   }
   return res;
 

@@ -2661,16 +2661,32 @@ void getDataFromInstr(vector<string> &dataVec, SplitWord wordCon){
   index += 2;
   
   //char array
+  //we should deal the single character and int type data
+  //like char example[5] = {'1', 'd', 100}
   if((*index)[0] == 'c'){ 
     string data = (*(index)).substr(2);
     for(int i = 0; i < data.size()-1; i++){
+      
       if(data[i] == '\\'){
-	string elem_ = data.substr(i+1, 2);
+	string elem = data.substr(i+1, 2);
 	i = i + 2;
+
+	int elem_dec = ChangeHexToDec(elem);
+       
+	dataVec.push_back(to_string(elem_dec));
       } 
-      else 
-	dataVec.push_back(to_string(data[i]));
+      else {
+	string elem = data.substr(i, 1);
+	if(elem >= "a" && elem <= "z") {
+	  elem = to_string(data[i]);
+	}
+	else if(elem >= "A" && elem <= "Z"){
+	  elem = to_string(data[i]);
+	}
+	dataVec.push_back(elem);
+      }
     }
+
   } 
   //int array
   else {   

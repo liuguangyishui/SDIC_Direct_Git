@@ -71,6 +71,7 @@ MemoryManage::GetSplitSectionOfANum(string src_val_str,\
     //deal with 8 bit char type minus data
     if(var_type == 1){
       src_val = 256 + src_val;
+	   // src_val = src_val - 128;
     }
     //deal with 16 bits type minus data
     else if(var_type == 2){
