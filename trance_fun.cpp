@@ -415,15 +415,16 @@ void TranceLoad(SplitWord wordCon, string IR_name){
       op_src = current_fun_name + "." + op_src;
       op_des = current_fun_name + "." + op_des;
     }
-   
+
     if(regex_match(op_src, reg1)){
       core_info = reg_manage_obj->GetAllInfoFromGlobalVal(op_src);
     } else if(regex_match(op_src, reg2)){
       core_info = reg_manage_obj->GetAllInfoFromGenVal(op_src);
     }
-   
+
     reg_manage_obj->CopyAMapForGenVal(op_des, core_info);
-  }
+
+  }  
 #undef VEC
 }
 
@@ -2611,7 +2612,7 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
   }
     
 }
-
+    
 
 void TranceBitcast(SplitWord wordCon, string IR_name){
 #define VEC wordCon.vaCol
@@ -2652,6 +2653,85 @@ void TranceBitcast(SplitWord wordCon, string IR_name){
 
     IR_var_correspond_map.insert(make_pair(op_des, op_src));
   }
+#undef VEC
+}
+
+//extension the type from small to big
+//there are a question that if the number is minus, how I can
+//extension the type.(like that char extension to int)
+void TranceSext(SplitWord wordCon, string IR_name){
+#define VEC wordCon.vaCol
+
+  if(find(VEC.begin(), VEC.end(), "to") != VEC.end()){
+    
+    string op_src = wordCon.vaCol[4];
+    string op_src_type = wordCon.vaCol[3];
+    string op_des = wordCon.vaCol[0];
+    string op_des_type = wordCon.vaCol[6];
+    
+    RegManage *reg_manage_obj = RegManage::getInstance();
+    //add fun name before variable
+    string current_fun_name =				\
+      reg_manage_obj->GetValueFromWhichFunStack();
+    if(!current_fun_name.empty()){
+      op_src = current_fun_name + "." + op_src;
+      op_des = current_fun_name + "." + op_des;
+    }
+    reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
+    vector<string> op_des_vec = \
+      reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+    vector<string> op_src_vec = \
+      reg_manage_obj->GetActualAddrFromGenVal(op_src, 0);
+    int size_of_des = reg_manage_obj->HowBigType(op_des_type);
+    int size_of_src = reg_manage_obj->HowBigType(op_src_type);
+    
+    for(int i = 0; i < size_of_des; i++){
+      if(i < size_of_src){
+	OutPut("movf", op_src_vec[i], IR_name);
+	OutPut("mowf", op_des_vec[i], IR_name);
+      }
+      else {
+	OutPut("movlw", "0", IR_name);
+	OutPut("movwf", op_des_vec[i], IR_name);
+      }
+    }
+}
+#undef VEC
+}
+
+//extension the type form big to small
+void TranceTrunc(SplitWord wordCon, string IR_name){
+#define VEC wordCon.vaCol
+    
+  if(find(VEC.begin(), VEC.end(), "to") != VEC.end()){
+    string op_src = VEC[4];
+    string op_src_type = VEC[3];
+    string op_des = VEC[0];
+    string op_des_type = VEC[6];
+    
+    RegManage *reg_manage_obj = RegManage::getInstance();
+    //add fun name before variable
+    string current_fun_name = \
+      reg_manage_obj->GetValueFromWhichFunStack();
+    if(!current_fun_name.empty()){
+      op_src = current_fun_name + "." + op_src;
+      op_des = current_fun_name + "." + op_des;
+    }
+    reg_manage_obj->AllocateRegToGenVal(op_des, op_des_type, 1);
+    vector<string> op_des_vec = \
+      reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+    vector<string> op_src_vec = \
+      reg_manage_obj->GetActualAddrFromGenVal(op_src, 0);
+    int size_of_des = reg_manage_obj->HowBigType(op_des_type);
+    int size_of_src = reg_manage_obj->HowBigType(op_src_type);
+    
+    for(int i = 0; i < size_of_des; i++){
+      OutPut("movf", op_src_vec[i], IR_name);
+      OutPut("movwf", op_des_vec[i], IR_name);
+    }
+      
+  }
+#undef VEC
 }
 
 void getDataFromInstr(vector<string> &dataVec, SplitWord wordCon){

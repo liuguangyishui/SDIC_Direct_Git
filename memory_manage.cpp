@@ -34,7 +34,7 @@ int MemoryManage::HowBigType(string var_type){
   } 
   //long long int,
   else if(!var_type.compare("i64") || !var_type.compare("i64*")){
-    return 4;
+    return 8;
   }
   return 0;
 }

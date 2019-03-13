@@ -179,6 +179,15 @@ void OpenFileAndDeal(string &file_name) {
 						  single_line_debug); 
 	TranceBitcast(word_con, "bitcast"); break;}
     }
+    case sext: {
+      debug_info_object.CreateAInstrDebugRecord("sext", \
+						single_line_debug);
+      TranceSext(word_con, "sext");  break;}
+    case trunct: { 
+
+      debug_info_object.CreateAInstrDebugRecord("trunc", \
+						single_line_debug);
+      TranceTrunc(word_con, "trunc"); break; }
     default: break;
     }
 

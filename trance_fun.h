@@ -116,6 +116,10 @@ void TranceGetelementptr(SplitWord, string);
 
 void TranceBitcast(SplitWord, string);
 
+void TranceSext(SplitWord, string);
+
+void TranceTrunc(SplitWord, string);
+
 void getDataFromInstr(vector<string> &, SplitWord);
 
 //get array elem num
