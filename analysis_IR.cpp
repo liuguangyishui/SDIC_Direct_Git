@@ -188,6 +188,10 @@ void OpenFileAndDeal(string &file_name) {
       debug_info_object.CreateAInstrDebugRecord("trunc", \
 						single_line_debug);
       TranceTrunc(word_con, "trunc"); break; }
+    case selectt: {
+      debug_info_object.CreateAInstrDebugRecord("select", \
+						single_line_debug);
+      TranceSelect(word_con, "select"); break;}
     default: break;
     }
 

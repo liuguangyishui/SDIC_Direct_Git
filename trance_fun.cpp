@@ -2734,6 +2734,12 @@ void TranceTrunc(SplitWord wordCon, string IR_name){
 #undef VEC
 }
 
+//deal with the instr like "int a = (b > 1) ? 1: 0;
+void TranceSelect(SplitWord wordCon, string IR_name){
+
+
+}
+
 void getDataFromInstr(vector<string> &dataVec, SplitWord wordCon){
   //typedef wordCon.vaCol vec;
   auto index = find(wordCon.vaCol.begin(), wordCon.vaCol.end(), "x");
