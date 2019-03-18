@@ -1227,7 +1227,7 @@ void TranceBr(SplitWord wordCon, string IR_name){
   lastInstrName = " ";
 }
 
-void TranceZext(SplitWord wordCon, string IR_name){@
+void TranceZext(SplitWord wordCon, string IR_name){
   string op_des = wordCon.opCol[0];
   string op_src1 = wordCon.vaCol[4];
     
@@ -2763,16 +2763,16 @@ void TranceSelect(SplitWord wordCon, string IR_name){
   //Instr: a <= b
   if(!instr_name.compare("le")){
     OutPut("movlw", "0", IR_name);
-    for(int i = 0; i < op_index.size(); i++){
-      OutPut("cpfseq", op_index[i], IR_name);
+    for(int i = 0; i < op_index_vec.size(); i++){
+      OutPut("cpfseq", op_index_vec[i], IR_name);
       OutPutJump("bra", inner_label + "_next1", IR_name);
     }
     OutPutJump("bra", inner_label + "_next3", IR_name);
     
     OutPutLabel(inner_label + "_next1", IR_name);
     OutPut("btfss", "STATUS", 0, 1, IR_name);
-    OutPutJump(inner_label + "_next2", IR_name);
-    OutPutJump(inner_label + "_next3", IR_name);
+    OutPutJump("bra", inner_label + "_next2", IR_name);
+    OutPutJump("bra", inner_label + "_next3", IR_name);
 
     OutPutLabel(inner_label + "_next2", IR_name);
     for(int i = 0; i < op_value2.size(); i++){
@@ -2792,8 +2792,8 @@ void TranceSelect(SplitWord wordCon, string IR_name){
   else if(!instr_name.compare("ge")){
     
     OutPut("btfsc", "STATUS", 0, 1, IR_name);
-    OutPutJump(inner_label + "_next2", IR_name);
-    OutPutJump(inner_label + "_next3", IR_name);
+    OutPutJump("bra", inner_label + "_next2", IR_name);
+    OutPutJump("bra", inner_label + "_next3", IR_name);
 
     OutPutLabel(inner_label + "_next2", IR_name);
     for(int i = 0; i < op_value2.size(); i++){
@@ -2812,16 +2812,16 @@ void TranceSelect(SplitWord wordCon, string IR_name){
   //Instr: a < b
   else if(!instr_name.compare("lt")){
     OutPut("movlw", "0", IR_name);
-    for(int i = 0; i < op_index.size(); i++){
-      OutPut("cpfseq", op_index[i], IR_name);
+    for(int i = 0; i < op_index_vec.size(); i++){
+      OutPut("cpfseq", op_index_vec[i], IR_name);
       OutPutJump("bra", inner_label + "_next1", IR_name);
     }
     OutPutJump("bra", inner_label + "_next2", IR_name);
 
     OutPutLabel(inner_label + "_next1", IR_name);
     OutPut("btfss", "STATUS", 0, 1, IR_name);
-    OutPutJump(inner_label + "_next2", IR_name);
-    OutPutJump(inner_label + "_next3", IR_name);
+    OutPutJump("bra", inner_label + "_next2", IR_name);
+    OutPutJump("bra", inner_label + "_next3", IR_name);
 
     OutPutLabel(inner_label + "_next2", IR_name);
     for(int i = 0; i < op_value2.size(); i++){
@@ -2840,16 +2840,16 @@ void TranceSelect(SplitWord wordCon, string IR_name){
   //Instr: a > b
   else if(!instr_name.compare("gt")){
     OutPut("movlw", "0", IR_name);
-    for(int i = 0; i < op_index.size(); i++){
-      OutPut("cpfseq", op_index[i], IR_name);
+    for(int i = 0; i < op_index_vec.size(); i++){
+      OutPut("cpfseq", op_index_vec[i], IR_name);
       OutPutJump("bra", inner_label + "_next1", IR_name);
     }
     OutPutJump("bra", inner_label + "_next2", IR_name);
 
     OutPutLabel(inner_label + "_next1", IR_name);
     OutPut("btfsc", "STATUS", 0, 1, IR_name);
-    OutPutJump(inner_label + "_next2", IR_name);
-    OutPutJump(inner_label + "_next3", IR_name);
+    OutPutJump("bra", inner_label + "_next2", IR_name);
+    OutPutJump("bra", inner_label + "_next3", IR_name);
     
     OutPutLabel(inner_label + "_next2", IR_name);
     for(int i = 0; i < op_value2.size(); i++){
