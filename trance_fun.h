@@ -142,6 +142,9 @@ void GetParameterNameAndParameterType(SplitWord,		\
 				       vector<string>&,		\
 				       vector<string>&);
 
+//deal with gdb statement
+void TranceGdb(SplitWord, string);
+
 //for ret instr
 void TranceRet(SplitWord, string);
 

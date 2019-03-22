@@ -29,7 +29,7 @@ static unordered_map<string,int> SDIC_operate_set \
      {"constant", 20}, {"type", 21},
      {"getelementptr", 22},{"bitcast", 23},
      {"sext", 24}, {"trunc", 25},
-     {"select", 26}};
+     {"select", 26}, {"gdb", 27}};
 
 /* keyWord mainly use for the switch statement in 
  * analysisIR.cpp which indicate which tranfrom fun
@@ -67,6 +67,7 @@ enum SDICKeyWord{
   trunct, //not use 'trunc'. extension the type from big to small
 
   selectt,
+  gdb,  //it is for debug statement
 };
 
 /* splitWord stores all infomation of a single instructment

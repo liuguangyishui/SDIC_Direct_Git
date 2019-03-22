@@ -16,6 +16,11 @@ string ChangeDecToHex(int dec_num){
     res = ox16_tool[mod] + res;
   }
   res = ox16_tool[dec_num] + res;
+  int len = res.size();
+  if(len < 3){
+    for(int i = 0; i < 3-len; i++)
+      res = '0' + res;
+  }
   return res;
 }
 

@@ -27,8 +27,17 @@ struct InstrDebugInfoElem {
   int number_instr;
 };
 
+//for debug info. Link the trance instr and the c code
+struct CCodeLinkInstr {
+  string file_name;
+  string fun_name;
+  unordered_map<string, string> ccode_and_instr_elem_map;
+};
+
 class DebugInfo {
  public:
+  //for debug info of ccode and instr
+  static string ccode_instr_file_fun_name;
  
   //Creat a addr debug info record in addr debug map
   void CreateAAddrDebugRecord(string);
@@ -40,17 +49,26 @@ class DebugInfo {
   //add info into exited record
   void AddInstrDebugInfoToRecord(string, string);
 
+  void CreateCodeLink(string);
+
+  string GetInfoFromCodeLink(string);
+
+  void AddInfoToCodeLink(string, string, string);
+
   void PrintAddrDebugInfo(string);
   
   void PrintInstrDebugInfo(string);
   
  private:
+
   /* When we allocated addr for a var, we should record the map info
  * into the addr_debug_info.
  */
   static vector<AddrDebugInfoElem> addr_debug_info_vec;
 
   static vector<InstrDebugInfoElem> instr_debug_info_vec;
+
+  static unordered_map<string, CCodeLinkInstr> ccode_and_instr_map;
 };
 
 #endif

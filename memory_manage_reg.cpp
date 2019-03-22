@@ -26,16 +26,40 @@ unordered_map<string, DataStoreInfo> RegManage::global_addr_map;
 vector<string> RegManage::available_use_reg;
 vector<string> RegManage::have_used_reg;
 
-vector<string> RegManage::reserve_reg = {"0x1100", "0x1101", 
-					 "0x1102", "0x1103", 
-					 "0x1104", "0x1105",
-					 "0x1106", "0x1107"};
-
+vector<string> RegManage::reserve_reg;
+                                   /* = {"0x001", "0x002", 
+					 "0x003", "0x004", 
+					 "0x005", "0x007",
+					 "0x007", "0x008"};
+	                           */
 RegManage::RegManage(int total_reg){
-  for(int i = 0; i < total_reg; i++){
-    string res = "0X1" + ChangeDecToHex(i);
+  //Reserve reg;
+  for(int i = 1; i <= 32; i++){
+    string res = "0x" + ChangeDecToHex(i);
+    RegManage::reserve_reg.push_back(res);
+  }
+  //RAMRange=0x001-0x04c
+  for(int i = 33; i <= 76; i++){
+    string res = "0x" + ChangeDecToHex(i);
     available_use_reg.push_back(res);
   }
+  //RAMRange=0x100-0x1FF
+  //RAMRange=0x200-0x2FF
+  for(int i = 256; i <= 767; i++){
+    string res = "0x" + ChangeDecToHex(i);
+    available_use_reg.push_back(res);
+  }
+  //RAMRange=0xE51-0xE53
+  for(int i = 3665; i <= 3667; i++){
+    string res = "0x" + ChangeDecToHex(i);
+    available_use_reg.push_back(res);
+  }
+  //RAMRange=0xF58-0xFFE
+  for(int i = 3928; i <= 4094; i++){
+    string res = "0x" + ChangeDecToHex(i);
+    available_use_reg.push_back(res);
+  }
+
 }
 
 //CoreAllocateRegFun is the core of allocate addr

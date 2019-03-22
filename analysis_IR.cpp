@@ -39,16 +39,25 @@ void OpenFileAndDeal(string &file_name) {
     //    regex reg1("\%\\d＋\b");        //for operator %x
     regex reg1("\%.+");
     //regex reg2("^\@\w＋\b=\bglobal");//for global var @varName ＝ global
+    regex gdb_index("!.*");
     SplitWord word_con;
+    int word_order = 0;
     //get every word in line
     while(iss >> single_word){       
       if(SDIC_operate_set.find(single_word) != SDIC_operate_set.end()){
 	auto index = SDIC_operate_set.find(single_word);	
 	word_con.instrName = static_cast<SDICKeyWord>(index->second);
-      } else if(regex_match(single_word, reg1)){
-	word_con.opCol.push_back(single_word);
       } 
+      else if(regex_match(single_word, reg1)){
+	word_con.opCol.push_back(single_word);
+      }
+      //whether it is a gdb statement
+      else if(word_order == 0 && regex_match(single_word, gdb_index)){
+	word_con.instrName = static_cast<SDICKeyWord>(27);
+
+      }
       word_con.vaCol.push_back(single_word);
+      ++word_order;
     }
     //this line is invalid
     if(word_con.instrName == knull) continue; 
@@ -168,6 +177,7 @@ void OpenFileAndDeal(string &file_name) {
       break;
     }
     case bitcast: {
+     
       if(find(word_con.vaCol.begin(), word_con.vaCol.end(), \
 	      "call") != word_con.vaCol.end()){
 	debug_info_object.CreateAInstrDebugRecord("call",	 \
@@ -177,7 +187,9 @@ void OpenFileAndDeal(string &file_name) {
       else {
 	debug_info_object.CreateAInstrDebugRecord("bitcast",	  \
 						  single_line_debug); 
-	TranceBitcast(word_con, "bitcast"); break;}
+	TranceBitcast(word_con, "bitcast");
+      }
+      break;
     }
     case sext: {
       debug_info_object.CreateAInstrDebugRecord("sext", \
@@ -192,6 +204,11 @@ void OpenFileAndDeal(string &file_name) {
       debug_info_object.CreateAInstrDebugRecord("select", \
 						single_line_debug);
       TranceSelect(word_con, "select"); break;}
+    case gdb: {
+      TranceGdb(word_con, "gdb"); break;
+      
+    }
+    
     default: break;
     }
 

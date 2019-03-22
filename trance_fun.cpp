@@ -15,7 +15,7 @@
 #include "out_put_fun.h"
 #include "memory_manage_reg.h"
 #include "memory_manage_data.h"
-
+#include "debug_info.h"
 
 using namespace::std;
 class RegManage;
@@ -601,7 +601,6 @@ void TranceStore(SplitWord wordCon, string IR_name){
   }
   //Store the value to the single variabel
   else{
-    
     string op_src1 = wordCon.vaCol[2];
     string op_src2 = wordCon.vaCol[4];
     string op_src1_type = wordCon.vaCol[1];
@@ -665,10 +664,10 @@ void TranceStore(SplitWord wordCon, string IR_name){
       if(!current_fun_name.empty()){
 	op_src2 = current_fun_name + "." + op_src2;
       }
-
+      
       vector<string> reg_name_src =				\
 	reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
-
+      
       //Store a constance value into reg. Because a reg is only 
       //8 bit,
       //we have to splice a constant if this constant is large.
@@ -677,7 +676,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
       //have.
       int reg_num = reg_name_src.size();
       //trange the op_src1 to split section num
-      vector<string> val_vec =					\
+      vector<string> val_vec =					  \
 	reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
 
       for(int i = 0; i < val_vec.size(); i++){      
@@ -2530,10 +2529,14 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
     //get elem_index addr of this struct variable
     vector<string> elem_addr_vec =				\
       reg_manage_obj->GetActualAddrFromGenVal(struct_name,elem_index);
-    
+
+    const vector<string>& elem_type = \
+      reg_manage_obj->GetRecordVarDecalare(VEC[4]);
+
     DataStoreInfo core_info;
     core_info.virtual_addr = core_info_op_src.virtual_addr;
-    core_info.data_type = op_des_type;
+    core_info.data_type = elem_type[elem_index];//op_des_type;
+
     //put the actual addr into the addr of the op_des 
     for(int i = 0; i < elem_addr_vec.size(); i++){
       core_info.actual_addr.push_back(elem_addr_vec[i]);
@@ -3041,6 +3044,33 @@ GetParameterNameAndParameterType(SplitWord wordCon,		  \
 	parameter_type.push_back(op_src_type);
       }
     }
+  }
+  
+}
+
+//deal with the gdb statement
+void TranceGdb(SplitWord wordCon, string IR_name){
+#define VEC wordCon.vaCol
+  DebugInfo debug_info_object = DebugInfo();
+ 
+  if(find(VEC.begin(), VEC.end(), "filename") != VEC.end() && \
+     find(VEC.begin(), VEC.end(), "!DIFile") != VEC.end()){
+    string temp = VEC[4];
+    DebugInfo::ccode_instr_file_fun_name = \
+      VEC[4].substr(1, temp.size() - 2);
+    debug_info_object.CreateCodeLink(DebugInfo::ccode_instr_file_fun_name);
+  }
+  else if(find(VEC.begin(), VEC.end(), "distinct") != VEC.end() &&  \
+	  find(VEC.begin(), VEC.end(), "!DISubprogram") !=VEC.end()){
+    
+  }
+  else if(find(VEC.begin(), VEC.end(), "line") != VEC.end() && \
+	  find(VEC.begin(), VEC.end(), "!DILocation") != VEC.end()){
+    string gdb_first_name = VEC[0];
+    string gdb_second_name = VEC[4];
+    debug_info_object.AddInfoToCodeLink(DebugInfo::ccode_instr_file_fun_name, 
+					gdb_first_name, 
+					gdb_second_name);
   }
   
 }
