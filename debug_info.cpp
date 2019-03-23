@@ -103,16 +103,20 @@ string DebugInfo::GetInfoFromCodeLink(string instr_name){
   instr_index = temp.substr(index_1, index_2 - index_1);
   
   string file_name = DebugInfo::ccode_instr_file_fun_name;
-  
-  CCodeLinkInstr elem =						\
-    ccode_and_instr_map.find(file_name)->second;;
 
-   string ccode_line;
-   if(elem.ccode_and_instr_elem_map.find(instr_index) != \
-      elem.ccode_and_instr_elem_map.end()){
-     ccode_line =					\
-       elem.ccode_and_instr_elem_map.find(instr_index)->second;
-   }
+  CCodeLinkInstr elem;
+  if(!file_name.empty() && 
+     ccode_and_instr_map.find(file_name)!= ccode_and_instr_map.end()){ 
+     elem = ccode_and_instr_map.find(file_name)->second;;
+  }
+  //There may be a error in this, since not verity whether the elem is 
+  //valid or not
+  string ccode_line;
+  if(elem.ccode_and_instr_elem_map.find(instr_index) != \
+     elem.ccode_and_instr_elem_map.end()){
+    ccode_line =						\
+      elem.ccode_and_instr_elem_map.find(instr_index)->second;
+  }
   return ccode_line;
 }
 
