@@ -3052,13 +3052,16 @@ GetParameterNameAndParameterType(SplitWord wordCon,		  \
 void TranceGdb(SplitWord wordCon, string IR_name){
 #define VEC wordCon.vaCol
   DebugInfo debug_info_object = DebugInfo();
- 
+  
   if(find(VEC.begin(), VEC.end(), "filename") != VEC.end() && \
      find(VEC.begin(), VEC.end(), "!DIFile") != VEC.end()){
-    string temp = VEC[4];
+    string temp = VEC[5];
     DebugInfo::ccode_instr_file_fun_name = \
       VEC[4].substr(1, temp.size() - 2);
+
     debug_info_object.CreateCodeLink(DebugInfo::ccode_instr_file_fun_name);
+
+
   }
   else if(find(VEC.begin(), VEC.end(), "distinct") != VEC.end() &&  \
 	  find(VEC.begin(), VEC.end(), "!DISubprogram") !=VEC.end()){
