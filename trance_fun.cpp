@@ -3055,9 +3055,13 @@ void TranceGdb(SplitWord wordCon, string IR_name){
   
   if(find(VEC.begin(), VEC.end(), "filename") != VEC.end() && \
      find(VEC.begin(), VEC.end(), "!DIFile") != VEC.end()){
-    string temp = VEC[5];
+    //string temp = VEC[4];   //Linux
+    string temp =VEC[5];  //windows
+    // DebugInfo::ccode_instr_file_fun_name =	\
+	 //  VEC[4].substr(1, temp.size() - 2);
+
     DebugInfo::ccode_instr_file_fun_name = \
-      VEC[4].substr(0, temp.size() - 2);
+	  VEC[4].substr(0, temp.size() - 2);
 
     debug_info_object.CreateCodeLink(DebugInfo::ccode_instr_file_fun_name);
 
