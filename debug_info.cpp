@@ -83,7 +83,7 @@ DebugInfo::AddInfoToCodeLink(string file_fun_name,
   if(file_fun_name.empty() ||
      ccode_and_instr_map.find(file_fun_name) == \
      ccode_and_instr_map.end()){
-    cout << "DebugInfo::AddInfoToCodeLink: file_fun_name fail" << endl;
+    // cout << "DebugInfo::AddInfoToCodeLink: file_fun_name fail" << endl;
     return ;
   }
   
