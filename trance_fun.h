@@ -145,6 +145,12 @@ void GetParameterNameAndParameterType(SplitWord,		\
 //deal with gdb statement
 void TranceGdb(SplitWord, string);
 
+//deal with switch statement
+void TranceSwitch(SplitWord, string);
+
+void TranceLabelSwitch(SplitWord, string);
+
+void TranceSwitchEnd(SplitWord, string);
 //for ret instr
 void TranceRet(SplitWord, string);
 

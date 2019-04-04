@@ -208,7 +208,35 @@ void OpenFileAndDeal(string &file_name) {
       TranceGdb(word_con, "gdb"); break;
       
     }
-    
+    case switch_begin: {
+      debug_info_object.CreateAInstrDebugRecord("switch", \
+						single_line_debug);
+      TranceSwitch(word_con, "switch"); break;
+    }
+    case switch_label: {
+      if(find(word_con.vaCol.begin(), word_con.vaCol.end(),	\
+	      "switch") != word_con.vaCol.end()){
+	debug_info_object.CreateAInstrDebugRecord("switch",	   \
+						  single_line_debug);
+	TranceSwitch(word_con, "switch"); break;
+      }
+      else if(find(word_con.vaCol.begin(), word_con.vaCol.end(),
+		   "br") != word_con.vaCol.end()){
+	debug_info_object.CreateAInstrDebugRecord("br", \
+						  single_line_debug);
+	TranceBr(word_con, "br"); break;
+      }
+      else {
+	debug_info_object.CreateAInstrDebugRecord("switch",	   \
+						  single_line_debug);
+	TranceLabelSwitch(word_con, "switch"); break;
+      }
+    }
+    case switch_end: {
+      debug_info_object.CreateAInstrDebugRecord("switch", \
+						single_line_debug);  
+      TranceSwitchEnd(word_con, "switch"); break;
+    }
     default: break;
     }
 
