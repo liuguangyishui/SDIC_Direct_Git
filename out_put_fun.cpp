@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <cassert>
+#include <regex>
 #include "out_put_fun.h"
 #include "debug_info.h"
 
@@ -16,6 +17,7 @@ class DebugInfo;
 
 std::ofstream f_out;
 
+map<string, string> special_reg_vec;
 
 void OpenOutPutFile(string file_name){
   //out_put_file_name is a global var, be used in other function
@@ -34,6 +36,19 @@ void CloseOutPutFile(){
 
 void OutPut(string instr_name, string op, string IR_name){
   string content_1, content_2;
+  regex hex_regex("0x.+");
+  regex special_regex("0s.+");
+  if(regex_match(op, hex_regex)){
+    op = "REG" + op.substr(2);
+  }
+  else if(regex_match(op, special_regex)){
+    string special_reg = "0x" + op.substr(2);
+    if(special_reg_vec.find(special_reg) != special_reg_vec.end()){
+      auto result = special_reg_vec.find(special_reg);
+      op = result->second;
+    }
+  }
+
   if(instr_name_no_para.find(instr_name) !=	\
      instr_name_no_para.end()){
     content_1 = "\t" +  instr_name + "\t\t" + op; 

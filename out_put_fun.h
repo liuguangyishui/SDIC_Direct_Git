@@ -6,11 +6,16 @@
 
 #include <iostream>
 #include <set>
+#include <map>
+
 
 #ifndef _OUT_PUT_FUN_H_
 #define _OUT_PUT_FUN_H_
 
 using namespace::std;
+
+extern map<string, string> special_reg_vec;
+
 //when we out put the instruct. different instr will have different
 //number parameter. ex: movlw 0;  movwf 0x11fc 1. 
 //we can distin with no parameter, one parameter and two parameter

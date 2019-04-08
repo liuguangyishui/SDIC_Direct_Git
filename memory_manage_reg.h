@@ -34,9 +34,12 @@ class RegManage: public MemoryManage{
   static RegManage* getInstance(){
     if(reg_manage_instance == NULL)
       reg_manage_instance = new RegManage(kTotalRegNum);
+    
     return reg_manage_instance;
   }
-
+  //the range of ram come from outer file,when the compier begin
+  //run, we should initial the ram range firstly.
+  void InitialRamRange(vector<string>&, string&);
   //It is core fun for allocate reg.It will first check whether
   //have enough reg to allocate.Then create a DataStoreInfo type
   //value.All operation is done in this value.

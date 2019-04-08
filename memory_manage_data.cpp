@@ -32,6 +32,37 @@ DataAreaManage::DataAreaManage(){
   
 }
 
+void 
+DataAreaManage::InitialRomRange(vector<string> &rom_range_vec, \
+				string &core_name){
+  int vec_size = rom_range_vec.size();
+ 
+  for(int i = 0; i < vec_size; i++){
+    string range_elem = rom_range_vec[i];
+    auto comma_index = range_elem.find('-');
+    string range_begin_str = range_elem.substr(0, comma_index);
+    string range_end_str = range_elem.substr(comma_index + 1);
+   
+    int range_begin_num = ChangeHexToDec(range_begin_str);
+    int range_end_num = ChangeHexToDec(range_end_str);
+    
+    DataAreaManage::available_data_area_addr = \
+      range_end_num - range_begin_num;
+
+    DataAreaManage::begin_addr_dataArea = range_begin_num;
+    DataAreaManage::end_addr_dataArea = range_end_num;
+
+
+    if(available_data_area_addr <= 0) {
+      cout << \
+	"Error: InitialRomRange() available_data_area_addr invaild"\
+	   << endl;
+      abort();
+    }
+  }
+
+}
+
 //var_name is the variable name, var_type is the type of the variable
 //elem_num is used for the array.Because we just record the first 
 //elem addr of the array as it's whole addr. elem_num record how many
@@ -72,7 +103,7 @@ DataAreaManage::CoreAllocateDataAreaFun(string var_name, \
 	}
 	int data_area_addr_int = have_used_data_area_addr +	\
 	  begin_addr_dataArea;
-	string data_area_addr_str = ChangeDecToHex(data_area_addr_int);
+	string data_area_addr_str = ChangeDecToHexDataArea(data_area_addr_int);
       
 	core_info.actual_addr.push_back(data_area_addr_str);
 	//add data area debug info into record
@@ -114,7 +145,7 @@ DataAreaManage::CoreAllocateDataAreaFun(string var_name, \
       for(int j = 0; j < data_area_need_num; j++){
 	int data_area_addr_int = have_used_data_area_addr +	\
 	  begin_addr_dataArea;
-	string data_area_addr_str = ChangeDecToHex(data_area_addr_int);
+	string data_area_addr_str = ChangeDecToHexDataArea(data_area_addr_int);
 	
 	core_info.actual_addr.push_back(data_area_addr_str);
 	//add data area debug info into record

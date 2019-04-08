@@ -27,7 +27,8 @@ class DataAreaManage : public MemoryManage {
       data_manage_instance = new DataAreaManage();
     return data_manage_instance;
   }
-  
+
+  void InitialRomRange(vector<string>&, string&);
   //Core fun to allocate data area to val.
   DataStoreInfo CoreAllocateDataAreaFun(string, string, int);
   //allocate data area to val, then call CreateDataAreaMapForVal

@@ -6,6 +6,7 @@
 
  */
 #include <regex>
+#include <fstream>
 #include "debug_info.h"
 #include "tool_fun.h"
 #include "memory_manage_reg.h"
@@ -34,7 +35,7 @@ vector<string> RegManage::reserve_reg;
 	                           */
 RegManage::RegManage(int total_reg){
   //Reserve reg;
-  for(int i = 1; i <= 32; i++){
+  /*  for(int i = 1; i <= 32; i++){
     string res = "0x" + ChangeDecToHex(i);
     RegManage::reserve_reg.push_back(res);
   }
@@ -59,9 +60,59 @@ RegManage::RegManage(int total_reg){
     string res = "0x" + ChangeDecToHex(i);
     available_use_reg.push_back(res);
   }
-
+  */
 }
 
+void 
+RegManage::InitialRamRange(vector<string> &ram_range_vec, string &core_name){
+  int vec_size = ram_range_vec.size();
+  
+  const int kReserveRegNum = 32;
+  int reserve_reg_num = 0;
+  
+  for(int i = 0; i < vec_size; i++){
+    string range_elem = ram_range_vec[i];
+    auto comma_index = range_elem.find('-');
+    string range_begin_str = range_elem.substr(0, comma_index);
+    string range_end_str = range_elem.substr(comma_index+1);
+
+    int range_begin_num = ChangeHexToDec(range_begin_str);
+    int range_end_num = ChangeHexToDec(range_end_str);
+      
+    for(int i = range_begin_num; i <= range_end_num; i++){
+      string reg = "0x" + ChangeDecToHex(i);
+
+      if(reserve_reg_num++ < kReserveRegNum){
+	RegManage::reserve_reg.push_back(reg);	
+      } 
+      RegManage::available_use_reg.push_back(reg);
+    }							
+  }
+
+  int reserve_reg_size = RegManage::reserve_reg.size();
+  int available_use_reg_size = RegManage::available_use_reg.size();
+  
+  //print the map of actual addr and addr name
+  std::ofstream f_out;
+  
+  f_out.open(core_name + ".inc", ios_base::out);
+  
+  if(!f_out.is_open()){
+    cout << "core_name file create fail" << endl;
+    abort();
+  }
+  f_out << "cblock\t" << reserve_reg[0] << endl;
+  for(int i = 0; i < reserve_reg_size; i++){
+    f_out << "\tReg" + reserve_reg[i].substr(2) << "\t" \
+	  << reserve_reg[i] << endl;
+  }
+  for(int i = 0; i < available_use_reg_size; i++){
+    f_out << "\tReg" + available_use_reg[i].substr(2) << "\t" \
+	  << available_use_reg[i] << endl;
+  }
+  f_out << "endc" << endl;
+
+}
 //CoreAllocateRegFun is the core of allocate addr
 //var_name is the name of the variable
 //var_type is the type of the variable

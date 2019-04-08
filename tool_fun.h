@@ -25,6 +25,9 @@ static vector<string> ox16_tool = {"0", "1", "2", "3",
 //trance the dec number to hex number
 string ChangeDecToHex(int);
 
+//trance the dec number to hex number for data area
+string ChangeDecToHexDataArea(int);
+
 //change hex number to dex number.
 int ChangeHexToDec(string);
 

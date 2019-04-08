@@ -5,6 +5,7 @@
  */
 
 #include <iostream>
+#include <map>
 #include <cstring>
 #include <assert.h>
 #include <regex>
@@ -19,8 +20,13 @@ using namespace::std;
 int main(int argv, char **argc){
 
   vector<string> input_file_name;
-  //  string input_file_name;
-  string output_file_name;
+  //string input_file_name;
+  //ram info file name
+  //core name
+  //special reg name
+  string output_file_name, ram_info_file_name,\
+    core_name, special_reg_name;
+
   //identifiy '-' in -F -f or -o 
   regex reg("-.+"); 
   //deal with the para
@@ -37,8 +43,9 @@ int main(int argv, char **argc){
 	  input_file_name.push_back(argc[j]);
 	  ++i;
 	}
-	//it is about outout file
-      } else if(strcmp(argc[i], "-o") == 0){
+      }
+      //it is about outout file
+      else if(strcmp(argc[i], "-o") == 0){
 	
 	for(int j = i+1; j < argv; j++){
 	  if(regex_match(argc[j], reg))
@@ -47,17 +54,58 @@ int main(int argv, char **argc){
 	  output_file_name = argc[j];
 	  ++i;
 	}
-	//it is invalid paremeter
-      } else {
+      } 
+      //it is ram addr file
+      else if(strcmp(argc[i], "-i") == 0){
+	for(int j = i + 1; j < argv; j++){
+	  if(regex_match(argc[j], reg)) break;
+	  
+	  ram_info_file_name = argc[j];
+	  ++i;
+	}
+      }
+      //it is core name
+      else if(strcmp(argc[i], "-c") == 0){
+	  core_name = argc[++i];
+     
+      }
+      //it is for special reg
+      else if(strcmp(argc[i], "-s") == 0){
+	special_reg_name = argc[++i];
+      }
+      //it is invalid paremeter
+      else {
 	cout << "Not valid parameter: " << argc[i] << endl;
 	abort();
       } //end else
     } //end if(regex_match(argc[i], reg))
   } //for
   
+  //judge whether the command have enough parameter
+  if(input_file_name.size() == 0 ||		\
+     ram_info_file_name.empty() ||		\
+     core_name.empty()){
+    cout << "Error: main() Not enough command parameter! " << endl;
+    abort();
+  }
+ //||special_reg_name.empty()			\
+
+  vector<string> ram_range_vec, rom_range_vec;
+  //deal with ram file
+  GetRamAndRomInfo(ram_info_file_name, \
+		   ram_range_vec, rom_range_vec,\
+		   core_name);
+  
+  DealWithRamAndRomInfo(ram_range_vec,   \
+			rom_range_vec, \
+			core_name);
+
+  //  DealWithSpecialRegInfo(special_reg_vec,	\
+  //			 special_reg_name,	\
+  //			 core_name);
+
   //open outputFile
   OpenOutPutFile(output_file_name);
-
 
   //precedure section of the program 
   //the beginning of program

@@ -8,12 +8,136 @@
 #include <iostream>
 #include <fstream>
 #include <regex>
+#include <map>
+#include <vector>
 #include "trance_fun.h"
 #include "debug_info.h"
-
+#include "memory_manage_data.h"
+#include "memory_manage_reg.h"
 using namespace::std;
 
 class DebugInfo;
+
+//This fun get ram and rom info from cfg file
+void GetRamAndRomInfo(string ram_info_file_name, \
+		     vector<string>& ram_range_vec, \
+		      vector<string>& rom_range_vec,\
+		      string &core_name){
+  //Open file and judge whether it is open
+  ifstream IR_file(ram_info_file_name, ios_base::in);
+  if(!IR_file.is_open()){
+    cout << "Error: GetRamAndRomInfo() Open file failed!" << endl;
+    abort();
+  }
+  //find core name
+  //../../../sdic3004.inc
+  /*string core_name_temp = ram_info_file_name;
+  auto char_index = ram_info_file_name.rfind('/');
+  auto comma_index = ram_info_file_name.rfind('.');
+  int len = comma_index - char_index;
+  core_name = core_name_temp.substr(char_index, len);
+  */
+  //get ram info
+  string single_line;
+  bool whether_have_find_target_core = false;
+  bool whether_have_finished = false;
+  //[SD3101]
+  regex core_name_regex(".+" + core_name + ".+");
+  smatch r1;
+  //RAMRange=0x001-0x04C
+  regex ram_range_regex("RAMRange.+");
+  //ROMRange=0x0000-0x3FFF
+  regex rom_range_regex("ROMRange.+");
+  //[SD3101]
+  regex bracket_regex(".+SD.+");//.+]");
+  //get every line of this file
+  while(getline(IR_file, single_line)){ 
+    
+    string single_word; 
+    istringstream iss(single_line);
+    //get every word of this line
+    while(iss >> single_word) { 
+      //find the target core
+      if(regex_match(single_word, r1, bracket_regex)){
+
+	if(whether_have_find_target_core){
+	  whether_have_finished = true;
+	  break;
+	}
+	else if(regex_match(single_word, core_name_regex)){
+	  whether_have_find_target_core = true;
+	  continue;
+	}
+      }
+      
+      if(whether_have_find_target_core == false) continue;
+     
+      //it is processor item
+      if(!single_word.compare("Processor")){
+	
+      }
+      //it is range of ram
+      if(regex_match(single_word, ram_range_regex)){
+	
+	auto equal_index = single_word.find("=");
+	string ram_range = single_word.substr(equal_index + 1);
+	ram_range_vec.push_back(ram_range);
+      }
+      //it is range of rom
+      if(regex_match(single_word, rom_range_regex)){
+	
+	auto equal_index = single_word.find("=");
+	string rom_range = single_word.substr(equal_index + 1);
+	
+	rom_range_vec.push_back(rom_range);
+
+      }
+
+    }
+    if(whether_have_finished) break;
+  }
+  //if there are not core name in cfg file
+  if(!(whether_have_finished && whether_have_find_target_core)){
+    cout << "Error: There aren't " << core_name << " in " <<	\
+      ram_info_file_name << endl;
+    abort();
+  }
+}
+
+void DealWithRamAndRomInfo(vector<string>& ram_range_vec, \
+			   vector<string>& rom_range_vec,\
+			   string& core_name){
+  RegManage* reg_manage_obj = RegManage::getInstance();
+  reg_manage_obj->InitialRamRange(ram_range_vec, core_name);
+  
+  DataAreaManage* data_area_manage_obj = DataAreaManage::getInstance();
+  data_area_manage_obj->InitialRomRange(rom_range_vec, core_name);
+}
+
+void DealWithSpecialRegInfo(map<string, string>& special_reg_map, \
+			    string& path_name, \
+			    string& core_name){
+  //Open file and judge whether it is open
+  ifstream IR_file(path_name, ios_base::in);
+  if(!IR_file.is_open()){
+    cout << "Error: DealWithSpecialRegInfo Open special reg "\
+      "file failed!" << endl;
+    abort();
+  }
+  string single_line;
+  //get every line of this file
+  while(getline(IR_file, single_line)){
+    string single_word;
+    istringstream iss(single_line);
+    vector<string> map_vec;
+    //get every word of this line
+    while(iss >> single_word){
+      map_vec.push_back(single_word);
+    }
+    special_reg_map.insert(make_pair(map_vec[1], map_vec[0]));
+  }
+
+}
 
 void OpenFileAndDeal(string &file_name) {
   //Open file
@@ -23,8 +147,6 @@ void OpenFileAndDeal(string &file_name) {
     return;
   }
   
- 
-
   string single_line;
   while(getline(IR_file, single_line)){//get every line
   

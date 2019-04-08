@@ -24,6 +24,24 @@ string ChangeDecToHex(int dec_num){
   return res;
 }
 
+//Change dec number to hex number
+string ChangeDecToHexDataArea(int dec_num){
+  string res;
+  
+  while(dec_num > 15){
+    int mod = dec_num % 16;
+    dec_num /= 16;
+    res = ox16_tool[mod] + res;
+  }
+  res = ox16_tool[dec_num] + res;
+  int len = res.size();
+  if(len < 4){
+    for(int i = 0; i < 4-len; i++)
+      res = '0' + res;
+  }
+  return res;
+}
+
 //Change hex number to dec number
 int ChangeHexToDec(string hex_str_val){
   int res = 0;
@@ -31,14 +49,21 @@ int ChangeHexToDec(string hex_str_val){
   for(int i = hex_str_val.size() - 1, j = 0; i >= 0; i--, j++){
     char elem = hex_str_val[i];
     int val = 0;
-    if(elem >= 'a' && elem <= 'z'){
+    if(elem >= 'a' && elem <= 'f'){
       val = elem - 'a' + 10;
     }
-    else if(elem >= 'A' && elem <= 'Z'){
+    else if(elem >= 'A' && elem <= 'F'){
       val = elem - 'A' + 10;
     }
     else if(elem >= '0' && elem <= '9'){
       val = hex_str_val[i] - '0';
+    }
+    else if(elem == 'x'){
+      return res;
+    }
+    else {
+      cout << "Error: invaild character in ChangeHexToDec() " << endl;
+      abort();
     }
     res += val * pow(16, j);
   }
