@@ -143,8 +143,8 @@ void OpenFileAndDeal(string &file_name) {
   //Open file
   ifstream IR_file(file_name,ios_base::in);
   if(!IR_file.is_open()){
-    cout << "Open file failed!" << endl;
-    return;
+    cout << "Error: OpenFileAndDeal() Open file failed!" << endl;
+    abort();
   }
   
   string single_line;

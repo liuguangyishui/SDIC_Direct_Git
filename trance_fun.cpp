@@ -1247,8 +1247,10 @@ void TranceBr(SplitWord wordCon, string IR_name){
     for(int i = 0; i < 1; i++){
       OutPut("movwf", res_op1[i], IR_name);
       OutPut("movwf", res_op2[i], IR_name);
-     }
+    }
      //-------------    
+     string opBlock1 = wordCon.vaCol[4].substr(1);
+     string opBlock2 = wordCon.vaCol[6].substr(1);
         
      string test_name = wordCon.vaCol[2];
      string inner_label = wordCon.vaCol[2].substr(1);
@@ -1256,13 +1258,14 @@ void TranceBr(SplitWord wordCon, string IR_name){
      if(!current_fun_name.empty()){
        test_name = current_fun_name + "." + test_name;
        inner_label = current_fun_name + "_" + inner_label;
+       
+       opBlock1 = current_fun_name + "_" + opBlock1;
+       opBlock2 = current_fun_name + "_" + opBlock2;
      }
      vector<string> reg_name_test =				\
        reg_manage_obj->GetActualAddrFromGenVal(test_name, 0);
      int reg_num = reg_name_test.size();
     
-     string opBlock1 = wordCon.vaCol[4].substr(1);
-     string opBlock2 = wordCon.vaCol[6].substr(1);
      //Instr: a <= b
      if(!instrName.compare("le")){
        OutPut("btfss", "STATUS", 0, 1, IR_name);
@@ -1347,8 +1350,17 @@ void TranceBr(SplitWord wordCon, string IR_name){
     
   } 
 //   //Instr: br label %x
-  else if(wordCon.opCol.size() <= 1){ 
+  else if(wordCon.opCol.size() <= 1){
     string opBlock = wordCon.opCol[0].substr(1);
+    RegManage* reg_manage_obj = RegManage::getInstance();
+    //add fun name before variable
+    string current_fun_name =				\
+      reg_manage_obj->GetValueFromWhichFunStack();        
+    //add fun name before variable
+    if(!current_fun_name.empty()){
+      opBlock = current_fun_name + "_" + opBlock;
+    }
+
     OutPutJump("bra", opBlock, IR_name);
   }
   lastInstrName = " ";
