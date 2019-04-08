@@ -131,3 +131,14 @@ void OutPutLabel(string orderName, string IR_name){
   }
 }
 
+
+void OutPutPure(string instrName){
+  if(!out_put_file_name.empty() && f_out.is_open()){
+    f_out << "\n" << flush;
+    f_out << instrName << endl;
+  } else {
+    cout << "\n" << flush;
+    cout << instrName  << endl;
+  }
+
+}

@@ -42,6 +42,9 @@ void OutPut(string, string, string IR_name);
 //print instr with the last index number
 void OutPut(string, string, int, int, string IR_name);
 
+//this fun just output origin info
+void OutPutPure(string);
+
 //print the paramter, without additonal content. like cout
 void OutPutOrg(string, string);
 

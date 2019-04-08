@@ -106,7 +106,9 @@ int main(int argv, char **argc){
 
   //open outputFile
   OpenOutPutFile(output_file_name);
-
+  
+  //include some head file
+  OutPutPure("#include " + core_name + ".inc");
   //precedure section of the program 
   //the beginning of program
   ProgramBegin();

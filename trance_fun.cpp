@@ -1265,13 +1265,13 @@ void TranceBr(SplitWord wordCon, string IR_name){
      string opBlock2 = wordCon.vaCol[6].substr(1);
      //Instr: a <= b
      if(!instrName.compare("le")){
-       OutPut("btfsc", "STATUS", 0, 1, IR_name);
+       OutPut("btfss", "STATUS", 0, 1, IR_name);
        OutPutJump("bra", opBlock1, IR_name);
        OutPutJump("bra", opBlock2, IR_name);
      } 
      //Instr: a >= b
      else if(!instrName.compare("ge")){  
-       OutPut("btfss", "STATUS", 0, 1, IR_name);
+       OutPut("btfsc", "STATUS", 0, 1, IR_name);
        OutPutJump("bra", opBlock1, IR_name);
        OutPutJump("bra", opBlock2, IR_name);
      } 
@@ -1291,19 +1291,20 @@ void TranceBr(SplitWord wordCon, string IR_name){
        OutPut("tstfsz", reg_name_test[reg_num - 1], IR_name);
 
        OutPutLabel(inner_label, IR_name);
-       OutPut("btfss", "STATUS", 0, 1, IR_name);
+       OutPut("btfsc", "STATUS", 0, 1, IR_name);
        OutPutJump("bra", opBlock2, IR_name);
        OutPutJump("bra", opBlock1, IR_name);    
      }
      //Instr: a > b
      else if(!instrName.compare("gt")){
+
        for(int i = 0; i < reg_num - 1; i++){
 	 OutPut("tstfsz", reg_name_test[i], IR_name);
 	 OutPutJump("bra", inner_label, IR_name);
        }
        OutPut("tstfsz", reg_name_test[reg_num - 1], IR_name);
        OutPutLabel(inner_label, IR_name);
-       OutPut("btfsc", "STATUS", 0, 1, IR_name);
+       OutPut("btfss", "STATUS", 0, 1, IR_name);
        OutPutJump("bra", opBlock2, IR_name);
        OutPutJump("bra", opBlock1, IR_name);
      }
@@ -1425,7 +1426,7 @@ void TranceZext(SplitWord wordCon, string IR_name){
     else if(!instrName.compare("gt")){
       vector<string> constant_1 =				\
 	reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
-
+     
       for(int i = 0; i < reg_num; i++){
 	OutPut("movlw", "." + constant_1[i], IR_name);
 	OutPut("movwf", op_des_vec[i], IR_name);
@@ -1433,9 +1434,10 @@ void TranceZext(SplitWord wordCon, string IR_name){
       OutPut("movlw", ".0", IR_name);
       for(int j = 0; j < reg_num; j++){
 	OutPut("cpfseq", op_src1_vec[j], IR_name);
-	OutPut("btfsc", "STATUS", 0, 1, IR_name);
+	OutPut("btfss", "STATUS", 0, 1, IR_name);
 	OutPut("movwf", op_des_vec[j], IR_name);   
       }
+     
     } 
     //Instr: (a < b)
     else if(!instrName.compare("lt")){
@@ -1449,7 +1451,7 @@ void TranceZext(SplitWord wordCon, string IR_name){
       OutPut("movlw", ".0", IR_name);      
       for(int j = 0; j < reg_num; j++){
 	OutPut("cpfseq", op_src1_vec[j], IR_name);
-	OutPut("btfss", "STATUS", 0, 1, IR_name);
+	OutPut("btfsc", "STATUS", 0, 1, IR_name);
 	OutPut("movwf", op_des_vec[j], IR_name);
       }
     } 
@@ -1465,7 +1467,7 @@ void TranceZext(SplitWord wordCon, string IR_name){
 
       OutPutLabel(inner_label + "_next", IR_name);
 
-      OutPut("btfss", "STATUS", 0, 1, IR_name);   //if equal 1, jump
+      OutPut("btfsc", "STATUS", 0, 1, IR_name);   //if equal 1, jump
       OutPutJump("bra", inner_label + "_next2", IR_name);
       OutPutJump("bra", inner_label + "_next1", IR_name);
       
@@ -1497,7 +1499,7 @@ void TranceZext(SplitWord wordCon, string IR_name){
       }
       OutPutLabel(inner_label + "_next", IR_name);
       
-      OutPut("btfsc", "STATUS", 0, 1, IR_name);
+      OutPut("btfss", "STATUS", 0, 1, IR_name);
 
       OutPutJump("bra", inner_label + "_next2", IR_name);
       OutPutJump("bra", inner_label + "_next1", IR_name);
@@ -3111,7 +3113,7 @@ void TranceSelect(SplitWord wordCon, string IR_name){
     OutPutJump("bra", inner_label + "_next3", IR_name);
     
     OutPutLabel(inner_label + "_next1", IR_name);
-    OutPut("btfss", "STATUS", 0, 1, IR_name);
+    OutPut("btfsc", "STATUS", 0, 1, IR_name);
     OutPutJump("bra", inner_label + "_next2", IR_name);
     OutPutJump("bra", inner_label + "_next3", IR_name);
 
@@ -3132,7 +3134,7 @@ void TranceSelect(SplitWord wordCon, string IR_name){
   //Instr: a >= b
   else if(!instr_name.compare("ge")){
     
-    OutPut("btfsc", "STATUS", 0, 1, IR_name);
+    OutPut("btfss", "STATUS", 0, 1, IR_name);
     OutPutJump("bra", inner_label + "_next2", IR_name);
     OutPutJump("bra", inner_label + "_next3", IR_name);
 
@@ -3160,7 +3162,7 @@ void TranceSelect(SplitWord wordCon, string IR_name){
     OutPutJump("bra", inner_label + "_next2", IR_name);
 
     OutPutLabel(inner_label + "_next1", IR_name);
-    OutPut("btfss", "STATUS", 0, 1, IR_name);
+    OutPut("btfsc", "STATUS", 0, 1, IR_name);
     OutPutJump("bra", inner_label + "_next2", IR_name);
     OutPutJump("bra", inner_label + "_next3", IR_name);
 
@@ -3188,7 +3190,7 @@ void TranceSelect(SplitWord wordCon, string IR_name){
     OutPutJump("bra", inner_label + "_next2", IR_name);
 
     OutPutLabel(inner_label + "_next1", IR_name);
-    OutPut("btfsc", "STATUS", 0, 1, IR_name);
+    OutPut("btfss", "STATUS", 0, 1, IR_name);
     OutPutJump("bra", inner_label + "_next2", IR_name);
     OutPutJump("bra", inner_label + "_next3", IR_name);
     
