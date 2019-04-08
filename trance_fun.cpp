@@ -1036,14 +1036,14 @@ void  TranceAdd(SplitWord wordCon, string IR_name){
 //so we should use different method.
 //   
 void TranceSub(SplitWord wordCon, string IR_name){
-
+  
   RegManage* reg_manage_obj = RegManage::getInstance();
   //Instr: a = constant - R or reverse
   if(wordCon.opCol.size() <= 2){  
     string op_des = wordCon.opCol[0];
     string op_src1 = wordCon.vaCol[5];
     string op_src2 = wordCon.vaCol[6];
-
+   
     string op_des_type = wordCon.vaCol[4];
     string op_src1_type = wordCon.vaCol[4];
     string op_src2_type = wordCon.vaCol[4];
@@ -1071,7 +1071,8 @@ void TranceSub(SplitWord wordCon, string IR_name){
       //value1 = op_src1;
     } 
     //Instr: a = constant - R
-    if(regex_match(op_src2, res)){ 
+    if(regex_match(op_src2, res)){
+      
       //value2 is Reg and value1 is a constant
       if(!current_fun_name.empty()){
 	op_src2 = current_fun_name + "." + op_src2;
@@ -1089,7 +1090,7 @@ void TranceSub(SplitWord wordCon, string IR_name){
 	} 
 	else if(reg_num != 1){
 	  for(int i = 0; i < reg_num; i++){
-	    OutPut("movf", value1[i], IR_name);
+	    OutPut("movlw", "." + value1[i], IR_name);
 	    OutPut("movwf", RegManage::reserve_reg[0], IR_name);
 	    OutPut("movf", value2[i], IR_name);
 	    if(i == 0) 	
