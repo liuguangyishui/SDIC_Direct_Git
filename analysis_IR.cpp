@@ -120,25 +120,33 @@ void DealWithSpecialRegInfo(map<string, string>& special_reg_map, \
   //Open file and judge whether it is open
   ifstream IR_file(path_name, ios_base::in);
   if(!IR_file.is_open()){
-    cout << "Error: DealWithSpecialRegInfo Open special reg "\
+    cout << "Error: DealWithSpecialRegInfo Open special reg "	\
       "file failed!" << endl;
     abort();
   }
   string single_line;
+  regex equ_upper_regex(".+EQU.+");
+  regex equ_lower_regex(".+equ.+");
   //get every line of this file
   while(getline(IR_file, single_line)){
-    string single_word;
-    istringstream iss(single_line);
-    vector<string> map_vec;
-    //get every word of this line
-    while(iss >> single_word){
-      map_vec.push_back(single_word);
+    if(regex_match(single_line, equ_lower_regex) || \
+       regex_match(single_line, equ_upper_regex)){
+      
+	string single_word;
+	istringstream iss(single_line);
+	vector<string> map_vec;
+	//get every word of this line
+	while(iss >> single_word){
+	  if(!single_word.compare("EQU") || !single_word.compare("equ"))
+	    continue;
+	  map_vec.push_back(single_word);
+	}
+	//PCL EQU 0XXXH
+	string map_index = map_vec[1].substr(1, map_vec[1].size() - 2);  
+	special_reg_map.insert(make_pair(map_index, map_vec[0]));
     }
-    special_reg_map.insert(make_pair(map_vec[1], map_vec[0]));
   }
-
 }
-
 void OpenFileAndDeal(string &file_name) {
   //Open file
   ifstream IR_file(file_name,ios_base::in);

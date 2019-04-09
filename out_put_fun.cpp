@@ -41,8 +41,10 @@ void OutPut(string instr_name, string op, string IR_name){
   if(regex_match(op, hex_regex)){
     op = "REG" + op.substr(2);
   }
+  //the register is special reg. we should use it name.
   else if(regex_match(op, special_regex)){
-    string special_reg = "0x" + op.substr(2);
+    //PCL EQU 0XXXH (XXX)
+    string special_reg = op.substr(2);
     if(special_reg_vec.find(special_reg) != special_reg_vec.end()){
       auto result = special_reg_vec.find(special_reg);
       op = result->second;

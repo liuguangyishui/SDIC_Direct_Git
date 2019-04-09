@@ -84,25 +84,27 @@ int main(int argv, char **argc){
   //judge whether the command have enough parameter
   if(input_file_name.size() == 0 ||		\
      ram_info_file_name.empty() ||		\
-     core_name.empty()){
+     core_name.empty() ||			\
+     special_reg_name.empty()){
     cout << "Error: main() Not enough command parameter! " << endl;
     abort();
   }
- //||special_reg_name.empty()			\
+ 
 
   vector<string> ram_range_vec, rom_range_vec;
   //deal with ram file
   GetRamAndRomInfo(ram_info_file_name, \
 		   ram_range_vec, rom_range_vec,\
 		   core_name);
-  
+  //deal with ram info include ram and rom 
   DealWithRamAndRomInfo(ram_range_vec,   \
 			rom_range_vec, \
 			core_name);
 
-  //  DealWithSpecialRegInfo(special_reg_vec,	\
-  //			 special_reg_name,	\
-  //			 core_name);
+  //deal with special register in ram
+  DealWithSpecialRegInfo(special_reg_vec,	\
+  			 special_reg_name,	\
+  			 core_name);
 
   //open outputFile
   OpenOutPutFile(output_file_name);
