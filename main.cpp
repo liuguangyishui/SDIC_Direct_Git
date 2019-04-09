@@ -45,7 +45,7 @@ int main(int argv, char **argc){
 	}
       }
       //it is about outout file
-      else if(strcmp(argc[i], "-o") == 0){
+      else if(strcmp(argc[i], "-o") == 0 || strcmp(argc[i], "-O") == 0){
 	
 	for(int j = i+1; j < argv; j++){
 	  if(regex_match(argc[j], reg))
@@ -56,7 +56,7 @@ int main(int argv, char **argc){
 	}
       } 
       //it is ram addr file
-      else if(strcmp(argc[i], "-i") == 0){
+      else if(strcmp(argc[i], "-i") == 0 || strcmp(argc[i], "I") == 0){
 	for(int j = i + 1; j < argv; j++){
 	  if(regex_match(argc[j], reg)) break;
 	  
@@ -65,12 +65,12 @@ int main(int argv, char **argc){
 	}
       }
       //it is core name
-      else if(strcmp(argc[i], "-c") == 0){
+      else if(strcmp(argc[i], "-c") == 0 || strcmp(argc[i], "-C") == 0){
 	  core_name = argc[++i];
      
       }
       //it is for special reg
-      else if(strcmp(argc[i], "-s") == 0){
+      else if(strcmp(argc[i], "-s") == 0 || strcmp(argc[i], "-S") == 0){
 	special_reg_name = argc[++i];
       }
       //it is invalid paremeter
