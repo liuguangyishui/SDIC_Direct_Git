@@ -56,7 +56,7 @@ int main(int argv, char **argc){
 	}
       } 
       //it is ram addr file
-      else if(strcmp(argc[i], "-i") == 0 || strcmp(argc[i], "I") == 0){
+      else if(strcmp(argc[i], "-i") == 0 || strcmp(argc[i], "-I") == 0){
 	for(int j = i + 1; j < argv; j++){
 	  if(regex_match(argc[j], reg)) break;
 	  
@@ -109,8 +109,8 @@ int main(int argv, char **argc){
   //open outputFile
   OpenOutPutFile(output_file_name);
   
-  //include some head file
-  OutPutPure("#include " + core_name + ".inc");
+  //include some head file, core_name GeneralReg
+  OutPutPure("'#include " + core_name + "_GeneralReg.inc'");
   //precedure section of the program 
   //the beginning of program
   ProgramBegin();

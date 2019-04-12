@@ -17,6 +17,7 @@ using namespace::std;
  */
 struct AddrDebugInfoElem {
   string IR_name;
+  string var_type;
   vector<string> allocated_addr;
   int number_addr;
 };
@@ -40,7 +41,7 @@ class DebugInfo {
   static string ccode_instr_file_fun_name;
  
   //Creat a addr debug info record in addr debug map
-  void CreateAAddrDebugRecord(string);
+  void CreateAAddrDebugRecord(string, string);
   //add addr info into exited record via var_name(first parameter)
   void AddAddrDebugInfoToRecord(string, string);
   void AddAdditionalDebugInfoToRecord(string, string);

@@ -89,7 +89,7 @@ DataAreaManage::CoreAllocateDataAreaFun(string var_name, \
     core_info.belong_which_fun_name = this->GetBelongWhatCallName();
     //addr debug info
     DebugInfo debug_info_obj = DebugInfo();
-    debug_info_obj.CreateAAddrDebugRecord(var_name);
+    debug_info_obj.CreateAAddrDebugRecord(var_name, var_type);
 
 
     for(int i = 0; i < type_vec.size(); i++){
@@ -136,7 +136,7 @@ DataAreaManage::CoreAllocateDataAreaFun(string var_name, \
     core_info.actual_addr_num = data_area_need_num; 
     //record addr debug infomation
     DebugInfo debug_info_obj = DebugInfo();
-    debug_info_obj.CreateAAddrDebugRecord(var_name);
+    debug_info_obj.CreateAAddrDebugRecord(var_name, var_type);
 
     //the outer statement for is for array, 
     //the inter for statement if for register of a variable

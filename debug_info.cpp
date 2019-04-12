@@ -18,10 +18,10 @@ vector<InstrDebugInfoElem> DebugInfo::instr_debug_info_vec;
 unordered_map<string, CCodeLinkInstr> DebugInfo::ccode_and_instr_map;
 string DebugInfo::ccode_instr_file_fun_name;
 
-void DebugInfo::CreateAAddrDebugRecord(string var_name){
+void DebugInfo::CreateAAddrDebugRecord(string var_name, string type){
   AddrDebugInfoElem debug_info;
   debug_info.IR_name = var_name;
-  
+  debug_info.var_type = type;
   addr_debug_info_vec.push_back(debug_info);
 }
 
@@ -166,6 +166,7 @@ void DebugInfo::PrintAddrDebugInfo(string output_file_name){
   }
   for(auto outer_elem: addr_debug_info_vec){
     fout << outer_elem.IR_name << ": " << endl;
+    fout << "type: " << outer_elem.var_type << endl;
     vector<string> core_info = outer_elem.allocated_addr;
     for(auto inner_elem: core_info){
       fout << "\t\t" << inner_elem << endl;

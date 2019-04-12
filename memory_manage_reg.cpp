@@ -63,6 +63,11 @@ RegManage::RegManage(int total_reg){
   */
 }
 
+//InitialRamRange fun aim to inital General reg of ram.The general
+//reg divide into different banks.But we just use a vector to store
+//all genreal reg.Then we must print these general reg according to
+//it's bank.We can find the index that which bank the general reg 
+//belong to.
 void 
 RegManage::InitialRamRange(vector<string> &ram_range_vec, string &core_name){
   int vec_size = ram_range_vec.size();
@@ -85,30 +90,76 @@ RegManage::InitialRamRange(vector<string> &ram_range_vec, string &core_name){
       if(reserve_reg_num++ < kReserveRegNum){
 	RegManage::reserve_reg.push_back(reg);	
       } 
-      RegManage::available_use_reg.push_back(reg);
+      else {
+	RegManage::available_use_reg.push_back(reg);
+      }
     }							
   }
 
   int reserve_reg_size = RegManage::reserve_reg.size();
   int available_use_reg_size = RegManage::available_use_reg.size();
   
-  //print the map of actual addr and addr name
+  //print the map of actual addr and addr name about general reg
+  //
   std::ofstream f_out;
   
-  f_out.open(core_name + ".inc", ios_base::out);
+  f_out.open(core_name + "_GeneralReg.inc", ios_base::out);
   
   if(!f_out.is_open()){
-    cout << "core_name file create fail" << endl;
+    cout << \
+      "Error:RegManage::InitialRamRange() core_name file create fail"\
+	 << endl;
     abort();
   }
-  f_out << "cblock\t" << reserve_reg[0] << endl;
+  //which bank that the register belong
+  string which_bank_index;
+
+  //for reserve_reg
   for(int i = 0; i < reserve_reg_size; i++){
-    f_out << "\tReg" + reserve_reg[i].substr(2) << "\t" \
-	  << reserve_reg[i] << endl;
+    //FFF. No 0x 
+    string reg_name = reserve_reg[i].substr(2);
+    if(which_bank_index.empty()){
+      f_out << "cblock\t" << reserve_reg[i] << endl;      
+      f_out << "\tReg" + reg_name << endl;
+      //get the first letter of the reg_name;
+      which_bank_index = reg_name.substr(0,1);
+    }
+    else {
+      string which_bank_index_temp = reg_name.substr(0,1);
+      //if both equal
+      if(!which_bank_index.compare(which_bank_index_temp)){
+	f_out << "\tReg" + reg_name << ";" << endl;
+      }
+      //both not equal
+      else {
+	f_out << "endc" << endl;
+	f_out << "cblock\t" << reserve_reg[i] << endl;
+	f_out << "\tReg" + reg_name << ";" << endl;
+	which_bank_index = which_bank_index_temp;
+      }
+    }
   }
+  //for available_use_reg
   for(int i = 0; i < available_use_reg_size; i++){
-    f_out << "\tReg" + available_use_reg[i].substr(2) << "\t" \
-	  << available_use_reg[i] << endl;
+    //FFF. No 0x
+    string reg_name = available_use_reg[i].substr(2);
+    if(which_bank_index.empty()){
+      f_out << "cblock\t" << available_use_reg[i] << endl;
+      f_out << "\tReg" + reg_name << ";" << endl;
+    }
+    else {
+      string which_bank_index_temp = reg_name.substr(0,1);
+      //if both equal
+      if(!which_bank_index.compare(which_bank_index_temp)){
+	f_out << "\tReg" + reg_name << ";" << endl;
+      }
+      else {
+	f_out << "endc" << endl;
+	f_out << "cblock\t" << available_use_reg[i] << endl;
+	f_out << "\tReg" + reg_name << ";" << endl;
+	which_bank_index = which_bank_index_temp;
+      }
+    }
   }
   f_out << "endc" << endl;
 
@@ -145,7 +196,7 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
     core_info.belong_which_fun_name = this->GetBelongWhatCallName();
     //addr debug info 
     DebugInfo debug_info_obj = DebugInfo();
-    debug_info_obj.CreateAAddrDebugRecord(var_name);
+    debug_info_obj.CreateAAddrDebugRecord(var_name, var_type);
     //the outer statement for is for array if the elem_num
     //bigger than 1 the inter for statement is for register 
     //of a variabel
@@ -187,7 +238,7 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
     core_info.belong_which_fun_name = this->GetBelongWhatCallName();
     //addr debug info 
     DebugInfo debug_info_obj = DebugInfo();
-    debug_info_obj.CreateAAddrDebugRecord(var_name);
+    debug_info_obj.CreateAAddrDebugRecord(var_name, var_type);
     
     
     //the outer statement for is for array if the elem_num

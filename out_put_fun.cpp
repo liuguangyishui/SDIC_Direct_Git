@@ -34,54 +34,147 @@ void CloseOutPutFile(){
     f_out.close();
 }
 
+//output the instr.But we have some question have to solve:
+//identify the special reg and general reg
+//deal with the parameter of D and A
+//output to terminate of  file
+//record the instr debug
+//deal with the banks 
+string which_bank_index;
 void OutPut(string instr_name, string op, string IR_name){
+ 
   string content_1, content_2;
-  regex hex_regex("0x.+");
-  regex special_regex("0s.+");
-  if(regex_match(op, hex_regex)){
+  //record the bank index
+  string origin_op;
+  //whether the op is num
+  bool isnum_index = false;
+
+  //identify special reg and general reg
+  //general reg
+  regex general_reg_regex("0x.+");
+  //special reg
+  regex special_reg_regex("0s.+");
+  if(regex_match(op, general_reg_regex)){
+    //register name no 0x
+    origin_op = op.substr(2);    
     op = "REG" + op.substr(2);
   }
   //the register is special reg. we should use it name.
-  else if(regex_match(op, special_regex)){
+  else if(regex_match(op, special_reg_regex)){
+    //register name no 0x
+    origin_op = op.substr(2);
     //PCL EQU 0XXXH (XXX)
     string special_reg = op.substr(2);
     if(special_reg_vec.find(special_reg) != special_reg_vec.end()){
       auto result = special_reg_vec.find(special_reg);
       op = result->second;
     }
+    //NO special reg in map
+    else {
+      op = "ERROR";
+    }
+  }
+  else {
+    isnum_index = true;
   }
 
+  //deal with different instr have different parameter
   if(instr_name_no_para.find(instr_name) !=	\
      instr_name_no_para.end()){
     content_1 = "\t" +  instr_name + "\t\t" + op; 
-    content_2 = "\t" +  instr_name + "\t\t" + op;
   }
   else if(instr_name_one_para.find(instr_name) != \
 	  instr_name_one_para.end()){
     content_1 = "\t" +  instr_name + "\t\t" + op + ",\t1"; 
-    content_2 = "\t" +  instr_name + "\t\t" + op + ",\t1";
   }
   else if(instr_name_two_para.find(instr_name) != \
 	  instr_name_two_para.end()){
     content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1"; 
-    content_2 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1";
   
   } else {
     content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1"; 
-    content_2 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1";
   }
   
+  //record the instr debug info 
+  //and decide where the instr output
   DebugInfo debug_info_object = DebugInfo();
-
+  
   if(!out_put_file_name.empty() && f_out.is_open()){
-    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
-    f_out << content_1 << endl;
-  } else {
-    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_2);
-    cout << content_2 << endl;
+    
+    //deal with bank
+    string which_bank_index_temp = origin_op.substr(0,1);
+    if(isnum_index){
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+      f_out << content_1 << endl;
+    }
+    else if(!isnum_index && which_bank_index.empty()){
+      which_bank_index = which_bank_index_temp;
+      string content_bank = "\tmovlb\t\t" + which_bank_index; 
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_bank);
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	
+      f_out << content_bank << endl;
+      f_out << content_1 << endl;
+
+    }
+    else if(!isnum_index && !which_bank_index.empty()){
+      if(!which_bank_index.compare(which_bank_index_temp)){
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	f_out << content_1 << endl;
+      } 
+      else {
+	which_bank_index = which_bank_index_temp;
+	string content_bank = "\tmovlb\t\t" + which_bank_index; 
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_bank);
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	
+	f_out << content_bank << endl;
+	f_out << content_1 << endl;
+	
+      }
+    }
+  
+  } 
+  else {
+
+    //deal with bank
+    string which_bank_index_temp = origin_op.substr(0,1);
+
+    if(isnum_index){
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+      cout << content_1 << endl;
+    }
+    else if(!isnum_index && which_bank_index.empty()){
+      which_bank_index = which_bank_index_temp;
+      string content_bank = "\tmovlb\t\t" + which_bank_index; 
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_bank);
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	
+      cout << content_bank << endl;
+      cout << content_1 << endl;
+
+    }
+    else if(!isnum_index && !which_bank_index.empty()){
+      if(!which_bank_index.compare(which_bank_index_temp)){
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	cout << content_1 << endl;
+      } 
+      else {
+	which_bank_index = which_bank_index_temp;
+	string content_bank = "\tmovlb\t\t" + which_bank_index; 
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_bank);
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	
+	cout << content_bank << endl;
+	cout << content_1 << endl;
+	
+      }
+    }
+    
   }
 }
 
+//output instr that the d and a parameter have been known
 void OutPut(string instr_name, string op,int index1 = 0, \
 	    int index2 = 1, string IR_name = " "){
   string content_1 = "\t" + instr_name + "\t\t" + op + ",\t"	\
