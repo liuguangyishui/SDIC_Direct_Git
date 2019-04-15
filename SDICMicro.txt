@@ -1,0 +1,682 @@
+; SDICMicroC/S 处理器配置文件
+; EXPEND_MODE
+; 20171020
+[SD3101]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD3102]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD3302]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x001-0x04C
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+RAMRange=0xE51-0xE53
+RAMRange=0xF58-0xFFE
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD3501]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD3503]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x001-0x04C
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+RAMRange=0xE51-0xE53
+RAMRange=0xF58-0xFFE
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD4021]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x001-0x028
+RAMRange=0x100-0x1FF
+RAMRange=0xE51-0xE53
+RAMRange=0xF80-0xFFE
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x0FFF
+
+[SD4101]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x0FFF
+
+[SD4102]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x0FFF
+
+[SD4111]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x001-0x028
+RAMRange=0x100-0x17F
+RAMRange=0xE51-0xE53
+RAMRange=0xF80-0xFFE
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x0FFF
+
+[SD4121]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x0FFF
+
+[SD7500]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD7501]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD7830]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD783x]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD7890]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD789x]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8000]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x001-0x028
+RAMRange=0x100-0x1FF
+RAMRange=0xE51-0xE53
+RAMRange=0xF58-0xFFE
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8000R]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8000S]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8000T]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x1FFF
+
+[SD8000V]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8000U]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8000W]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8005]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8005B]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8006]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8010]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8014]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8016]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8016B]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8017]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8017B]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8018]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8018B]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8020]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8102]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8103]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8106]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x001-0x04C
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+RAMRange=0xE51-0xE53
+RAMRange=0xF58-0xFFE
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8107]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x1FFF
+
+[SD8108]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8108X]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8109]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x1FFF
+
+[SD8110]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8111]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8118]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8301]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8303X]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+[SD8304]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8307]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x1FFF
+
+[SD8318]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8505]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围	
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8516]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8517]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8518]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8705]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD8709]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x100-0x1FF
+RAMRange=0x200-0x2FF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF
+
+[SD6XXX]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16C
+
+; 有效RAM空间范围
+RAMRange=0x0000-0x0FFF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x3FFF		;16K*8
+
+[SD3XXX]
+
+; 处理器类型,此参数设置必须与汇编器的-p参数设置相同
+Processor = SDICMicro16S
+
+; 有效RAM空间范围
+RAMRange=0x000-0x0FF
+RAMRange=0x100-0x17F
+RAMRange=0xE00-0xEFF
+RAMRange=0xF00-0xFFF
+
+; 有效ROM空间范围
+ROMRange=0x0000-0x0FFF

@@ -75,6 +75,8 @@ MemoryManage::GetSplitSectionOfANum(string src_val_str,\
     }
     //deal with 16 bits type minus data
     else if(var_type == 2){
+      
+
       src_val = 65536 + src_val;
     }
     //deal with 32 bit int type minus data

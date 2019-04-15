@@ -71,7 +71,7 @@ void OutPut(string instr_name, string op, string IR_name){
     }
     //NO special reg in map
     else {
-      op = "ERROR";
+      op = "ERROR: OutPut()";
     }
   }
   else {
@@ -98,7 +98,8 @@ void OutPut(string instr_name, string op, string IR_name){
   //record the instr debug info 
   //and decide where the instr output
   DebugInfo debug_info_object = DebugInfo();
-  
+
+  //out put into a file
   if(!out_put_file_name.empty() && f_out.is_open()){
     
     //deal with bank
@@ -109,8 +110,9 @@ void OutPut(string instr_name, string op, string IR_name){
     }
     else if(!isnum_index && which_bank_index.empty()){
       which_bank_index = which_bank_index_temp;
-      string content_bank = "\tmovlb\t\t" + which_bank_index; 
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_bank);
+      string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, \
+						  content_bank);
       debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
 	
       f_out << content_bank << endl;
@@ -119,14 +121,17 @@ void OutPut(string instr_name, string op, string IR_name){
     }
     else if(!isnum_index && !which_bank_index.empty()){
       if(!which_bank_index.compare(which_bank_index_temp)){
-	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
+						    content_1);
 	f_out << content_1 << endl;
       } 
       else {
 	which_bank_index = which_bank_index_temp;
-	string content_bank = "\tmovlb\t\t" + which_bank_index; 
-	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_bank);
-	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
+						    content_bank);
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
+						    content_1);
 	
 	f_out << content_bank << endl;
 	f_out << content_1 << endl;
@@ -135,6 +140,7 @@ void OutPut(string instr_name, string op, string IR_name){
     }
   
   } 
+  //out put into terminate
   else {
 
     //deal with bank
@@ -146,8 +152,9 @@ void OutPut(string instr_name, string op, string IR_name){
     }
     else if(!isnum_index && which_bank_index.empty()){
       which_bank_index = which_bank_index_temp;
-      string content_bank = "\tmovlb\t\t" + which_bank_index; 
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_bank);
+      string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, \
+						  content_bank);
       debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
 	
       cout << content_bank << endl;
@@ -156,14 +163,17 @@ void OutPut(string instr_name, string op, string IR_name){
     }
     else if(!isnum_index && !which_bank_index.empty()){
       if(!which_bank_index.compare(which_bank_index_temp)){
-	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
+						    content_1);
 	cout << content_1 << endl;
       } 
       else {
 	which_bank_index = which_bank_index_temp;
-	string content_bank = "\tmovlb\t\t" + which_bank_index; 
-	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_bank);
-	debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name, \
+						    content_bank);
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
+						    content_1);
 	
 	cout << content_bank << endl;
 	cout << content_1 << endl;
