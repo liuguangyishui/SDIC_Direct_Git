@@ -137,7 +137,8 @@ void DealWithSpecialRegInfo(map<string, string>& special_reg_map, \
 	vector<string> map_vec;
 	//get every word of this line
 	while(iss >> single_word){
-	  if(!single_word.compare("EQU") || !single_word.compare("equ"))
+	  if(!single_word.compare("EQU") || \
+	     !single_word.compare("equ"))
 	    continue;
 	  map_vec.push_back(single_word);
 	}
