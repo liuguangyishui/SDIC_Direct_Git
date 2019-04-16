@@ -34,7 +34,8 @@ int main(int argv, char **argc){
     //whether is valid para
     if(regex_match(argc[i], reg)){
       //it is about input file
-      if(strcmp(argc[i],"-f") == 0 || strcmp(argc[i],"-F") == 0){
+      if(strcmp(argc[i],"-f") == 0 || \
+	 strcmp(argc[i],"-F") == 0){
 	
 	for(int j = i+1; j < argv; j++){
 	  if(regex_match(argc[j], reg))
@@ -45,7 +46,8 @@ int main(int argv, char **argc){
 	}
       }
       //it is about outout file
-      else if(strcmp(argc[i], "-o") == 0 || strcmp(argc[i], "-O") == 0){
+      else if(strcmp(argc[i], "-o") == 0 || \
+	      strcmp(argc[i], "-O") == 0){
 	
 	for(int j = i+1; j < argv; j++){
 	  if(regex_match(argc[j], reg))
@@ -56,7 +58,8 @@ int main(int argv, char **argc){
 	}
       } 
       //it is ram addr file
-      else if(strcmp(argc[i], "-i") == 0 || strcmp(argc[i], "-I") == 0){
+      else if(strcmp(argc[i], "-i") == 0 || \
+	      strcmp(argc[i], "-I") == 0){
 	for(int j = i + 1; j < argv; j++){
 	  if(regex_match(argc[j], reg)) break;
 	  
@@ -65,12 +68,14 @@ int main(int argv, char **argc){
 	}
       }
       //it is core name
-      else if(strcmp(argc[i], "-c") == 0 || strcmp(argc[i], "-C") == 0){
+      else if(strcmp(argc[i], "-c") == 0 || \
+	      strcmp(argc[i], "-C") == 0){
 	  core_name = argc[++i];
      
       }
       //it is for special reg
-      else if(strcmp(argc[i], "-s") == 0 || strcmp(argc[i], "-S") == 0){
+      else if(strcmp(argc[i], "-s") == 0 || \
+	      strcmp(argc[i], "-S") == 0){
 	special_reg_name = argc[++i];
       }
       //it is invalid paremeter
@@ -110,7 +115,7 @@ int main(int argv, char **argc){
   OpenOutPutFile(output_file_name);
   
   //include some head file, core_name GeneralReg
-  OutPutPure("'#include " + core_name + "_GeneralReg.inc'");
+  OutPutPure("#include \"" + core_name + "_GeneralReg.inc\"");
   //precedure section of the program 
   //the beginning of program
   ProgramBegin();

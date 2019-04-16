@@ -47,8 +47,9 @@ void OutPut(string instr_name, string op, string IR_name){
   //record the bank index
   string origin_op;
   //whether the op is num
-  bool isnum_index = false;
-
+  bool is_num_index = false;
+  //whether the reg is special,so the A parameter is different
+  bool is_special_instr = false;
   //identify special reg and general reg
   //general reg
   regex general_reg_regex("0x.+");
@@ -68,6 +69,7 @@ void OutPut(string instr_name, string op, string IR_name){
     if(special_reg_vec.find(special_reg) != special_reg_vec.end()){
       auto result = special_reg_vec.find(special_reg);
       op = result->second;
+      is_special_instr = true;
     }
     //NO special reg in map
     else {
@@ -75,7 +77,7 @@ void OutPut(string instr_name, string op, string IR_name){
     }
   }
   else {
-    isnum_index = true;
+    is_num_index = true;
   }
 
   //deal with different instr have different parameter
@@ -85,14 +87,24 @@ void OutPut(string instr_name, string op, string IR_name){
   }
   else if(instr_name_one_para.find(instr_name) != \
 	  instr_name_one_para.end()){
-    content_1 = "\t" +  instr_name + "\t\t" + op + ",\t1"; 
+    if(is_special_instr) 
+      content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0";
+    else
+      content_1 = "\t" +  instr_name + "\t\t" + op + ",\t1"; 
   }
   else if(instr_name_two_para.find(instr_name) != \
 	  instr_name_two_para.end()){
-    content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1"; 
+    if(is_special_instr)
+      content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t0"; 
+    else
+      content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1"; 
   
-  } else {
-    content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1"; 
+  } 
+  else {
+    if(is_special_instr)
+      content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t0";
+    else
+      content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1"; 
   }
   
   //record the instr debug info 
@@ -104,11 +116,11 @@ void OutPut(string instr_name, string op, string IR_name){
     
     //deal with bank
     string which_bank_index_temp = origin_op.substr(0,1);
-    if(isnum_index){
+    if(is_num_index){
       debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
       f_out << content_1 << endl;
     }
-    else if(!isnum_index && which_bank_index.empty()){
+    else if(!is_num_index && which_bank_index.empty()){
       which_bank_index = which_bank_index_temp;
       string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
       debug_info_object.AddInstrDebugInfoToRecord(IR_name, \
@@ -119,7 +131,7 @@ void OutPut(string instr_name, string op, string IR_name){
       f_out << content_1 << endl;
 
     }
-    else if(!isnum_index && !which_bank_index.empty()){
+    else if(!is_num_index && !which_bank_index.empty()){
       if(!which_bank_index.compare(which_bank_index_temp)){
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
 						    content_1);
@@ -146,11 +158,11 @@ void OutPut(string instr_name, string op, string IR_name){
     //deal with bank
     string which_bank_index_temp = origin_op.substr(0,1);
 
-    if(isnum_index){
+    if(is_num_index){
       debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
       cout << content_1 << endl;
     }
-    else if(!isnum_index && which_bank_index.empty()){
+    else if(!is_num_index && which_bank_index.empty()){
       which_bank_index = which_bank_index_temp;
       string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
       debug_info_object.AddInstrDebugInfoToRecord(IR_name, \
@@ -161,7 +173,7 @@ void OutPut(string instr_name, string op, string IR_name){
       cout << content_1 << endl;
 
     }
-    else if(!isnum_index && !which_bank_index.empty()){
+    else if(!is_num_index && !which_bank_index.empty()){
       if(!which_bank_index.compare(which_bank_index_temp)){
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
 						    content_1);
