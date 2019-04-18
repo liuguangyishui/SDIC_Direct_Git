@@ -124,6 +124,8 @@ void TranceSelect(SplitWord, string);
 
 void getDataFromInstr(vector<string> &, SplitWord);
 
+void GetElemFromTwoDimensionArray(vector<string> &, SplitWord);
+
 //get array elem num
 int GetArrayElemNum(SplitWord);
 
