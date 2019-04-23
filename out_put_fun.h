@@ -51,7 +51,11 @@ void OutPutOrg(string, string);
 //print instr that jump to target instr
 void OutPutJump(string, string, string IR_name);
 
+//print instr that jump to target instr, but no "label_"
+void OutPutJumpPure(string, string, string);
+
 //print label that use for jump statement
 void OutPutLabel(string, string);
+
 
 #endif

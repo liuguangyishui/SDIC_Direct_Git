@@ -21,21 +21,41 @@ stack<string> MemoryManage::which_fun;
 //caculate how many reg will need
 int MemoryManage::HowBigType(string var_type){
   //char type
-  if(!var_type.compare("i8") || !var_type.compare("i8*")){
+  regex i8_regex("i8.*");
+  regex i16_regex("i16.*");
+  regex i32_regex("i32.*");
+  regex i64_regex("i64.*");
+  regex ptr_regex(".+\\*.*");
+  
+  if(!var_type.compare("i8")){
     return 1;
+  }
+  else if(!var_type.compare("i16")){
+    return 2;
+  }
+  else if(!var_type.compare("i32")){
+    return 2;
+  }
+  else if(!var_type.compare("i64")){
+    return 4;
+  }
+  else if(regex_match(var_type, ptr_regex)){
+    return 2;
   } 
+
+  /*
   //short int 
-  else if(!var_type.compare("i16") || !var_type.compare("i16")){
+  else if(regex_match(var_type, i16_regex)){
     return 2;
   }
   //int, long int, 
-  else if(!var_type.compare("i32") || !var_type.compare("i32*")){
+  else if(regex_match(var_type, i32_regex)){
     return 2;
   } 
   //long long int,
-  else if(!var_type.compare("i64") || !var_type.compare("i64*")){
+  else if(regex_match(var_type, i64_regex)){
     return 4;
-  }
+    }*/
   return 0;
 }
 

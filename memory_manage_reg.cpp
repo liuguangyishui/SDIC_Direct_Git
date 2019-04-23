@@ -24,6 +24,10 @@ vector<DataStoreInfo> RegManage::fun_para_map;
 
 unordered_map<string, DataStoreInfo> RegManage::global_addr_map;
 
+unordered_map<string, string> RegManage::ptr_info_map;
+
+unordered_map<string, string> RegManage::ptr_additional_info_map;
+
 vector<string> RegManage::available_use_reg;
 vector<string> RegManage::have_used_reg;
 
@@ -545,4 +549,54 @@ void RegManage::DeleteRecordInGenVal(string var_name){
 					  "!!! Have been recycle");
 
   
+}
+
+void 
+RegManage::AddPtrInfoToRecord(string ptr_name, string ptr_content){
+  if(!ptr_name.empty() && !ptr_content.empty()){
+    ptr_info_map.insert(make_pair(ptr_name, ptr_content));
+  }
+}
+
+string 
+RegManage::GetPtrInfoFromRecord(string ptr_name){
+  string res;
+  if(!ptr_name.empty()){
+    if(ptr_info_map.find(ptr_name) != ptr_info_map.end()){
+      res = ptr_info_map.find(ptr_name)->second;
+    }
+  }
+  return res;
+}
+
+bool
+RegManage::WhetherIsPtr(string var_name){
+  if(var_name.empty()) return false;
+  return (ptr_info_map.find(var_name) != ptr_info_map.end());
+}
+
+void
+RegManage::AddPtrAdditionalInfo(string ptr_name, string ptr_content){
+  if(!ptr_name.empty() && !ptr_content.empty()){
+    ptr_additional_info_map.insert(make_pair(ptr_name, ptr_content));
+  }
+}
+
+string 
+RegManage::GetPtrAdditionalInfo(string ptr_name){
+  string res;
+  if(!ptr_name.empty()){
+    if(ptr_additional_info_map.find(ptr_name) != \
+       ptr_additional_info_map.end()){
+      res = ptr_additional_info_map.find(ptr_name)->second;
+    }
+  }
+  return res;
+}
+
+bool
+RegManage::WhetherPtrAdditionalInfo(string var_name){
+  if(var_name.empty()) return false;
+  return (ptr_additional_info_map.find(var_name) != \
+	  ptr_additional_info_map.end());
 }

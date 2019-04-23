@@ -192,7 +192,7 @@ void OpenFileAndDeal(string &file_name) {
     }
     //this line is invalid
     if(word_con.instrName == knull) continue; 
-
+    
     switch(word_con.instrName){
     case alloc: { 
       debug_info_object.CreateAInstrDebugRecord("alloc",    \
@@ -368,9 +368,24 @@ void OpenFileAndDeal(string &file_name) {
 						single_line_debug);  
       TranceSwitchEnd(word_con, "switch"); break;
     }
+    case mul: {
+      debug_info_object.CreateAInstrDebugRecord("mul", \
+						single_line_debug);
+      TranceMul(word_con, "mul"); break;
+    }
+    case sdiv: {
+     debug_info_object.CreateAInstrDebugRecord("sdiv", \
+						single_line_debug);
+      TranceSdiv(word_con, "sdiv"); break;
+    } 
+    case ptrtoint: {
+      debug_info_object.CreateAInstrDebugRecord("ptrtoint", \
+						single_line_debug);
+      TrancePtrToInt(word_con, "ptrtoint"); break;
+    }
     default: break;
     }
-
+    
     //    debug_info_object.CreateAInstrDebugRecord(case_name,	   \
     //					      single_line_debug); 
   }

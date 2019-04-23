@@ -22,7 +22,9 @@ void DebugInfo::CreateAAddrDebugRecord(string var_name, string type){
   AddrDebugInfoElem debug_info;
   debug_info.IR_name = var_name;
   debug_info.var_type = type;
+
   addr_debug_info_vec.push_back(debug_info);
+
 }
 
 void DebugInfo::AddAddrDebugInfoToRecord(string var_name, \

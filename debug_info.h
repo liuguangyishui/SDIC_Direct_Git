@@ -15,11 +15,20 @@ using namespace::std;
 
 /* DebugInfoStruct is struct of recording the debug infomation.
  */
+struct InnerAddrDebugStruct{
+  string inner_elem_name;
+  string inner_elem_type;
+  string inner_elem_size;
+  vector<string> inner_elem_addr;
+};
+
 struct AddrDebugInfoElem {
   string IR_name;
   string var_type;
   vector<string> allocated_addr;
   int number_addr;
+
+  vector<InnerAddrDebugStruct> inner_elem;
 };
 
 struct InstrDebugInfoElem {

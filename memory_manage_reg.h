@@ -90,6 +90,22 @@ class RegManage: public MemoryManage{
   //This fun is used in deliver fun para.
   bool WhetherHaveFunPara();
 
+  //add ptr info to ptr_info_map, 
+  //the first parameter is the ptr name,
+  //the second parameter is the ptr content
+  //ex : p = &a;
+  void AddPtrInfoToRecord(string, string);
+  //get the ptr info from ptr_info_map;
+  //the parameter is the ptr name
+  //return the content of this ptr
+  string GetPtrInfoFromRecord(string);
+  //judge the name whether it is a ptr
+  bool WhetherIsPtr(string);
+  //it ptr operator, there are some additonal info
+  //must to record
+  void AddPtrAdditionalInfo(string, string);
+  string GetPtrAdditionalInfo(string);
+  bool WhetherPtrAdditionalInfo(string);
 
   //check all operator type whether correspond each other
   bool CheckAllOperatorType(string, string);
@@ -138,7 +154,9 @@ class RegManage: public MemoryManage{
   static vector<string> available_use_reg;
   static vector<string> have_used_reg;
 
-
+  //this is for ptr info
+  static unordered_map<string, string> ptr_info_map;
+  static unordered_map<string, string> ptr_additional_info_map;
 };
 
 

@@ -55,6 +55,8 @@ void OutPut(string instr_name, string op, string IR_name){
   regex general_reg_regex("0x.+");
   //special reg
   regex special_reg_regex("0s.+");
+  //0x num
+  regex addr_regex("0a.+");
   if(regex_match(op, general_reg_regex)){
     //register name no 0x
     origin_op = op.substr(2);    
@@ -73,8 +75,15 @@ void OutPut(string instr_name, string op, string IR_name){
     }
     //NO special reg in map
     else {
-      op = "ERROR: OutPut()";
+      is_special_instr = true;
+      op = "ERROR: OutPut() Not this special reg!";
     }
+  }
+  else if(regex_match(op, addr_regex)){
+    origin_op = op.substr(2);
+    op =  origin_op;
+    is_num_index = true;
+
   }
   else {
     is_num_index = true;
@@ -111,41 +120,53 @@ void OutPut(string instr_name, string op, string IR_name){
   //and decide where the instr output
   DebugInfo debug_info_object = DebugInfo();
 
-  //out put into a file
+  //out put the instr into a file
   if(!out_put_file_name.empty() && f_out.is_open()){
     
     //deal with bank
     string which_bank_index_temp = origin_op.substr(0,1);
+    //the op is num, so we direct output the instr, not to deal with
+    //the reg and bank
     if(is_num_index){
       debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
       f_out << content_1 << endl;
     }
+    //the op is't num and it is the first instr, so we use the default
+    //bank num 0x00
     else if(!is_num_index && which_bank_index.empty()){
-      which_bank_index = which_bank_index_temp;
-      string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, \
-						  content_bank);
+      //this instr is't specail instr. IF the instr is special instr
+      //then the bank is valid, so we don't deal with it 
+      if(!is_special_instr) {
+	which_bank_index = which_bank_index_temp;
+	string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name,   	\
+						    content_bank);
+	f_out << content_bank << endl;
+      }      
+      
       debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
-	
-      f_out << content_bank << endl;
       f_out << content_1 << endl;
-
     }
+    //the op is't num and it is not first instr, so we must deal with
+    //the bank
     else if(!is_num_index && !which_bank_index.empty()){
+      //if the bank of current instr is same with the bank of 
+      //last instr. so we don't change it
       if(!which_bank_index.compare(which_bank_index_temp)){
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
 						    content_1);
 	f_out << content_1 << endl;
       } 
       else {
-	which_bank_index = which_bank_index_temp;
-	string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
-	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
+	if(!is_special_instr){
+	  which_bank_index = which_bank_index_temp;
+	  string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
+	  debug_info_object.AddInstrDebugInfoToRecord(IR_name,	    \
 						    content_bank);
+	  f_out << content_bank << endl;  
+	}
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
 						    content_1);
-	
-	f_out << content_bank << endl;
 	f_out << content_1 << endl;
 	
       }
@@ -163,15 +184,17 @@ void OutPut(string instr_name, string op, string IR_name){
       cout << content_1 << endl;
     }
     else if(!is_num_index && which_bank_index.empty()){
-      which_bank_index = which_bank_index_temp;
-      string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, \
-						  content_bank);
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
-	
-      cout << content_bank << endl;
-      cout << content_1 << endl;
 
+      if(!is_special_instr){
+	which_bank_index = which_bank_index_temp;
+	string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name,	      \
+						  content_bank);
+	cout << content_bank << endl;
+      }
+
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+      cout << content_1 << endl;
     }
     else if(!is_num_index && !which_bank_index.empty()){
       if(!which_bank_index.compare(which_bank_index_temp)){
@@ -180,19 +203,19 @@ void OutPut(string instr_name, string op, string IR_name){
 	cout << content_1 << endl;
       } 
       else {
-	which_bank_index = which_bank_index_temp;
-	string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
-	debug_info_object.AddInstrDebugInfoToRecord(IR_name, \
-						    content_bank);
-	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
+	if(!is_special_instr){
+	  which_bank_index = which_bank_index_temp;
+	  string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
+	  debug_info_object.AddInstrDebugInfoToRecord(IR_name,	   \
+						      content_bank);
+	  cout << content_bank << endl;
+	}
+	
+	debug_info_object.AddInstrDebugInfoToRecord(IR_name,	   \
 						    content_1);
-	
-	cout << content_bank << endl;
 	cout << content_1 << endl;
-	
       }
     }
-    
   }
 }
 
@@ -248,7 +271,6 @@ void OutPutLabel(string orderName, string IR_name){
   }
 }
 
-
 void OutPutPure(string instrName){
   if(!out_put_file_name.empty() && f_out.is_open()){
     f_out << "\n" << flush;
@@ -257,5 +279,15 @@ void OutPutPure(string instrName){
     cout << "\n" << flush;
     cout << instrName  << endl;
   }
+}
 
+void OutPutJumpPure(string instrName, string op, string IR_name){
+  string content = "\t" + instrName + "\t\t" + op;
+  DebugInfo debug_info_object = DebugInfo();
+  debug_info_object.AddInstrDebugInfoToRecord(IR_name, content);
+  if(!out_put_file_name.empty() && f_out.is_open()){
+    f_out << content << endl;
+  } else {
+    cout << content  << endl;
+  }
 }

@@ -31,7 +31,8 @@ static unordered_map<string,int> SDIC_operate_set \
      {"sext", 24}, {"trunc", 25},
      {"select", 26}, {"gdb", 27},
      {"switch", 28}, {"label", 29},
-     {"]", 30}};
+     {"],", 30}, {"mul", 31},
+     {"sdiv", 32}, {"ptrtoint", 33}};
 
 /* keyWord mainly use for the switch statement in 
  * analysisIR.cpp which indicate which tranfrom fun
@@ -73,6 +74,10 @@ enum SDICKeyWord{
   switch_begin, //for switch
   switch_label, //for switch
   switch_end, //for the end of switch statement
+  
+  mul,
+  sdiv,
+  ptrtoint, //from ptr to int
 };
 
 /* splitWord stores all infomation of a single instructment

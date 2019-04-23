@@ -153,6 +153,12 @@ void TranceSwitch(SplitWord, string);
 void TranceLabelSwitch(SplitWord, string);
 
 void TranceSwitchEnd(SplitWord, string);
+
+void TranceMul(SplitWord, string);
+
+void TranceSdiv(SplitWord, string);
+
+void TrancePtrToInt(SplitWord, string);
 //for ret instr
 void TranceRet(SplitWord, string);
 

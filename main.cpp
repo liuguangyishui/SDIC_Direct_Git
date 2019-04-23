@@ -114,8 +114,19 @@ int main(int argv, char **argc){
   //open outputFile
   OpenOutPutFile(output_file_name);
   
+  //get the parent file path of ram_info_file_name
+  //if the run environment is linux
+#if defined(__linux__)
+  int path_name_index = ram_info_file_name.rfind("/");
+  //if the run environment is windos
+#elif defined(_WIN32)
+  int path_name_index = ram_info_file_name.rfind("\\");
+#endif
+string path_name = ram_info_file_name.substr(0, path_name_index + 1);
   //include some head file, core_name GeneralReg
   OutPutPure("#include \"" + core_name + "_GeneralReg.inc\"");
+  OutPutPure("#include \"" + path_name + "SubProgram.inc\"");
+  OutPutPure("#include \"" + path_name + "SubProgram.asm\"");
   //precedure section of the program 
   //the beginning of program
   ProgramBegin();
