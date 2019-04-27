@@ -200,7 +200,9 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
     core_info.belong_which_fun_name = this->GetBelongWhatCallName();
     //addr debug info 
     DebugInfo debug_info_obj = DebugInfo();
-    debug_info_obj.CreateAAddrDebugRecord(var_name, var_type);
+    debug_info_obj.CreateAAddrDebugRecord(var_name, \
+					  var_type, \
+					  type_vec);
     //the outer statement for is for array if the elem_num
     //bigger than 1 the inter for statement is for register 
     //of a variabel

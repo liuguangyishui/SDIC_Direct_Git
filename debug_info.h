@@ -25,10 +25,11 @@ struct InnerAddrDebugStruct{
 struct AddrDebugInfoElem {
   string IR_name;
   string var_type;
+  vector<string> inner_elem_type;
   vector<string> allocated_addr;
   int number_addr;
 
-  vector<InnerAddrDebugStruct> inner_elem;
+  //  vector<InnerAddrDebugStruct> inner_elem;
 };
 
 struct InstrDebugInfoElem {
@@ -51,6 +52,7 @@ class DebugInfo {
  
   //Creat a addr debug info record in addr debug map
   void CreateAAddrDebugRecord(string, string);
+  void CreateAAddrDebugRecord(string, string, const vector<string>&);
   //add addr info into exited record via var_name(first parameter)
   void AddAddrDebugInfoToRecord(string, string);
   void AddAdditionalDebugInfoToRecord(string, string);

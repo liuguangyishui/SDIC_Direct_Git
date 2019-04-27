@@ -3717,20 +3717,20 @@ void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
 				  SplitWord wordCon){
   vector<string> elem_vec = wordCon.vaCol;
   regex type_regex(".*i.*");
-  cout << "regex_1" << endl;
+
   regex elem_regex_1("i.+");
-  cout << "regex_2" << endl;
+
   regex elem_regex_2("[.]i.+");
-  cout << "regex_3" << endl;
-  regex no_elem_regex_1("i.+]");
-  cout << "regex_4" << endl;
-  regex last_elem_regex("*+]");
-  cout << "regex_5" << endl;
+
+  regex no_elem_regex_1("i.+\\]");
+
+  regex last_elem_regex(".+\\]*");
+
   regex type_char_regex("c.+");
    for(int i = 0; i < elem_vec.size(); i++){
      string elem = elem_vec[i];
 
-     if(regex_match(elem, type_regex)){
+     if(regex_match(elem, type_regex) && elem.compare("i8")){
        //match i32] or i32]]
        if(regex_match(elem, no_elem_regex_1)){
 	 continue;
@@ -3749,65 +3749,75 @@ void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
 
        }
      }
+     //the type is char 
      else if(regex_match(elem, type_char_regex)){
-       string temp_elem;
        for(int i = 1; i < elem.size(); i++){
-	 if(elem >= "a" && elem <= "z"){
-	   temp_elem = to_string(elem[i]);
+	 string temp_elem;
+	 if(elem[i] == '\\'){
+	   temp_elem = elem.substr(i+1,2);
+	   i = i + 2;
+	   int temp_elem_dec = ChangeHexToDec(temp_elem);
+	   data_vec.push_back(to_string(temp_elem_dec));
 	 }
-	 else if(elem >= "A" && elem <= "Z"){
-	   temp_elem = to_string(elem[i]); 
+	 else {
+	   temp_elem = elem.substr(i, 1);
+	   if(temp_elem >= "a" && temp_elem <= "z"){
+	     temp_elem = to_string(elem[i]);
+	   }
+	   else if(temp_elem >= "A" && temp_elem <= "Z"){
+	     temp_elem = to_string(elem[i]); 
+	   }
+	   data_vec.push_back(temp_elem);
 	 }
-	 data_vec.push_back(temp_elem);
        }
      }
    }
 
- }
+}
 
- int GetArrayElemNum(SplitWord wordCon){
-   auto index = find(wordCon.vaCol.begin(), wordCon.vaCol.end(), "x");
+int GetArrayElemNum(SplitWord wordCon){
+  auto index = find(wordCon.vaCol.begin(), wordCon.vaCol.end(), "x");
+  
+  string temp(*(index - 1));
+  
+  string temp2(temp.substr(1));
+  
+  int num = ChangeStrToDec(temp2);
+  return num;
+}
 
-   string temp(*(index - 1));
+string GetArrayElemType(SplitWord wordCon){
+  auto index = find(wordCon.vaCol.begin(), wordCon.vaCol.end(), "x");
+  
+  string temp(*(index + 1));
+  
+  string temp2(temp.substr(0, temp.size()-1));
+  
+  return temp2;
+  
+}
 
-   string temp2(temp.substr(1));
-
-   int num = ChangeStrToDec(temp2);
-   return num;
- }
-
- string GetArrayElemType(SplitWord wordCon){
-   auto index = find(wordCon.vaCol.begin(), wordCon.vaCol.end(), "x");
-
-   string temp(*(index + 1));
-
-   string temp2(temp.substr(0, temp.size()-1));
-
-   return temp2;
-
- }
-
- vector<string>
- GetStructValueFromIRInstr(SplitWord wordCon){
- #define VEC wordCon.vaCol
-
-   vector<string> res;
-   regex regular_expr_type("i.*");
-   int begin_index = 0;
-   for(int i = 0; i < VEC.size(); i++){
-     if(!VEC[i].compare("{")){
-       begin_index = i;
-     }
-   }
-   for(int j = begin_index+1; j < VEC.size(); j++){
-     if(!VEC[j].compare("}")) break;
-     if(regex_match(VEC[j], regular_expr_type)) continue;
-     res.push_back(VEC[j]);
-   }
-
-   return res;
- #undef VEC
- }
+vector<string>
+GetStructValueFromIRInstr(SplitWord wordCon){
+#define VEC wordCon.vaCol
+  
+  vector<string> res;
+  regex regular_expr_type("i.*");
+  int begin_index = 0;
+  for(int i = 0; i < VEC.size(); i++){
+    if(!VEC[i].compare("{")){
+      begin_index = i;
+    }
+  }
+  for(int j = begin_index+1; j < VEC.size(); j++){
+    if(!VEC[j].compare("}")) break;
+    if(regex_match(VEC[j], regular_expr_type)) continue;
+    res.push_back(VEC[j]);
+  }
+  
+  return res;
+#undef VEC
+}
 
 //the function get the parameter name and type when
 //we transalate the call fun
@@ -3861,40 +3871,40 @@ GetParameterNameAndParameterType(SplitWord wordCon,		    \
 #undef VEC
 }
 
- //deal with the gdb statement
- void TranceGdb(SplitWord wordCon, string IR_name){
- #define VEC wordCon.vaCol
-   DebugInfo debug_info_object = DebugInfo();
-
-   if(find(VEC.begin(), VEC.end(), "filename") != VEC.end() && \
-      find(VEC.begin(), VEC.end(), "!DIFile") != VEC.end()){
- #if defined(__linux__)
-     string temp = VEC[4];   //Linux
-     DebugInfo::ccode_instr_file_fun_name =		\
-       VEC[4].substr(1, temp.size() - 2);  //Linux
- #elif defined(_WIN32)
-     string temp =VEC[5];  //Windows
-     DebugInfo::ccode_instr_file_fun_name =		\
-       VEC[4].substr(0, temp.size() - 2);    //Windows
- #endif
-     debug_info_object.CreateCodeLink(DebugInfo::ccode_instr_file_fun_name);
-
-
-   }
-   else if(find(VEC.begin(), VEC.end(), "distinct") != VEC.end() &&  \
-	   find(VEC.begin(), VEC.end(), "!DISubprogram") !=VEC.end()){
-
-   }
-   else if(find(VEC.begin(), VEC.end(), "line") != VEC.end() && \
-	   find(VEC.begin(), VEC.end(), "!DILocation") != VEC.end()){
-     string gdb_first_name = VEC[0];
-     string gdb_second_name = VEC[4];
-     debug_info_object.AddInfoToCodeLink(DebugInfo::ccode_instr_file_fun_name, 
-					 gdb_first_name, 
-					 gdb_second_name);
-   }
- #undef VEC
- }
+//deal with the gdb statement
+void TranceGdb(SplitWord wordCon, string IR_name){
+#define VEC wordCon.vaCol
+  DebugInfo debug_info_object = DebugInfo();
+  
+  if(find(VEC.begin(), VEC.end(), "filename") != VEC.end() &&	\
+     find(VEC.begin(), VEC.end(), "!DIFile") != VEC.end()){
+#if defined(__linux__)
+    string temp = VEC[4];   //Linux
+    DebugInfo::ccode_instr_file_fun_name =		\
+      VEC[4].substr(1, temp.size() - 2);  //Linux
+#elif defined(_WIN32)
+    string temp =VEC[5];  //Windows
+    DebugInfo::ccode_instr_file_fun_name =		\
+      VEC[4].substr(0, temp.size() - 2);    //Windows
+#endif
+    debug_info_object.CreateCodeLink(DebugInfo::ccode_instr_file_fun_name);
+    
+    
+  }
+  else if(find(VEC.begin(), VEC.end(), "distinct") != VEC.end() &&  \
+	  find(VEC.begin(), VEC.end(), "!DISubprogram") !=VEC.end()){
+    
+  }
+  else if(find(VEC.begin(), VEC.end(), "line") != VEC.end() &&	   \
+	  find(VEC.begin(), VEC.end(), "!DILocation") != VEC.end()){
+    string gdb_first_name = VEC[0];
+    string gdb_second_name = VEC[4];
+    debug_info_object.AddInfoToCodeLink(DebugInfo::ccode_instr_file_fun_name, 
+					gdb_first_name, 
+					gdb_second_name);
+  }
+#undef VEC
+}
 
 
  vector<string> switch_statement;

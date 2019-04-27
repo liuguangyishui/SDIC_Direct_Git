@@ -27,6 +27,23 @@ void DebugInfo::CreateAAddrDebugRecord(string var_name, string type){
 
 }
 
+//this fun is for struct type.the third parameter is 
+//the type of inner elem
+void DebugInfo::CreateAAddrDebugRecord(string var_name, \
+				       string type,
+				       const vector<string> &elem_type){
+  AddrDebugInfoElem debug_info;
+  debug_info.IR_name = var_name;
+  debug_info.var_type = type;
+  
+  for(auto elem : elem_type){
+    debug_info.inner_elem_type.push_back(elem);
+  }
+
+  addr_debug_info_vec.push_back(debug_info);
+
+}
+
 void DebugInfo::AddAddrDebugInfoToRecord(string var_name, \
 					 string addr_name){
   if(!addr_debug_info_vec.empty()){
@@ -169,6 +186,16 @@ void DebugInfo::PrintAddrDebugInfo(string output_file_name){
   for(auto outer_elem: addr_debug_info_vec){
     fout << outer_elem.IR_name << ": " << endl;
     fout << "type: " << outer_elem.var_type << endl;
+    
+    //this variable is struct type, so print the elem type
+    if(!outer_elem.inner_elem_type.empty()){
+      fout << "inner_elem_type: " << \
+	outer_elem.inner_elem_type.size() << endl;
+      for(auto struct_inner_elem : outer_elem.inner_elem_type){
+	fout << "\t" << struct_inner_elem << endl;
+      }
+    }
+    fout << "addr: " << endl;
     vector<string> core_info = outer_elem.allocated_addr;
     for(auto inner_elem: core_info){
       fout << "\t\t" << inner_elem << endl;
