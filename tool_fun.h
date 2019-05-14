@@ -37,4 +37,12 @@ string AddTwoStrHex(string, string);
 //change string number to dec number.
 long long int ChangeStrToDec(string); // == getNum(string)
 
+//deal with the float type
+//store float 0x3FF19999A0000000, float* %3, align 4, !dbg !9
+vector<string>& DealWithFloatTypeData(string, int);
+
+//deal with the float type
+//store float -2.334000e+08, float* %10, align 4, !dbg !16
+vector<string>& DealWithDoubleTypeData(string, int);
+
 #endif

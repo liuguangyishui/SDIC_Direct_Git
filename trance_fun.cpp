@@ -460,8 +460,8 @@ void TranceLoad(SplitWord wordCon, string IR_name){
       
     }
     //for point ex: %6 = load i8**, i8*** %4, align 4, !dbg !12
-    else if(op_num1 > 1 || op_num2 > 1){
-      
+    else if(op_num1 > 1 && op_num2 > 1){
+     
       string op_des = VEC[0];
       string op_src = VEC[5];
       
@@ -473,15 +473,13 @@ void TranceLoad(SplitWord wordCon, string IR_name){
 	op_src = current_fun_name + "." + op_src;
 	op_des = current_fun_name + "." + op_des;
       }
-
+      
       if(reg_manage_obj->WhetherPtrAdditionalInfo(op_src)){
 	op_src = reg_manage_obj->GetPtrAdditionalInfo(op_src);
       }
-
       string point_info = \
 	reg_manage_obj->GetPtrInfoFromRecord(op_src);
-      reg_manage_obj->AddPtrAdditionalInfo(op_des, point_info);
-      
+      reg_manage_obj->AddPtrAdditionalInfo(op_des, point_info);   
     }
     else {
       string op_src = wordCon.vaCol[5];
@@ -788,9 +786,13 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	    reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
 	  
 	  reg_manage_obj->AddPtrInfoToRecord(op_src2, op_src1);
-	  //cout << "ss " << op_src2_vec.size() << " " << op_src1_vec.size() << endl; 
+	 
+	  //select the smaller size
+	  int vec_size = \
+	    op_src1_vec.size() > op_src2_vec.size()?	\
+	    op_src2_vec.size() : op_src1_vec.size();
 	  
-	  for(int i = 0; i < op_src2_vec.size(); i++){
+	  for(int i = 0; i < vec_size; i++){
 	    OutPut("movlw", "0a" + op_src1_vec[i], IR_name);
 	    OutPut("movwf", op_src2_vec[i], IR_name);
 	  }
@@ -842,7 +844,6 @@ void TranceStore(SplitWord wordCon, string IR_name){
       } 
       return;
     } 
-    
     //Instr: store Constant to R
     else {    
 
@@ -888,9 +889,25 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	//reg_num record the reg type. how many reg do reg_name_src
 	//have.
 	int reg_num = reg_name_src.size();
+	vector<string> val_vec;
+	regex float_double_reg(".+\\+.+");
+	if(!op_src1_type.compare("float") || \
+	   !op_src1_type.compare("double")){
+	  
+
+	  if(!op_src1_type.compare("float") && \
+	     regex_match(op_src1, float_double_reg)){
+	   val_vec =  DealWithFloatTypeData(op_src1, reg_num);
+	  } 
+	  else if(!op_src1_type.compare("float") && \
+		  !regex_match(op_src1,float_double_reg)){
+	    val_vec = DealWithDoubleTypeData(op_src1, reg_num);
+	  }
+	}
+	else {
 	//trange the op_src1 to split section num
-	vector<string> val_vec =			    	\
-	  reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
+	 val_vec = reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
+	}
 
 	for(int i = 0; i < val_vec.size(); i++){      
 	  OutPut("movlw", "." + val_vec[i], IR_name);
@@ -970,6 +987,7 @@ void TranceAlloca(SplitWord wordCon, string IR_name){
 					  elem_num);
     }
   }
+  //for the variable  and ptr variable
   else {
     RegManage* reg_manage_obj = RegManage::getInstance();
     //add fun name before variable
@@ -978,7 +996,6 @@ void TranceAlloca(SplitWord wordCon, string IR_name){
     if(!current_fun_name.empty()){
       var_name = current_fun_name + "." + var_name;
     }
-
     reg_manage_obj->AllocateRegToGenVal(var_name, var_type, 1);
   }
 #undef VEC

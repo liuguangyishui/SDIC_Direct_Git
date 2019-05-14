@@ -131,3 +131,12 @@ long long int ChangeStrToDec(string str_src){
   return res;
 
 }
+
+vector<string>& DealWithFloatTypeData(string float_data, int data_size){
+  string data = float_data;
+  
+}
+
+vector<string>& DealWithDoubleTypeData(string double_data, int data_size){
+
+}

@@ -39,6 +39,12 @@ int MemoryManage::HowBigType(string var_type){
   else if(!var_type.compare("i64")){
     return 4;
   }
+  else if(!var_type.compare("float")){
+    return 4;
+  }
+  else if(!var_type.compare("double")){
+    return 4;
+  }
   else if(regex_match(var_type, ptr_regex)){
     return 2;
   } 
