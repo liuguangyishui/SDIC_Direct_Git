@@ -724,7 +724,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
     }
 
     RegManage* reg_manage_obj = RegManage::getInstance();
-
+   
     regex res(".*\%.*");
     //Instr: store R to R
     if(regex_match(op_src1, res)){
@@ -846,13 +846,13 @@ void TranceStore(SplitWord wordCon, string IR_name){
     } 
     //Instr: store Constant to R
     else {    
-
+      //deal with special reg
       if(!VEC[1].compare("volatile") && \
 	 !VEC[5].compare("inttoptr")){
 	int reg_num = reg_manage_obj->HowBigType(op_src1_type);
 	int reg_num_index = reg_manage_obj->HowBigType(op_src2_type);
-	
-	if(reg_num_index > 1) {
+       
+	if(reg_num_index > 2) {
 	  cout << \
 	    "Error: TranceStore() value must be store in 8 bit reg!"\
 	       << endl;
@@ -890,23 +890,25 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	//have.
 	int reg_num = reg_name_src.size();
 	vector<string> val_vec;
-	regex float_double_reg(".+\\+.+");
-	if(!op_src1_type.compare("float") || \
-	   !op_src1_type.compare("double")){
+	regex float_reg1(".+e.+");
+	regex float_reg2("0x.+");
+	if(!op_src1_type.compare("float")){
 	  
-
-	  if(!op_src1_type.compare("float") && \
-	     regex_match(op_src1, float_double_reg)){
-	   val_vec =  DealWithFloatTypeData(op_src1, reg_num);
+	  if(!op_src1_type.compare("float") &&		\
+	     regex_match(op_src1, float_reg1) && \
+	     regex_match(op_src1, float_reg2)){
+	    val_vec =  DealWithFloatTypeData(op_src1, reg_num);
 	  } 
-	  else if(!op_src1_type.compare("float") && \
-		  !regex_match(op_src1,float_double_reg)){
+	  else if(!op_src1_type.compare("float") &&		\
+		  !regex_match(op_src1,float_reg1) && \
+		  !regex_match(op_src1,float_reg2)){
 	    val_vec = DealWithDoubleTypeData(op_src1, reg_num);
 	  }
 	}
 	else {
-	//trange the op_src1 to split section num
-	 val_vec = reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
+	 
+	  //trange the op_src1 to split section num
+	  val_vec = reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
 	}
 
 	for(int i = 0; i < val_vec.size(); i++){      

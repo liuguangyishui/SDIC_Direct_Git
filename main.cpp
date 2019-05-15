@@ -124,6 +124,7 @@ int main(int argv, char **argc){
 #endif
 string path_name = ram_info_file_name.substr(0, path_name_index + 1);
   //include some head file, core_name GeneralReg
+  OutPutPure("#include \"" + core_name + ".INC.inc\"");
   OutPutPure("#include \"" + core_name + "_GeneralReg.inc\"");
   OutPutPure("#include \"" + path_name + "SubProgram.inc\"");
   OutPutPure("#include \"" + path_name + "SubProgram.asm\"");
