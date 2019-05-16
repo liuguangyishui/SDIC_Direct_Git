@@ -771,7 +771,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	}
 	//for point ex:  store i8* %2, i8** %3, align 4, !dbg !9
 	else if(op_num1 > 1 || op_num2 > 1){
-	  
+    
 	  //add fun name before variable
 	  string current_fun_name =				\
 	    reg_manage_obj->GetValueFromWhichFunStack();
@@ -807,7 +807,6 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	    op_src1 = current_fun_name + "." + op_src1;
 	    op_src2 = current_fun_name + "." + op_src2;
 	  }
-	  
 	  vector<string> reg_name_src1 =			\
 	    reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
 
@@ -821,6 +820,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	    return ;
 	  }
 	  for(int i = 0; i < reg_name_src1.size(); i++){
+	   
 	    OutPut("movf", reg_name_src1[i], IR_name);
 	    OutPut("movwf", reg_name_src2[i], IR_name);
 	  }
