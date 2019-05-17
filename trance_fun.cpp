@@ -2283,29 +2283,36 @@ void TranceCall(SplitWord wordCon, string IR_name){
 	  find(VEC.begin(), VEC.end(), "sideeffect") != VEC.end()){
     regex begin_regex("\".*");
     regex end_regex(".*\".*");
+    regex begin_end_regex("\".*\".*");
     regex return_regex("/n.*");
     bool real_begin = false;
     for(auto elem : VEC){
       //the beign of asm
       if(regex_match(elem, begin_regex)){
-	real_begin = true;
-	OutPutDirect("\t");
-	elem = elem.substr(1);
-	OutPutDirect(elem + "\t\t");
-	continue;
+	if(regex_match(elem, begin_end_regex)){
+	  auto index = elem.rfind("\"");
+	  elem = elem.substr(1, index - 1);
+	  OutPutDirect("\t" + elem + "\n");
+	  break;
+	} else {
+	  real_begin = true;
+	  elem = elem.substr(1);
+	  OutPutDirect("\t" + elem + "\t\t");
+	  continue;
+	}
       }
       if(!real_begin) continue;
       
       //the end of asm
       if(regex_match(elem, end_regex)){
-	auto index = elem.find("\"");
+	auto index = elem.rfind("\"");
 	OutPutDirect(elem.substr(0, index) + "\n");
 	break;
       }
+      //next line
       if(regex_match(elem, return_regex)){
-	OutPutDirect("\n\t");
 	elem = elem.substr(2);
-	OutPutDirect(elem + "\t\t");
+	OutPutDirect("\n\t" + elem + "\t\t");
 	continue;
       }
       
