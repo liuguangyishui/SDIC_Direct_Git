@@ -22,7 +22,13 @@ class RegManage;
 class DataManage;
 
 void ChangeComma(string &str){
-//  cout << "i have benn call changeComma" << endl;
+  //if the str is already compiler language
+  //call void asm sideeffect "lea eax, n, /norr, r0, r0", "~{$1}"()
+  if(str.find("call") != string::npos &&	\
+     str.find("asm") != string::npos && \
+     str.find("sideeffect") != string::npos)
+    return;
+
     for(int i = 0; i < str.size(); i++){
     if(str[i] == ',' || str[i] == ':' ||		\
       str[i] == '(' || str[i] == ')'){
@@ -502,7 +508,7 @@ void TranceLoad(SplitWord wordCon, string IR_name){
 	op_src = current_fun_name + "." + op_src;
 	op_des = current_fun_name + "." + op_des;
       }
-    
+      
       //deal with the ptr
       //if this op src is ptr 
       if(reg_manage_obj->WhetherPtrAdditionalInfo(op_src)){
@@ -510,7 +516,7 @@ void TranceLoad(SplitWord wordCon, string IR_name){
 	op_src = reg_manage_obj->GetPtrAdditionalInfo(op_src);
 	//op_src = reg_manage_obj->GetPtrInfoFromRecord(op_src);
       }
-     
+    
       if(regex_match(op_src, reg1)){
 	core_info = reg_manage_obj->GetAllInfoFromGlobalVal(op_src);
       } 
@@ -831,7 +837,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	  vector<string> reg_name_src2 =			\
 	    reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
 	  
-
+	  
 	  if(reg_name_src1.size() != reg_name_src2.size()){
 	    cout << "TranceStore():Source src size not"	\
 	      "equal des src size!" << endl;
@@ -923,11 +929,12 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	    val_vec = DealWithDoubleTypeData(op_src1, reg_num);
 	  }
 	}
-	else {
-	 
+	else {	 
 	  //trange the op_src1 to split section num
-	  val_vec = reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
+	  val_vec = \
+	    reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
 	}
+
 
 	for(int i = 0; i < val_vec.size(); i++){      
 	  OutPut("movlw", "." + val_vec[i], IR_name);
@@ -2270,6 +2277,40 @@ void TranceCall(SplitWord wordCon, string IR_name){
     reg_manage_obj->CreateMapForGenVal(last_op_src, \
 				       core_info_op_src);
     
+  }
+  //deal with the asm in c code
+  else if(find(VEC.begin(), VEC.end(), "asm") != VEC.end() &&	 \
+	  find(VEC.begin(), VEC.end(), "sideeffect") != VEC.end()){
+    regex begin_regex("\".*");
+    regex end_regex(".*\".*");
+    regex return_regex("/n.*");
+    bool real_begin = false;
+    for(auto elem : VEC){
+      //the beign of asm
+      if(regex_match(elem, begin_regex)){
+	real_begin = true;
+	OutPutDirect("\t");
+	elem = elem.substr(1);
+	OutPutDirect(elem + "\t\t");
+	continue;
+      }
+      if(!real_begin) continue;
+      
+      //the end of asm
+      if(regex_match(elem, end_regex)){
+	auto index = elem.find("\"");
+	OutPutDirect(elem.substr(0, index) + "\n");
+	break;
+      }
+      if(regex_match(elem, return_regex)){
+	OutPutDirect("\n\t");
+	elem = elem.substr(2);
+	OutPutDirect(elem + "\t\t");
+	continue;
+      }
+      
+      OutPutDirect(elem);
+    }
   }
   //the is call fun
   else {

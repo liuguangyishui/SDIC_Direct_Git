@@ -281,6 +281,13 @@ void OutPutPure(string instrName){
   }
 }
 
+void OutPutDirect(string instrName){
+  if(!out_put_file_name.empty() && f_out.is_open()){
+    f_out << instrName << " ";
+  } else {
+    cout << instrName  << " ";
+  }
+}
 void OutPutJumpPure(string instrName, string op, string IR_name){
   string content = "\t" + instrName + "\t\t" + op;
   DebugInfo debug_info_object = DebugInfo();

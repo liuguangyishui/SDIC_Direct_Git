@@ -45,6 +45,9 @@ void OutPut(string, string, int, int, string IR_name);
 //this fun just output origin info
 void OutPutPure(string);
 
+//this fun direct output string
+void OutPutDirect(string);
+
 //print the paramter, without additonal content. like cout
 void OutPutOrg(string, string);
 
