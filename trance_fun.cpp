@@ -475,11 +475,14 @@ void TranceLoad(SplitWord wordCon, string IR_name){
       }
       
       if(reg_manage_obj->WhetherPtrAdditionalInfo(op_src)){
-	op_src = reg_manage_obj->GetPtrAdditionalInfo(op_src);
+	//op_src = reg_manage_obj->GetPtrAdditionalInfo(op_src);
+	op_src = reg_manage_obj->GetPtrInfoFromRecord(op_src);
       }
+      
       string point_info = \
 	reg_manage_obj->GetPtrInfoFromRecord(op_src);
       reg_manage_obj->AddPtrAdditionalInfo(op_des, point_info);   
+  
     }
     else {
       string op_src = wordCon.vaCol[5];
@@ -499,15 +502,15 @@ void TranceLoad(SplitWord wordCon, string IR_name){
 	op_src = current_fun_name + "." + op_src;
 	op_des = current_fun_name + "." + op_des;
       }
-      
+    
       //deal with the ptr
       //if this op src is ptr 
       if(reg_manage_obj->WhetherPtrAdditionalInfo(op_src)){
+  
 	op_src = reg_manage_obj->GetPtrAdditionalInfo(op_src);
 	//op_src = reg_manage_obj->GetPtrInfoFromRecord(op_src);
       }
-      
-      
+     
       if(regex_match(op_src, reg1)){
 	core_info = reg_manage_obj->GetAllInfoFromGlobalVal(op_src);
       } 
@@ -786,17 +789,32 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	    reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
 	  
 	  reg_manage_obj->AddPtrInfoToRecord(op_src2, op_src1);
-	 
+	  
+	  reg_manage_obj->AddPtrAdditionalInfo(op_src2, op_src1);
+
 	  //select the smaller size
 	  int vec_size = \
 	    op_src1_vec.size() > op_src2_vec.size()?	\
 	    op_src2_vec.size() : op_src1_vec.size();
 	  
+	  reg_manage_obj->AddElemIntoPtrDeliverMap(op_src1_vec[0], \
+						   op_src1_vec); 
+	  //get the front addr
+	  string ptr_elem = op_src1_vec[0];
+	  string ptr_elem_first = "0x" + ptr_elem.substr(3);
+	  string ptr_elem_second = "0x0" + ptr_elem.substr(2,1);
+	  
+	  OutPut("movlw", "0a" + ptr_elem_first, IR_name);
+	  OutPut("movwf", op_src2_vec[0], IR_name);
+	  OutPut("movlw", "0a" + ptr_elem_second, IR_name);
+	  OutPut("movwf", op_src2_vec[1], IR_name);
+	  
+	  /*
 	  for(int i = 0; i < vec_size; i++){
 	    OutPut("movlw", "0a" + op_src1_vec[i], IR_name);
 	    OutPut("movwf", op_src2_vec[i], IR_name);
 	  }
-	  
+	  */
 	}
 	//deal with common store
 	else {

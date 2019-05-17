@@ -28,6 +28,8 @@ unordered_map<string, string> RegManage::ptr_info_map;
 
 unordered_map<string, string> RegManage::ptr_additional_info_map;
 
+unordered_map<string, vector<string>> RegManage::ptr_deliver_map;
+
 vector<string> RegManage::available_use_reg;
 vector<string> RegManage::have_used_reg;
 
@@ -601,4 +603,27 @@ RegManage::WhetherPtrAdditionalInfo(string var_name){
   if(var_name.empty()) return false;
   return (ptr_additional_info_map.find(var_name) != \
 	  ptr_additional_info_map.end());
+}
+
+void 
+RegManage::AddElemIntoPtrDeliverMap(string ptr_front_elem, 
+				    vector<string>& ptr_vec){
+  if(ptr_front_elem.empty() || ptr_vec.size() == 0){
+    cout << "Error: AddElemIntoPtrDeliverMap() The ptr data error!" << endl;
+    abort();
+  }
+  ptr_deliver_map.insert(make_pair(ptr_front_elem, ptr_vec));
+  
+}
+
+vector<string> 
+RegManage::GetElemFromPtrDeliverMap(string ptr_front){
+  if(ptr_deliver_map.find(ptr_front) == ptr_deliver_map.end()){
+    cout << "Error: GetElemFromPtrDeliverMap() The ptr data error!" << endl;
+    abort();
+  }
+
+  vector<string> res = \
+    ptr_deliver_map.find(ptr_front)->second;
+  return res;
 }

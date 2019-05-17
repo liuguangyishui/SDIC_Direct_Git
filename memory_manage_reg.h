@@ -107,6 +107,9 @@ class RegManage: public MemoryManage{
   string GetPtrAdditionalInfo(string);
   bool WhetherPtrAdditionalInfo(string);
 
+  void AddElemIntoPtrDeliverMap(string, vector<string>&);
+  vector<string> GetElemFromPtrDeliverMap(string);
+
   //check all operator type whether correspond each other
   bool CheckAllOperatorType(string, string);
   bool CheckAllOperatorType(string, string, string);
@@ -117,8 +120,6 @@ class RegManage: public MemoryManage{
   //So we should clear it.
   void ClearFunParaMap(string);
   
-  
-
   //This fun get value from addr
   string GetValueFromAddr(string);
 
@@ -157,6 +158,12 @@ class RegManage: public MemoryManage{
   //this is for ptr info
   static unordered_map<string, string> ptr_info_map;
   static unordered_map<string, string> ptr_additional_info_map;
+
+  //this if for ptr deliver map
+  //because we have to store register addr to reg, but the size
+  //of addr is 12 bits, the size of reg is only 8 bits. we just
+  //store the first of the address.
+  static unordered_map<string, vector<string>> ptr_deliver_map;
 };
 
 

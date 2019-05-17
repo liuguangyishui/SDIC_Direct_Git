@@ -124,10 +124,10 @@ int main(int argv, char **argc){
 #endif
 string path_name = ram_info_file_name.substr(0, path_name_index + 1);
   //include some head file, core_name GeneralReg
-  OutPutPure("#include \"" + core_name + ".INC.inc\"");
+  OutPutPure("#include \"" + core_name + ".INC\"");
   OutPutPure("#include \"" + core_name + "_GeneralReg.inc\"");
   OutPutPure("#include \"" + path_name + "SubProgram.inc\"");
-  OutPutPure("#include \"" + path_name + "SubProgram.asm\"");
+
   //precedure section of the program 
   //the beginning of program
   ProgramBegin();
@@ -139,6 +139,7 @@ string path_name = ram_info_file_name.substr(0, path_name_index + 1);
       OutPutOrg("\n;;;    Another file", " ");
     }
   }
+  OutPutPure("#include \"" + path_name + "SubProgram.asm\"");
   //the interrupt of the program 
    ProgramHint();
    //debug info file name
