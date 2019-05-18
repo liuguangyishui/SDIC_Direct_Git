@@ -129,7 +129,7 @@ void CoreFunOfLogicOperator(SplitWord wordCon, string namewf, \
       }
       //Instr: B = !A
       else if(!op_src2.compare("true") &&	\
-		!namelw.compare("xorlw")){
+		!namelw.compare("xorlw")){ 
 	//Instr: B = !A
 	vector<string> constant = \
 	  reg_manage_obj->GetSplitSectionOfANum("1", reg_num);
@@ -3798,48 +3798,70 @@ void getDataFromInstr(vector<string> &dataVec, SplitWord wordCon){
   }
 }
 
+//get elem data from two dimension
 void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
 				  SplitWord wordCon){
   vector<string> elem_vec = wordCon.vaCol;
   regex type_regex(".*i.*");
 
   regex elem_regex_1("i.+");
-
   regex elem_regex_2("[.]i.+");
-
+  regex elem_regex_3("\\[i.+");
+  //i64] or i64]]
   regex no_elem_regex_1("i.+\\]");
-
-  regex last_elem_regex(".+\\]*");
-
+  regex last_elem_regex(".+\\]+");
   regex type_char_regex("c.+");
    for(int i = 0; i < elem_vec.size(); i++){
      string elem = elem_vec[i];
 
      if(regex_match(elem, type_regex) && elem.compare("i8")){
+       
        //match i32] or i32]]
        if(regex_match(elem, no_elem_regex_1)){
 	 continue;
        } 
+       //match i64 or [i64
        if(regex_match(elem, elem_regex_1) ||	\
-	  regex_match(elem, elem_regex_2)){
+	  regex_match(elem, elem_regex_3)){
 
 	 string data_elem = elem_vec[++i];
+	 
+	 //remove ] character. ex 10] 0]]
 	 if(regex_match(data_elem, last_elem_regex)){
+
+	   auto index = data_elem.find("]");
+	   data_elem = data_elem.substr(0, index);
+	   /*
 	   data_elem = data_elem.substr(0, data_elem.size() - 1);
 	   if(regex_match(data_elem, last_elem_regex)){
 	     data_elem = data_elem.substr(0, data_elem.size() - 1);
-	   }
+	     }*/
 	 }
+	 
 	 data_vec.push_back(data_elem);
 
        }
      }
-     //the type is char 
+     //the type is char ex: c"123"  c"\04\5C6"]
      else if(regex_match(elem, type_char_regex)){
-       for(int i = 1; i < elem.size(); i++){
+       //delete the c"
+       elem = elem.substr(2);
+       for(int i = 0; i < elem.size(); i++){
+      
 	 string temp_elem;
-	 if(elem[i] == '\\'){
+	 //delete the last "
+	 if((elem[i] == '"' && (i == elem.size() -1)) || \
+	    (elem[i] == '"' && (i == elem.size() - 2) && \
+	     (elem[i+1] == ']'))){
+	   continue;
+	 }
+	 //delete the last character c"\04\5C6"]
+	 else if(elem[i] == ']' && i == elem.size() -1){
+	   continue;
+	 }
+	 else if(elem[i] == '\\'){
 	   temp_elem = elem.substr(i+1,2);
+
 	   i = i + 2;
 	   int temp_elem_dec = ChangeHexToDec(temp_elem);
 	   data_vec.push_back(to_string(temp_elem_dec));
@@ -3852,6 +3874,7 @@ void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
 	   else if(temp_elem >= "A" && temp_elem <= "Z"){
 	     temp_elem = to_string(elem[i]); 
 	   }
+	   
 	   data_vec.push_back(temp_elem);
 	 }
        }
