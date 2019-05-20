@@ -196,7 +196,7 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
     core_info.virtual_addr = var_name;
     core_info.data_type = var_type;
     core_info.store_where_place = 1;
-   
+    core_info.unique_index = 1;
     //how many reg that need.
     //    core_info.actual_addr_num = reg_need_num;
     core_info.belong_which_fun_name = this->GetBelongWhatCallName();
@@ -241,6 +241,7 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
     core_info.virtual_addr = var_name;
     core_info.data_type = var_type;
     core_info.store_where_place = 1;
+    core_info.unique_index = 1;
     //how many reg that need.
     core_info.actual_addr_num = reg_need_num;
     core_info.belong_which_fun_name = this->GetBelongWhatCallName();
@@ -605,12 +606,22 @@ RegManage::WhetherPtrAdditionalInfo(string var_name){
 	  ptr_additional_info_map.end());
 }
 
+bool
+RegManage::WhetherPtrDeliverMap(string ptr_front_elem){
+  return ptr_deliver_map.find(ptr_front_elem) != ptr_deliver_map.end();
+}
+
 void 
 RegManage::AddElemIntoPtrDeliverMap(string ptr_front_elem, 
 				    vector<string>& ptr_vec){
   if(ptr_front_elem.empty() || ptr_vec.size() == 0){
-    cout << "Error: AddElemIntoPtrDeliverMap() The ptr data error!" << endl;
+    cout << "Error: AddElemIntoPtrDeliverMap() The ptr data error!"\
+	 << endl;
     abort();
+  }
+  //update the value of ptr_front_elem 
+  if(ptr_deliver_map.find(ptr_front_elem) != ptr_deliver_map.end()){
+    ptr_deliver_map.erase(ptr_front_elem);
   }
   ptr_deliver_map.insert(make_pair(ptr_front_elem, ptr_vec));
   
@@ -619,11 +630,82 @@ RegManage::AddElemIntoPtrDeliverMap(string ptr_front_elem,
 vector<string> 
 RegManage::GetElemFromPtrDeliverMap(string ptr_front){
   if(ptr_deliver_map.find(ptr_front) == ptr_deliver_map.end()){
-    cout << "Error: GetElemFromPtrDeliverMap() The ptr data error!" << endl;
+    cout << "Error: GetElemFromPtrDeliverMap() The ptr data error!" \
+	 << endl;
     abort();
   }
 
   vector<string> res = \
     ptr_deliver_map.find(ptr_front)->second;
+  return res;
+}
+
+vector<string> 
+RegManage::GetElemAddrFromPtrAddr(string ptr_addr, \
+				  int elem_index){
+  vector<string> res;
+  //repair the font addr from two addr
+  //string font_addr = "0x" + ptr_addr[1].substr(3) +	\
+  //  ptr_addr[0].substr(2);
+  string font_addr = ptr_addr;
+  //iterater all variable in reg_addr_map to find the font addr 
+  //belong which variable
+  for(auto elem : reg_addr_map){
+    DataStoreInfo &all_info = elem.second;
+    vector<string> addr_vec = all_info.actual_addr;
+    string type = all_info.data_type;
+    int elem_size = this->HowBigType(type);
+    string name =  all_info.virtual_addr;
+
+    for(int i = 0; i < addr_vec.size(); i++){
+      string addr_elem = addr_vec[i];
+      //if we found the font addr belong which variable
+      if(!font_addr.compare(addr_elem) && all_info.unique_index == 1){
+      
+	int begin = i + elem_index * elem_size;
+	
+	if(begin >= addr_vec.size() * elem_size) {
+	  cout << "Error! GetElemAddrFromPtrAddr() " << endl;
+	  abort();
+	}
+	
+	for(int j = 0; j < elem_size; j++){
+	  res.push_back(addr_vec[begin + j]);
+	}
+	return res;
+      }
+    }
+  }
+
+  for(auto elem : global_addr_map){
+    DataStoreInfo &all_info = elem.second;
+    vector<string> addr_vec = all_info.actual_addr;
+    string type = all_info.data_type;
+    int elem_size = this->HowBigType(type);
+    string name = all_info.virtual_addr;
+    
+    for(int i = 0; i < addr_vec.size(); i++){
+      string addr_elem = addr_vec[i];
+      // cout << "name " << name << addr_elem << " " << font_addr << all_info.unique_index << endl;
+      //if we found the font addr belong which variable
+      if(!font_addr.compare(addr_elem) && all_info.unique_index == 1){
+     
+	int begin = i + elem_index * elem_size;
+	if(begin >= addr_vec.size() * elem_size) {
+	  cout << "Error! GetElemAddrFromPtrAddr() " << endl;
+	  abort();
+	}
+	for(int j = 0; j < elem_size; j++){
+	  res.push_back(addr_vec[begin + j]);
+	}
+	return res;
+      }
+
+    }
+  }
+  if(res.size() == 0) { 
+    cout << "Error! The ptr not data" << endl; 
+    abort();
+  }
   return res;
 }

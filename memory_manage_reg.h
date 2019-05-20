@@ -107,8 +107,11 @@ class RegManage: public MemoryManage{
   string GetPtrAdditionalInfo(string);
   bool WhetherPtrAdditionalInfo(string);
 
+  bool WhetherPtrDeliverMap(string);
   void AddElemIntoPtrDeliverMap(string, vector<string>&);
   vector<string> GetElemFromPtrDeliverMap(string);
+
+  vector<string> GetElemAddrFromPtrAddr(string, int);
 
   //check all operator type whether correspond each other
   bool CheckAllOperatorType(string, string);

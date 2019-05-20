@@ -36,7 +36,8 @@ struct DataStoreInfo {
   int store_where_place;   
   //allocated how many reg(i8/i16)
   int actual_addr_num;     
-
+  //
+  int unique_index;
 };
 
 class MemoryManage {

@@ -213,6 +213,7 @@ void TranceLoad(SplitWord wordCon, string IR_name){
     int array_dimension = count(VEC.begin(), VEC.end(), "x");
     string op_des, op_des_type, array_name;
     int elem_index = 0;
+
     //the array is one dimension
     if(array_dimension == 2){
       op_des = wordCon.vaCol[0];
@@ -264,7 +265,7 @@ void TranceLoad(SplitWord wordCon, string IR_name){
       vector<string> elem_addr_vec = \
 	reg_manage_obj->GetActualAddrFromGenVal(array_name,\
 						elem_index);
-      
+       
       int reg_num = elem_addr_vec.size();
       for(int i = 0; i < reg_num; i++){
 	OutPut("movf", elem_addr_vec[i], IR_name);
@@ -490,7 +491,56 @@ void TranceLoad(SplitWord wordCon, string IR_name){
       reg_manage_obj->AddPtrAdditionalInfo(op_des, point_info);   
   
     }
-    else {
+    // %9 = load i32*, i32** %5, align 4, !dbg !15
+    else if(op_num1 == 1 && op_num2 == 2){
+      string op_src = VEC[5];
+      string op_des = VEC[0];
+      string op_des_type = VEC[3];
+      DataStoreInfo core_info;
+
+      RegManage* reg_manage_obj = RegManage::getInstance();
+      //add fun name before variable
+      string current_fun_name =				\
+	reg_manage_obj->GetValueFromWhichFunStack();
+      if(!current_fun_name.empty()){
+	op_src = current_fun_name + "." + op_src;
+	op_des = current_fun_name + "." + op_des;
+      }
+      vector<string> op_src_vec, op_des_vec;
+      if(reg_manage_obj->WhetherPtrDeliverMap(op_src)){
+	//get font addr via deliver map
+	op_src_vec =						\
+	  reg_manage_obj->GetElemFromPtrDeliverMap(op_src);
+	//get correct addr via the font addr
+	op_des_vec =						    \
+	  reg_manage_obj->GetElemAddrFromPtrAddr(op_src_vec[0], 0);
+      }
+      else {
+	cout << "Error! The ptr isn't assigned!" << endl;
+      }
+
+      //for(auto elem : op_des_vec) cout << "al " << elem << endl;
+      /*
+      //i8* is two reg, but op_desv_vec.size() equal one
+      //we should make it equal
+      int elem_size = reg_manage_obj->HowBigType(op_des_type);
+      int addr_size = op_des_vec.size();
+      if(elem_size > addr_size){
+	for(int i = 0; i < elem_size - addr_size; i++){
+	  op_des_vec.push_back("0x000");
+	}
+      }
+      */
+      //i8* to i8
+      auto index = op_des_type.find("*");
+      core_info.data_type = op_des_type.substr(0, index);
+      core_info.actual_addr = op_des_vec;
+      reg_manage_obj->CopyAMapForGenVal(op_des, core_info);
+      
+    }
+    // %9 = load i32, i32* %5, align 4, !dbg !15
+    else if(op_num1 == 0 && op_num2 == 1) {
+      
       string op_src = wordCon.vaCol[5];
       string op_des = wordCon.vaCol[0];
       DataStoreInfo core_info; //reg_name;
@@ -500,7 +550,6 @@ void TranceLoad(SplitWord wordCon, string IR_name){
       // general var
       regex reg2(".*\%.+"); 
       RegManage* reg_manage_obj = RegManage::getInstance();
-      
       //add fun name before variable
       string current_fun_name =				\
 	reg_manage_obj->GetValueFromWhichFunStack();
@@ -508,7 +557,8 @@ void TranceLoad(SplitWord wordCon, string IR_name){
 	op_src = current_fun_name + "." + op_src;
 	op_des = current_fun_name + "." + op_des;
       }
-      
+
+      /*
       //deal with the ptr
       //if this op src is ptr 
       if(reg_manage_obj->WhetherPtrAdditionalInfo(op_src)){
@@ -516,15 +566,16 @@ void TranceLoad(SplitWord wordCon, string IR_name){
 	op_src = reg_manage_obj->GetPtrAdditionalInfo(op_src);
 	//op_src = reg_manage_obj->GetPtrInfoFromRecord(op_src);
       }
-    
+      */
+
       if(regex_match(op_src, reg1)){
 	core_info = reg_manage_obj->GetAllInfoFromGlobalVal(op_src);
       } 
       else if(regex_match(op_src, reg2)){
 	core_info = reg_manage_obj->GetAllInfoFromGenVal(op_src);
       }
-      
       reg_manage_obj->CopyAMapForGenVal(op_des, core_info);
+      
     }
   }  
 #undef VEC
@@ -534,12 +585,16 @@ void TranceStore(SplitWord wordCon, string IR_name){
 #define VEC wordCon.vaCol
 
   regex regular_expr_struct("%struct.*");
-  //Store the value to the elem in array
+  // Store the value to the elem in array
+  // store i32 99, i32* getelementptr inbounds ([3 x i32], 
+  // [3 x i32]* @arr_one, i32 0, i32 1), align 4, !dbg !13
   if(find(VEC.begin(), VEC.end(), "getelementptr") != VEC.end() && \
-     find(VEC.begin(), VEC.end(), "x") != VEC.end()){
+     find(VEC.begin(), VEC.end(), "x") != VEC.end() && \
+     !VEC[4].compare("getelementptr")){
     int array_dimension = count(VEC.begin(), VEC.end(), "x");
     string op_src, op_src_type, array_name, which_elem_index;
     int elem_index = 0;
+
     //the array is one dimension
     if(array_dimension == 2){
       op_src = VEC[2];
@@ -560,7 +615,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
       elem_index = ChangeStrToDec(VEC[8].substr(1)) * 
 	ChangeStrToDec(VEC[20]) + ChangeStrToDec(VEC[22]);
     }
-    
+
     MemoryManage memory_manage_obj = MemoryManage();
     RegManage* reg_manage_obj = RegManage::getInstance();
     int reg_num = memory_manage_obj.HowBigType(op_src_type);
@@ -639,6 +694,115 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	
       }
     } 
+  }
+  // store the global array addr to the ptr
+  // store i32* getelementptr inbounds ([3 x i32], [3 x i32]* 
+  //@arr_one, i32 0, i32 0), i32** %5, align 4, !dbg !14
+  else if(find(VEC.begin(),VEC.end(),"getelementptr")!= VEC.end() &&\
+	  find(VEC.begin(), VEC.end(), "x") != VEC.end()  &&  \
+	  !VEC[2].compare("getelementptr")){
+
+    int array_dimension = count(VEC.begin(), VEC.end(), "x");
+    string array_name, op_des;
+    int elem_size, elem_index;
+    //the array is one dimension
+    if(array_dimension == 2){
+      array_name = VEC[10];
+      op_des = VEC[16];
+      elem_size = ChangeStrToDec(VEC[7].substr(1));
+      elem_index = ChangeStrToDec(VEC[12]);
+    }
+    //the array is two dimension
+    else if(array_dimension == 4) {
+      auto getelementptr_index = \
+	count(VEC.begin(), VEC.end(), "getelementptr");
+      if(getelementptr_index == 1){
+	array_name = VEC[14];
+	op_des = VEC[22];
+	elem_size = ChangeStrToDec(VEC[6].substr(1));
+	elem_index = ChangeStrToDec(VEC[18]);
+      }
+      else if(getelementptr_index == 2){
+	array_name = VEC[18];
+	op_des = VEC[28];
+	elem_size = ChangeStrToDec(VEC[10].substr(1));
+	elem_index = ChangeStrToDec(VEC[22]);
+
+	cout << "Warning! continue to do!" << endl;
+	abort();
+      }
+    }
+    RegManage* reg_manage_obj = RegManage::getInstance();
+    //add fun name before variable
+    string current_fun_name =					\
+      reg_manage_obj->GetValueFromWhichFunStack();
+    if(!current_fun_name.empty()){
+      op_des = current_fun_name + "." + op_des;
+    }
+
+    /*
+    if(reg_manage_obj->WhetherPtrAdditionalInfo(op_des)){
+      op_des = reg_manage_obj->GetPtrInfoFromRecord(op_des);
+      }
+    if(reg_manage_obj->WhetherPtrDeliverMap(op_des)){
+      op_des = reg_manage_obj->GetElemFromPtrDeliverMap(op_des);
+    }
+    */
+
+    int which_store_map_index = \
+      reg_manage_obj->VarStoreWhichMap(array_name);
+
+    //the array variable store in reg_addr_map
+    if(which_store_map_index == 1) {
+      cout << "Warning! contniue to do!" << endl;
+    }
+    //the array variable store in global_addr_map
+    else if(which_store_map_index == 2){
+      vector<string> op_des_vec =				\
+	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+
+      vector<string> elem_addr_vec =			     \
+	reg_manage_obj->GetActualAddrFromGlobalVal(array_name,	  \
+					     elem_index * elem_size);
+      
+      string ptr_elem = elem_addr_vec[0];
+      reg_manage_obj->AddElemIntoPtrDeliverMap(op_des,\
+					       elem_addr_vec);
+      
+      string ptr_elem_first = "0x" + ptr_elem.substr(3);
+      string ptr_elem_second = "0x0" + ptr_elem.substr(2,1);
+      OutPut("movlw", "0a" + ptr_elem_first, IR_name);
+      OutPut("movwf", op_des_vec[0], IR_name);
+      OutPut("movlw", "0a" + ptr_elem_second, IR_name);
+      OutPut("movwf", op_des_vec[1], IR_name);
+    }
+    //the array variable store in data_area_addr_map
+    else if(which_store_map_index == 4){
+      vector<string> op_des_vec =				\
+	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
+      
+      DataAreaManage *data_area_manage_obj =	\
+	DataAreaManage::getInstance();
+      vector<string> elem_addr_vec =			     \
+	data_area_manage_obj->GetActualAddrFromVal(array_name,\
+					     elem_index * elem_size);
+      
+      string ptr_elem = elem_addr_vec[0];
+      reg_manage_obj->AddElemIntoPtrDeliverMap(op_des,\
+					       elem_addr_vec);
+      
+      string ptr_elem_first =   ptr_elem.substr(2);
+      string ptr_elem_second =  ptr_elem.substr(0,2);
+      OutPut("movlw", "0a" + ptr_elem_first, IR_name);
+      OutPut("movwf", op_des_vec[0], IR_name);
+      OutPut("movlw", "0a" + ptr_elem_second, IR_name);
+      OutPut("movwf", op_des_vec[1], IR_name);
+
+      cout << "Warning! continue to do!" << endl;
+      abort();
+    }
+
+
   }
   //store the value to the elem in struct
   else if(find(VEC.begin(),VEC.end(),"getelementptr")!= VEC.end()&& \
@@ -719,6 +883,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
   }
   //Store the value to the single variabel
   else{
+    
     string op_src1 = wordCon.vaCol[2];
     string op_src2 = wordCon.vaCol[4];
     string op_src1_type = wordCon.vaCol[1];
@@ -780,7 +945,6 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	}
 	//for point ex:  store i8* %2, i8** %3, align 4, !dbg !9
 	else if(op_num1 > 1 || op_num2 > 1){
-    
 	  //add fun name before variable
 	  string current_fun_name =				\
 	    reg_manage_obj->GetValueFromWhichFunStack();
@@ -788,22 +952,22 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	    op_src1 = current_fun_name + "." + op_src1;
 	    op_src2 = current_fun_name + "." + op_src2;
 	  }
-	  
+	  	  
 	  vector<string> op_src1_vec = \
 	    reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
 	  vector<string> op_src2_vec = \
 	    reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
 	  
-	  reg_manage_obj->AddPtrInfoToRecord(op_src2, op_src1);
-	  
+	  reg_manage_obj->AddPtrInfoToRecord(op_src2, op_src1);	  
 	  reg_manage_obj->AddPtrAdditionalInfo(op_src2, op_src1);
+
 
 	  //select the smaller size
 	  int vec_size = \
 	    op_src1_vec.size() > op_src2_vec.size()?	\
 	    op_src2_vec.size() : op_src1_vec.size();
-	  
-	  reg_manage_obj->AddElemIntoPtrDeliverMap(op_src1_vec[0], \
+	 
+	  reg_manage_obj->AddElemIntoPtrDeliverMap(op_src2, \
 						   op_src1_vec); 
 	  //get the front addr
 	  string ptr_elem = op_src1_vec[0];
@@ -831,18 +995,19 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	    op_src1 = current_fun_name + "." + op_src1;
 	    op_src2 = current_fun_name + "." + op_src2;
 	  }
+	 
 	  vector<string> reg_name_src1 =			\
 	    reg_manage_obj->GetActualAddrFromGenVal(op_src1, 0);
-
+	  
 	  vector<string> reg_name_src2 =			\
 	    reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
 	  
-	  
+	  /*
 	  if(reg_name_src1.size() != reg_name_src2.size()){
 	    cout << "TranceStore():Source src size not"	\
 	      "equal des src size!" << endl;
 	    return ;
-	  }
+	    }*/
 	  for(int i = 0; i < reg_name_src1.size(); i++){
 	   
 	    OutPut("movf", reg_name_src1[i], IR_name);
@@ -858,7 +1023,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	  reg_manage_obj->GetActualAddrFromGenVal(op_src2, 0);
 	
 	if(reg_name_src1.size() != reg_name_src2.size()){
-	  cout << "Source src size not equal des src size!" << endl;
+	  cout << "Error! Source src size not equal des src size!" << endl;
 	  return ;
 	}
 	for(int i = 0; i < reg_name_src1.size(); i++){
@@ -912,7 +1077,11 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	//---
 	//reg_num record the reg type. how many reg do reg_name_src
 	//have.
-	int reg_num = reg_name_src.size();
+	//int reg_num = reg_name_src.size();
+	int reg_num = reg_manage_obj->HowBigType(VEC[1]);
+	int des_size = reg_manage_obj->HowBigType(VEC[3]);
+	int min_num = reg_num > des_size? des_size: reg_num;
+	
 	vector<string> val_vec;
 	regex float_reg1(".+e.+");
 	regex float_reg2("0x.+");
@@ -934,8 +1103,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	  val_vec = \
 	    reg_manage_obj->GetSplitSectionOfANum(op_src1, reg_num);
 	}
-
-
+	
 	for(int i = 0; i < val_vec.size(); i++){      
 	  OutPut("movlw", "." + val_vec[i], IR_name);
 	  OutPut("movwf", reg_name_src[i], IR_name);
@@ -2043,6 +2211,8 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
      //get the array addr that have been allocated
      vector<string> array_addr_vec = \
        reg_manage_obj->GetAllActualAddrFromGlobalVal(wordCon.vaCol[0]);
+
+
      //get the type
      int reg_num = reg_manage_obj->HowBigType(array_elem_type);
   
@@ -3132,13 +3302,16 @@ void TranceConstant(SplitWord wordCon, string IR_name){
     }
     //the array dimension is two
     else if(array_dimension >= 2){
-      array_elem_type = VEC[8].substr(0, VEC[8].size() - 2);
-      array_elem_num = ChangeStrToDec(VEC[4].substr(1)) *    \
-	ChangeStrToDec(VEC[6].substr(1));
+      
+      array_elem_type = VEC[7].substr(0, VEC[7].size() - 2);
+      array_elem_num = ChangeStrToDec(VEC[3].substr(1)) *    \
+	ChangeStrToDec(VEC[5].substr(1));
       array_name = VEC[0];
       GetElemFromTwoDimensionArray(dataVec, wordCon);
     }
     
+    
+
     DataAreaManage *data_area_manage_obj =	\
       DataAreaManage::getInstance();
     //store the begin addr of the array, we will put all the 
@@ -3160,6 +3333,7 @@ void TranceConstant(SplitWord wordCon, string IR_name){
       //k  is for the whole addr
       int k = 0;
       for(int i = 0; i < dataVec.size(); i++){
+       
 	// string addr = ManageDataArea::getAddr_plus();
 	vector<string> value_vec = \
 	  data_area_manage_obj->GetSplitSectionOfANum(dataVec[i], \
@@ -3177,6 +3351,7 @@ void TranceConstant(SplitWord wordCon, string IR_name){
 	}
       }
     }
+    
   }
   //for const struct variable that have been initial
   //@conter = constant %struct.mystruct { i32 1, i8 97 }, align 4
@@ -3372,7 +3547,7 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
     string op_src_type = VEC[4];
     string op_des = VEC[0];
     int index_num = ChangeStrToDec(VEC[8]);
-
+    
     RegManage* reg_manage_obj = RegManage::getInstance();
     //add fun name before variable
     string current_fun_name =				\
@@ -3382,10 +3557,37 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
       op_des = current_fun_name + "." + op_des;
     }
     
+
+    vector<string> op_src_vec = \
+      reg_manage_obj->GetActualAddrFromGenVal(op_src, 0);
+   
+    vector<string> op_des_vec =					\
+      reg_manage_obj->GetElemAddrFromPtrAddr(op_src_vec[0],\
+					     index_num);
+    /*
+    //i8* is two reg, but op_desv_vec.size() equal one
+    //we should make it equal
+    int elem_size = reg_manage_obj->HowBigType(op_des_type);
+    int addr_size = op_des_vec.size();
+    if(elem_size > addr_size){
+      for(int i = 0; i < elem_size - addr_size; i++){
+	op_des_vec.push_back("0x000");
+      }
+    }
+    */
+    DataStoreInfo core_info;
+    
+    core_info.virtual_addr = op_des;
+    core_info.data_type = op_src_type;
+    for(int i = 0; i < op_des_vec.size(); i++){
+      core_info.actual_addr.push_back(op_des_vec[i]);
+    }
+    reg_manage_obj->CreateMapForGenVal(op_des, core_info);
+
+    /*
     if(reg_manage_obj->WhetherPtrAdditionalInfo(op_src)){
       op_src = reg_manage_obj->GetPtrAdditionalInfo(op_src);
     }
-
 
     int reg_num = reg_manage_obj->HowBigType(op_src_type);
     DataStoreInfo core_info_op_src =			\
@@ -3404,6 +3606,7 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
       core_info.actual_addr.push_back(op_src_addr[i]);
     }
     reg_manage_obj->CreateMapForGenVal(op_des, core_info);
+    */
   }
 
 #undef VEC    
@@ -3802,7 +4005,7 @@ void getDataFromInstr(vector<string> &dataVec, SplitWord wordCon){
 void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
 				  SplitWord wordCon){
   vector<string> elem_vec = wordCon.vaCol;
-  regex type_regex(".*i.*");
+  regex type_regex(".*i[0-9]*");
 
   regex elem_regex_1("i.+");
   regex elem_regex_2("[.]i.+");
@@ -3810,7 +4013,7 @@ void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
   //i64] or i64]]
   regex no_elem_regex_1("i.+\\]");
   regex last_elem_regex(".+\\]+");
-  regex type_char_regex("c.+");
+  regex type_char_regex("c\".+\"");
    for(int i = 0; i < elem_vec.size(); i++){
      string elem = elem_vec[i];
 
@@ -3820,6 +4023,7 @@ void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
        if(regex_match(elem, no_elem_regex_1)){
 	 continue;
        } 
+      
        //match i64 or [i64
        if(regex_match(elem, elem_regex_1) ||	\
 	  regex_match(elem, elem_regex_3)){
@@ -3846,6 +4050,7 @@ void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
      else if(regex_match(elem, type_char_regex)){
        //delete the c"
        elem = elem.substr(2);
+       
        for(int i = 0; i < elem.size(); i++){
       
 	 string temp_elem;
