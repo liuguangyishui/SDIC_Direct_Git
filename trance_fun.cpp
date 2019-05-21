@@ -704,13 +704,14 @@ void TranceStore(SplitWord wordCon, string IR_name){
 
     int array_dimension = count(VEC.begin(), VEC.end(), "x");
     string array_name, op_des;
-    int elem_size, elem_index;
+    int elem_size, elem_index, elem_begin;
     //the array is one dimension
     if(array_dimension == 2){
       array_name = VEC[10];
       op_des = VEC[16];
       elem_size = ChangeStrToDec(VEC[7].substr(1));
       elem_index = ChangeStrToDec(VEC[12]);
+      elem_begin = elem_index * elem_size;
     }
     //the array is two dimension
     else if(array_dimension == 4) {
@@ -721,15 +722,24 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	op_des = VEC[22];
 	elem_size = ChangeStrToDec(VEC[6].substr(1));
 	elem_index = ChangeStrToDec(VEC[18]);
+	elem_begin = elem_index * elem_size;
       }
       else if(getelementptr_index == 2){
+	
 	array_name = VEC[18];
 	op_des = VEC[28];
 	elem_size = ChangeStrToDec(VEC[10].substr(1));
 	elem_index = ChangeStrToDec(VEC[22]);
+	
+	elem_begin = elem_index * elem_size + ChangeStrToDec(VEC[26]); 
 
-	cout << "Warning! continue to do!" << endl;
-	abort();
+	int total_size = ChangeStrToDec(VEC[13].substr(1)) *	\
+	  ChangeStrToDec(VEC[15].substr(1));
+
+	if(elem_begin >= total_size) {
+	  cout << "Error！ Out of range!" << endl;
+	  abort();
+	}
       }
     }
     RegManage* reg_manage_obj = RegManage::getInstance();
@@ -763,7 +773,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 
       vector<string> elem_addr_vec =			     \
 	reg_manage_obj->GetActualAddrFromGlobalVal(array_name,	  \
-					     elem_index * elem_size);
+					     elem_begin);
       
       string ptr_elem = elem_addr_vec[0];
       reg_manage_obj->AddElemIntoPtrDeliverMap(op_des,\
