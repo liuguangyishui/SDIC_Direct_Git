@@ -737,7 +737,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	  ChangeStrToDec(VEC[15].substr(1));
 
 	if(elem_begin >= total_size) {
-	  cout << "Error！ Out of range!" << endl;
+	  cout << "Error！ Elem index out of range!" << endl;
 	  abort();
 	}
       }
