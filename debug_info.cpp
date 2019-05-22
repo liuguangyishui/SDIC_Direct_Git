@@ -67,14 +67,16 @@ void DebugInfo::AddAdditionalDebugInfoToRecord(string var_name, \
 }
 
 
-void DebugInfo::CreateAInstrDebugRecord(string instr_name, string instr){
+void DebugInfo::CreateAInstrDebugRecord(string instr_name, \
+					string instr){
   InstrDebugInfoElem core_info;
   core_info.Instr_name = instr_name;
   core_info.after_trance_instr_vector.push_back(instr);
   instr_debug_info_vec.push_back(core_info);
 }
 
-void DebugInfo::AddInstrDebugInfoToRecord(string instr_name, string trance_instr) {
+void DebugInfo::AddInstrDebugInfoToRecord(string instr_name,\
+					  string trance_instr) {
   if(!instr_debug_info_vec.empty()){
     InstrDebugInfoElem &core_info = instr_debug_info_vec.back();
     if(!instr_name.compare(core_info.Instr_name)){

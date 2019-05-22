@@ -3598,18 +3598,22 @@ void TranceGetelementptr(SplitWord wordCon, string IR_name){
 
     }
     else if(array_dimension == 2 && is_second_elem){
+      
       array_name = array_name_two_dimension;
       op_des = VEC[0];
       op_des_type = VEC[6].substr(0, VEC[6].size() - 1);
-      elem_index = ChangeStrToDec(VEC[14]) *	\
-	ChangeStrToDec(first_elem_index);
+      elem_index = ChangeStrToDec(first_elem_index) * \
+	ChangeStrToDec(VEC[7].substr(1)) + \
+	ChangeStrToDec(VEC[14]);
       is_second_elem = false;
+     
     }
     //the array is two dimension
     else if(array_dimension == 4){
       array_name_two_dimension = VEC[14];
       is_second_elem = true;
       first_elem_index = VEC[18];
+     
       return ;
     }
     
@@ -4470,10 +4474,10 @@ void TranceGdb(SplitWord wordCon, string IR_name){
      }
 
    }
- #undef VEC
+#undef VEC
  }
 
- void TranceSdiv(SplitWord wordCon, string IR_name){
+void TranceSdiv(SplitWord wordCon, string IR_name){
  #define VEC wordCon.vaCol
    string op_des = VEC[0];
    string op_type =VEC[3];
