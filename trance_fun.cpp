@@ -2168,7 +2168,10 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
       array_elem_type = \
 	wordCon.vaCol[7].substr(0, wordCon.vaCol[7].size() - 2);
     }
-    
+    else if(array_dimension > 2){
+      cout << "Waring! contniue to do" << endl;
+      abort();
+    }
     RegManage* reg_manage_obj = RegManage::getInstance();
     //allocate addr for the array
     reg_manage_obj->AllocateRegToGlobalVal(array_name,	    \
