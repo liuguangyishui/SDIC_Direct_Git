@@ -23,6 +23,10 @@ void DebugInfo::CreateAAddrDebugRecord(string var_name, string type){
   debug_info.IR_name = var_name;
   debug_info.var_type = type;
 
+  //for 2DArray
+  debug_info.two_dimension_array_first = -1;
+  debug_info.two_dimension_array_second = -1;
+
   addr_debug_info_vec.push_back(debug_info);
 
 }
@@ -35,6 +39,9 @@ void DebugInfo::CreateAAddrDebugRecord(string var_name, \
   AddrDebugInfoElem debug_info;
   debug_info.IR_name = var_name;
   debug_info.var_type = type;
+  //for 2DArray
+  debug_info.two_dimension_array_first = -1;
+  debug_info.two_dimension_array_second = -1;
   
   for(auto elem : elem_type){
     debug_info.inner_elem_type.push_back(elem);
@@ -53,6 +60,20 @@ void DebugInfo::AddAddrDebugInfoToRecord(string var_name, \
     }
   }
 }
+void DebugInfo::AddAddrDebugInfoToRecord_2DArray(string var_name, \
+						 int first_size,  \
+						 int second_size){
+  if(!addr_debug_info_vec.empty()){
+    AddrDebugInfoElem &core_info = addr_debug_info_vec.back();
+    if(!var_name.compare(core_info.IR_name)){
+      core_info.two_dimension_array_first = first_size;
+      core_info.two_dimension_array_second = second_size;
+    }
+  }
+}
+
+
+
 
 void DebugInfo::AddAdditionalDebugInfoToRecord(string var_name, \
 					       string additional_info){
@@ -91,6 +112,7 @@ void DebugInfo::CreateCodeLink(string file_fun_name){
      ccode_and_instr_map.find(file_fun_name) != 
      ccode_and_instr_map.end()){
     cout << "DebugInfo::CreateCodeLink: file_fun_name fail" << endl;
+
     return ;
   }
   CCodeLinkInstr code_link;
@@ -189,6 +211,12 @@ void DebugInfo::PrintAddrDebugInfo(string output_file_name){
     fout << outer_elem.IR_name << ": " << endl;
     fout << "type: " << outer_elem.var_type << endl;
     
+    //this variable is two dimension, print the array size and elemt size
+    if(outer_elem.two_dimension_array_first > 0 && \
+       outer_elem.two_dimension_array_second > 0) {
+      fout << "2Darray: " << outer_elem.two_dimension_array_first << " x " \
+	   << outer_elem.two_dimension_array_second << endl;
+    }
     //this variable is struct type, so print the elem type
     if(!outer_elem.inner_elem_type.empty()){
       fout << "inner_elem_type: " << \

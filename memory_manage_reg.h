@@ -48,6 +48,9 @@ class RegManage: public MemoryManage{
   //for general val, allocate reg to general val.then call 
   //CreateMapForGenVal to create a record in reg_addr_map
   void AllocateRegToGenVal(string, string, int);
+  //since 2DArray need to record array size and elem size(ex:2 x 3), 
+  //it should be deal with 
+  void AllocateRegToGenVal_2DArray(string, string, int, int, int);
 
   //for fun para. allocate reg to every fun para.then call 
   //CreateMapForFunPara to create a record in fun_para_map

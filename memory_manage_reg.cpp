@@ -277,8 +277,10 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
 //one addr fro the var_name according to the elem_num
 //if elem_num equal 0, then we just create a racord in reg_addr_map
 //but not allocate actual addr for var_name
-void RegManage::AllocateRegToGenVal(string var_name, string var_type, int elem_num) {
-  
+void 
+RegManage::AllocateRegToGenVal(string var_name, \
+			       string var_type, \
+			       int elem_num) {
   DataStoreInfo core_info;
   if(elem_num != 0){
     core_info = this->CoreAllocateRegFun(var_name, var_type, elem_num);
@@ -290,6 +292,33 @@ void RegManage::AllocateRegToGenVal(string var_name, string var_type, int elem_n
   //create record in map
   this->CreateMapForGenVal(var_name, core_info);  
 }
+//for two dimension array
+void 
+RegManage::AllocateRegToGenVal_2DArray(string var_name, \
+				       string var_type, \
+				       int elem_num,
+				       int first_size,
+				       int second_size) {
+  DataStoreInfo core_info;
+  if(elem_num != 0){
+    core_info = this->CoreAllocateRegFun(var_name, var_type, elem_num);
+    //record the 2D array size and elemnt size
+    //    core_info.2DArray_first = first_size;
+    //    core_info.2DArray_second = second_size;
+    //addr debug info 
+    DebugInfo debug_info_obj = DebugInfo(); 
+    debug_info_obj.AddAddrDebugInfoToRecord_2DArray(var_name, \
+						    first_size,\
+						    second_size);
+  }
+  else if(elem_num == 0){
+ 
+  }
+  this->SetVarStoreWhichMap(var_name, 1);
+  //create record in map
+  this->CreateMapForGenVal(var_name, core_info);  
+}
+
 
 //get var_name addr from reg_addr_map. we also should dedicate 
 //array or a single variable. So we use a elem_index to do it.

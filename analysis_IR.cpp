@@ -383,6 +383,11 @@ void OpenFileAndDeal(string &file_name) {
 						single_line_debug);
       TrancePtrToInt(word_con, "ptrtoint"); break;
     }
+    case udiv: {
+      debug_info_object.CreateAInstrDebugRecord("udiv", \
+						single_line_debug);
+      TranceSdiv(word_con, "udiv"); break;
+    }
     default: break;
     }
     

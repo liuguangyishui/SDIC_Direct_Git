@@ -28,6 +28,9 @@ struct AddrDebugInfoElem {
   vector<string> inner_elem_type;
   vector<string> allocated_addr;
   int number_addr;
+  //for 2 dimension array
+  int two_dimension_array_first;
+  int two_dimension_array_second;
 
   //  vector<InnerAddrDebugStruct> inner_elem;
 };
@@ -55,12 +58,15 @@ class DebugInfo {
   void CreateAAddrDebugRecord(string, string, const vector<string>&);
   //add addr info into exited record via var_name(first parameter)
   void AddAddrDebugInfoToRecord(string, string);
+  //since 2DArray need to deal with array size and elem size(ex: 2 x 3)
+  void AddAddrDebugInfoToRecord_2DArray(string, int, int);
+
   void AddAdditionalDebugInfoToRecord(string, string);
   //Create a instr debug info record in instr debug map
   void CreateAInstrDebugRecord(string, string);
   //add info into exited record
   void AddInstrDebugInfoToRecord(string, string);
-
+  
   void CreateCodeLink(string);
 
   string GetInfoFromCodeLink(string);

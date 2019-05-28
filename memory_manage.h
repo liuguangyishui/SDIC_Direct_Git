@@ -38,6 +38,9 @@ struct DataStoreInfo {
   int actual_addr_num;     
   //
   int unique_index;
+  //for 2 dimension array
+  //int 2DArray_first;
+  //int 2DArray_second;
 };
 
 class MemoryManage {
