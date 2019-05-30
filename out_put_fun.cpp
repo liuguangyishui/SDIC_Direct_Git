@@ -25,7 +25,7 @@ void OpenOutPutFile(string file_name){
   if(!out_put_file_name.empty()){
     f_out.open(out_put_file_name, ios_base::out);
     if(!f_out.is_open())
-      cout << "this file open failed" << endl;
+      throw "this file open failed";
   }
 }
 

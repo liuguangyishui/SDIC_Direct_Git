@@ -112,10 +112,8 @@ RegManage::InitialRamRange(vector<string> &ram_range_vec, string &core_name){
   f_out.open(core_name + "_GeneralReg.inc", ios_base::out);
   
   if(!f_out.is_open()){
-    cout << \
-      "Error:RegManage::InitialRamRange() core_name file create fail"\
-	 << endl;
-    abort();
+    throw \
+      "Error:RegManage::InitialRamRange() core_name file create fail";
   }
   //which bank that the register belong
   string which_bank_index;
@@ -233,8 +231,8 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
     //check whether still have enough reg to allocate
     if(available_use_reg.empty() ||				\
        total_addr_used_for_var > available_use_reg.size()){
-      cout << "No enough reg to allocate!" << endl;
-      abort();
+      throw "No enough reg to allocate!";
+    
     }
   
     //    DataStoreInfo core_info;
@@ -371,8 +369,8 @@ vector<string>
 RegManage::GetAllActualAddrFromGenVal(string var_name){
 
   if(reg_addr_map.find(var_name) == reg_addr_map.end()){
-    cout << "This var haven't actual addr!" << endl;
-    abort();
+    throw "This var haven't actual addr!";
+    
   }
   DataStoreInfo core_info = this->GetAllInfoFromGenVal(var_name);
   return core_info.actual_addr;
@@ -381,8 +379,8 @@ RegManage::GetAllActualAddrFromGenVal(string var_name){
 DataStoreInfo RegManage::GetAllInfoFromGenVal(string var_name){
 
   if(reg_addr_map.find(var_name) == reg_addr_map.end()){
-    cout << "This var don't store in the map!" << endl;
-    abort();
+    throw "This var don't store in the map!";
+    
   }
   DataStoreInfo core_info = reg_addr_map.find(var_name)->second;
   return core_info;
@@ -391,8 +389,8 @@ DataStoreInfo RegManage::GetAllInfoFromGenVal(string var_name){
 DataStoreInfo RegManage::GetAllInfoFromGlobalVal(string var_name){
 
   if(global_addr_map.find(var_name) == global_addr_map.end()){
-    cout << "This var don't store in the map!" << endl;
-    abort();
+    throw "This var don't store in the map!";
+    
   }
   DataStoreInfo core_info = global_addr_map.find(var_name)->second;
   return core_info;
@@ -438,8 +436,8 @@ vector<string> RegManage::GetActualAddrFromFunPara(string var_name, \
 						   int elem_index){
   
   if(fun_para_map.size() == 0){
-    cout << "This var haven't actual addr!" << endl;
-    abort();
+    throw "This var haven't actual addr!";
+    
   }
   DataStoreInfo core_info = \
     fun_para_map.back(); 
@@ -488,8 +486,8 @@ vector<string> RegManage::GetActualAddrFromGlobalVal(string var_name,\
 						     int elem_index){
 
   if(global_addr_map.find(var_name) == global_addr_map.end()){
-    cout << "This var haven't actual addr!" << endl;
-    abort();
+    throw "This var haven't actual addr!";
+    
   }
   //get core_info from global_addr_map via the name of variable
   DataStoreInfo core_info = global_addr_map.find(var_name)->second;
@@ -538,8 +536,8 @@ vector<string> \
 RegManage::GetAllActualAddrFromGlobalVal(string var_name){
 
   if(global_addr_map.find(var_name) == global_addr_map.end()){
-    cout << "This var haven't actual addr!" << endl;
-    abort();
+    throw "This var haven't actual addr!";
+   
   }
   //get core_info from global_addr_map via the name of variable
   DataStoreInfo core_info = global_addr_map.find(var_name)->second;
@@ -644,9 +642,7 @@ void
 RegManage::AddElemIntoPtrDeliverMap(string ptr_front_elem, 
 				    vector<string>& ptr_vec){
   if(ptr_front_elem.empty() || ptr_vec.size() == 0){
-    cout << "Error: AddElemIntoPtrDeliverMap() The ptr data error!"\
-	 << endl;
-    abort();
+    throw "Error: AddElemIntoPtrDeliverMap() The ptr data error!";
   }
   //update the value of ptr_front_elem 
   if(ptr_deliver_map.find(ptr_front_elem) != ptr_deliver_map.end()){
@@ -659,9 +655,7 @@ RegManage::AddElemIntoPtrDeliverMap(string ptr_front_elem,
 vector<string> 
 RegManage::GetElemFromPtrDeliverMap(string ptr_front){
   if(ptr_deliver_map.find(ptr_front) == ptr_deliver_map.end()){
-    cout << "Error: GetElemFromPtrDeliverMap() The ptr data error!" \
-	 << endl;
-    abort();
+    throw "Error: GetElemFromPtrDeliverMap() The ptr data error!";
   }
 
   vector<string> res = \
@@ -694,8 +688,8 @@ RegManage::GetElemAddrFromPtrAddr(string ptr_addr, \
 	int begin = i + elem_index * elem_size;
 	
 	if(begin >= addr_vec.size() * elem_size) {
-	  cout << "Error! GetElemAddrFromPtrAddr() " << endl;
-	  abort();
+	  throw "Error! GetElemAddrFromPtrAddr() ";
+	
 	}
 	
 	for(int j = 0; j < elem_size; j++){
@@ -721,8 +715,8 @@ RegManage::GetElemAddrFromPtrAddr(string ptr_addr, \
      
 	int begin = i + elem_index * elem_size;
 	if(begin >= addr_vec.size() * elem_size) {
-	  cout << "Error! GetElemAddrFromPtrAddr() " << endl;
-	  abort();
+	  throw "Error! GetElemAddrFromPtrAddr() ";
+    
 	}
 	for(int j = 0; j < elem_size; j++){
 	  res.push_back(addr_vec[begin + j]);
@@ -733,8 +727,7 @@ RegManage::GetElemAddrFromPtrAddr(string ptr_addr, \
     }
   }
   if(res.size() == 0) { 
-    cout << "Error! The ptr not data" << endl; 
-    abort();
+    throw "Error! The ptr not data";
   }
   return res;
 }

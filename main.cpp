@@ -81,7 +81,7 @@ int main(int argv, char **argc){
       //it is invalid paremeter
       else {
 	cout << "Not valid parameter: " << argc[i] << endl;
-	abort();
+	return 0;
       } //end else
     } //end if(regex_match(argc[i], reg))
   } //for
@@ -91,29 +91,47 @@ int main(int argv, char **argc){
      ram_info_file_name.empty() ||		\
      core_name.empty() ||			\
      special_reg_name.empty()){
-    cout << "Error: main() Not enough command parameter! " << endl;
-    abort();
+    cout << "Error: main() No enough command parameter! " << endl;
+    return 0;
   }
  
 
   vector<string> ram_range_vec, rom_range_vec;
+  try {
   //deal with ram file
   GetRamAndRomInfo(ram_info_file_name, \
 		   ram_range_vec, rom_range_vec,\
 		   core_name);
+  }
+  catch (const char*msg) {
+    cerr << msg << endl;
+    return 0;
+  } 
   //deal with ram info include ram and rom 
   DealWithRamAndRomInfo(ram_range_vec,   \
 			rom_range_vec, \
 			core_name);
-
+  try {
   //deal with special register in ram
   DealWithSpecialRegInfo(special_reg_vec,	\
   			 special_reg_name,	\
   			 core_name);
 
+  }
+  catch (const char*msg) {
+    cerr << msg << endl;
+    return 0;
+  }
+
+  try {
   //open outputFile
   OpenOutPutFile(output_file_name);
-  
+  }
+  catch (const char*msg) {
+    cerr << msg << endl;
+    return 0;
+  }
+    
   //get the parent file path of ram_info_file_name
   //if the run environment is linux
 #if defined(__linux__)
@@ -133,25 +151,31 @@ string path_name = ram_info_file_name.substr(0, path_name_index + 1);
   ProgramBegin();
   //deal with mutifiles
   for(int i = 0; i < input_file_name.size(); i++){
-    //open inputFile
-    OpenFileAndDeal(input_file_name[i]);
+    try {
+      //open inputFile
+      OpenFileAndDeal(input_file_name[i]);
+    } catch (const char*msg){
+      cerr << msg << endl;
+      return 0;
+    }
+
     if(i != input_file_name.size() - 1){
       OutPutOrg("\n;;;    Another file", " ");
     }
   }
   OutPutPure("#include \"" + path_name + "SubProgram.asm\"");
   //the interrupt of the program 
-   ProgramHint();
-   //debug info file name
-   string debug_file_name = output_file_name;
-   
-   DebugInfo debug_info_obj = DebugInfo();
-   //if output file name is NULL
-   if(debug_file_name.empty()){
-     debug_file_name = "output";
-   }
-   //if a . carater in the debug_file_name, remove
-   string::size_type idex;
+  ProgramHint();
+  //debug info file name
+  string debug_file_name = output_file_name;
+  
+  DebugInfo debug_info_obj = DebugInfo();
+  //if output file name is NULL
+  if(debug_file_name.empty()){
+    debug_file_name = "output";
+  }
+  //if a . carater in the debug_file_name, remove
+  string::size_type idex;
    idex = debug_file_name.find(".");
    if(idex != string::npos){
      debug_file_name = debug_file_name.substr(0, idex);

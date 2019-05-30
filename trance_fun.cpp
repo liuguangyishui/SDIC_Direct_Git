@@ -381,9 +381,7 @@ void TranceLoad(SplitWord wordCon, string IR_name){
       vector<string> op_des_addr_vec =				\
 	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
       if(elem_addr.size() != op_des_addr_vec.size()){
-	cout << "TranceLoad(): op_des size and op_src size no "	\
-	  "equal!" << endl;
-	abort();
+	throw "TranceLoad(): op_des size and op_src size no equal!";
       }
       for(int i = 0; i < elem_addr.size(); i++){
 	OutPut("movf", elem_addr[i], IR_name);
@@ -404,9 +402,8 @@ void TranceLoad(SplitWord wordCon, string IR_name){
 	reg_manage_obj->GetActualAddrFromGenVal(op_des, 0);
 
       if(elem_addr.size() != op_des_addr.size()){
-	cout << "TranceLoad(): op_des size and op_src size no "\
-	  "equal!" << endl;
-	abort();
+	throw "TranceLoad(): op_des size and op_src size no "\
+	  "equal!";
       }
       for(int i = 0; i < elem_addr.size(); i++){
 	string addr_h(elem_addr[i].substr(0,2));
@@ -737,8 +734,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	  ChangeStrToDec(VEC[15].substr(1));
 
 	if(elem_begin >= total_size) {
-	  cout << "Error！ Elem index out of range!" << endl;
-	  abort();
+	  throw "Error！ Elem index out of range!";
 	}
       }
     }
@@ -808,8 +804,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
       OutPut("movlw", "0a" + ptr_elem_second, IR_name);
       OutPut("movwf", op_des_vec[1], IR_name);
 
-      cout << "Warning! continue to do!" << endl;
-      abort();
+      throw "Warning! continue to do!";
     }
 
 
@@ -931,10 +926,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	   !VEC[5].compare("inttoptr")){
 	  int reg_num_index = reg_manage_obj->HowBigType(op_src2);
 	  if(reg_num_index > 1){
-	    cout << \
-	      "Error: TranceStore() reg must be store in 8 bit reg" \
-		 << endl;
-	    abort();
+	     throw  "Error: TranceStore() reg must be store in 8 bit reg";
 	  }
 	  
 	  //add fun name before variable
@@ -1052,10 +1044,7 @@ void TranceStore(SplitWord wordCon, string IR_name){
 	int reg_num_index = reg_manage_obj->HowBigType(op_src2_type);
        
 	if(reg_num_index > 2) {
-	  cout << \
-	    "Error: TranceStore() value must be store in 8 bit reg!"\
-	       << endl;
-	  abort();
+	  throw	"Error: TranceStore() value must be store in 8 bit reg!";
 	}
 	//op src
 	//trange the op_src1 to split section num
@@ -2192,8 +2181,8 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
 	wordCon.vaCol[7].substr(0, wordCon.vaCol[7].size() - 2);
     }
     else if(array_dimension > 2){
-      cout << "Waring! contniue to do" << endl;
-      abort();
+      throw "Waring! contniue to do";
+      
     }
     RegManage* reg_manage_obj = RegManage::getInstance();
     //allocate addr for the array

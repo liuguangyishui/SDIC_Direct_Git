@@ -135,8 +135,7 @@ MemoryManage::GetSplitSectionOfANum(string src_val_str,\
 
 int MemoryManage::VarStoreWhichMap(string var_name){
   if(var_store_which_map.find(var_name) == var_store_which_map.end()){
-    cout << "No this Variable!" << endl;
-    abort();
+    throw "No this Variable!";
   }
   int res = var_store_which_map.find(var_name)->second;
   return res;

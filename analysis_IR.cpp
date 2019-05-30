@@ -26,8 +26,7 @@ void GetRamAndRomInfo(string ram_info_file_name, \
   //Open file and judge whether it is open
   ifstream IR_file(ram_info_file_name, ios_base::in);
   if(!IR_file.is_open()){
-    cout << "Error: GetRamAndRomInfo() Open file failed!" << endl;
-    abort();
+    throw "Error: GetRamAndRomInfo() Open file failed!";
   }
   //find core name
   //../../../sdic3004.inc
@@ -98,9 +97,8 @@ void GetRamAndRomInfo(string ram_info_file_name, \
   }
   //if there are not core name in cfg file
   if(!(whether_have_finished && whether_have_find_target_core)){
-    cout << "Error: There aren't " << core_name << " in " <<	\
-      ram_info_file_name << endl;
-    abort();
+    throw "Error: There aren't " + core_name + " in " +	\
+      ram_info_file_name;
   }
 }
 
@@ -114,16 +112,76 @@ void DealWithRamAndRomInfo(vector<string>& ram_range_vec, \
   data_area_manage_obj->InitialRomRange(rom_range_vec, core_name);
 }
 
+//deal with special reg. 
+//transform .h file to .inc file and record the name and addr in map  
+//special_reg_map is the map of special reg name and addr
+//path_name is the file path
+//core_name is the type of singlechip
 void DealWithSpecialRegInfo(map<string, string>& special_reg_map, \
 			    string& path_name, \
 			    string& core_name){
   //Open file and judge whether it is open
   ifstream IR_file(path_name, ios_base::in);
-  if(!IR_file.is_open()){
-    cout << "Error: DealWithSpecialRegInfo Open special reg "	\
-      "file failed!" << endl;
-    abort();
+  if(!IR_file.is_open()){   
+    throw "Error: DealWithSpecialRegInfo Open special reg "	\
+      "file failed!";
   }
+  
+
+
+        
+  auto index = path_name.rfind(".");
+  string output_file = path_name.substr(0, index) + ".inc";
+  
+  vector<string> output_vec;
+  string single_line;
+  while(getline(IR_file, single_line)){
+    
+    auto is_define = single_line.find("#define");
+    if(is_define == string::npos) continue;
+    
+    string output_single_line;
+    string single_word, map_index, map_string;
+    istringstream iss(single_line);
+    int index = 0;
+    while(iss >> single_word){
+      if(index == 1) {
+	output_single_line = output_single_line + single_word;
+	map_index = single_word;
+      }
+      if(index == 4){
+	auto bracket_index = single_word.find(")");
+	string temp = single_word.substr(bracket_index + 1);
+	map_string  = temp.substr(0, temp.size() - 1);
+    
+	output_single_line = \
+	  output_single_line + "\t EQU\t" + map_string + "\n";
+      }
+      ++index;
+    }
+    //this single line is #define long long long
+    if(index <= 4)      continue;
+    
+    special_reg_map.insert(make_pair(map_index, map_string));
+    output_vec.push_back(output_single_line);
+  }
+  //output the map to the .inc file
+  std::ofstream f_out;
+  f_out.open(output_file, ios_base::out);  
+  if(!f_out.is_open()){
+     throw "Error: output file open failed!";
+  }
+  
+  for(auto elem : output_vec){
+    f_out << elem;
+  }
+  cout << output_file << endl;
+  f_out.close();
+  
+
+
+  /*
+
   string single_line;
   regex equ_upper_regex(".+EQU.+");
   regex equ_lower_regex(".+equ.+");
@@ -147,13 +205,13 @@ void DealWithSpecialRegInfo(map<string, string>& special_reg_map, \
 	special_reg_map.insert(make_pair(map_index, map_vec[0]));
     }
   }
+  */
 }
 void OpenFileAndDeal(string &file_name) {
   //Open file
   ifstream IR_file(file_name,ios_base::in);
   if(!IR_file.is_open()){
-    cout << "Error: OpenFileAndDeal() Open file failed!" << endl;
-    abort();
+    throw "Error: OpenFileAndDeal() Open file failed!";
   }
   
   string single_line;

@@ -62,8 +62,8 @@ int ChangeHexToDec(string hex_str_val){
       return res;
     }
     else {
-      cout << "Error: invaild character in ChangeHexToDec() " << endl;
-      abort();
+      throw "Error: invaild character in ChangeHexToDec() ";
+      
     }
     res += val * pow(16, j);
   }

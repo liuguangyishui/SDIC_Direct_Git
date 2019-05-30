@@ -54,10 +54,8 @@ DataAreaManage::InitialRomRange(vector<string> &rom_range_vec, \
 
 
     if(available_data_area_addr <= 0) {
-      cout << \
-	"Error: InitialRomRange() available_data_area_addr invaild"\
-	   << endl;
-      abort();
+      throw \
+	"Error: InitialRomRange() available_data_area_addr invaild";
     }
   }
 
@@ -98,8 +96,7 @@ DataAreaManage::CoreAllocateDataAreaFun(string var_name, \
       for(int j = 0; j < reg_num; j++){
 	if(available_data_area_addr <= 0 || \
 	   reg_num > available_data_area_addr){
-	  cout << "No enough data area to allocate!" << endl;
-	  abort();
+	  throw "No enough data area to allocate!";
 	}
 	int data_area_addr_int = have_used_data_area_addr +	\
 	  begin_addr_dataArea;
@@ -125,8 +122,8 @@ DataAreaManage::CoreAllocateDataAreaFun(string var_name, \
     //check whether still have enough data area to allocate
     if(available_data_area_addr <= 0 ||				\
        total_addr_used_for_var > available_data_area_addr){
-      cout << "No enough data area to allocate!" << endl;
-      abort();
+      throw "No enough data area to allocate!";
+      
     }
   
     core_info.virtual_addr = var_name;
@@ -186,9 +183,8 @@ vector<string> DataAreaManage::GetActualAddrFromVal(string var_name, \
 						    int elem_index){
   
   if(data_area_addr_map.find(var_name) == data_area_addr_map.end()){
-    cout << "GetActualAddrFromVal(): No this variable in "\
-      "data area map" << endl;
-    abort();
+    throw "GetActualAddrFromVal(): No this variable in "\
+      "data area map";
   }
   DataStoreInfo core_info = data_area_addr_map.find(var_name)->second;
   vector<string> addr = core_info.actual_addr;
@@ -225,7 +221,7 @@ vector<string> DataAreaManage::GetActualAddrFromVal(string var_name, \
 vector<string> \
 DataAreaManage::GetAllActualAddrFromVal(string var_name){
    if(data_area_addr_map.find(var_name) == data_area_addr_map.end()){
-   abort();
+   throw "Error: memory_manage_data.cpp GetAllActualAddrFromVal()";
   }
   DataStoreInfo core_info = data_area_addr_map.find(var_name)->second;
   return core_info.actual_addr;
