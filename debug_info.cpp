@@ -173,6 +173,17 @@ void DebugInfo::PrintInstrDebugInfo(string output_file_name){
   }
  
   for(auto outer_elem : instr_debug_info_vec){
+
+    string name_for_c_file = outer_elem.Instr_name;
+    regex c_file_name_regex("@SourceFile.+");
+    if(regex_match(name_for_c_file, c_file_name_regex)){
+      fout << name_for_c_file << endl;
+      fout << endl;
+      continue;
+
+    }
+
+
     fout << "!Single Statement------------------------------"<< endl;
     fout << "!IR INSTR: " << endl;;
     vector<string>  core_info = outer_elem.after_trance_instr_vector;

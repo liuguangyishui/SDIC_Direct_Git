@@ -152,6 +152,12 @@ string path_name = ram_info_file_name.substr(0, path_name_index + 1);
   //deal with mutifiles
   for(int i = 0; i < input_file_name.size(); i++){
     try {
+
+      DebugInfo debug_info_object = DebugInfo();
+      debug_info_object.CreateAInstrDebugRecord("@SourceFile:" + \
+						input_file_name[i].substr(0, input_file_name[i].size() - 2) + "c", \
+						" ");
+
       //open inputFile
       OpenFileAndDeal(input_file_name[i]);
     } catch (const char*msg){
