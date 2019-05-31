@@ -155,8 +155,8 @@ string path_name = ram_info_file_name.substr(0, path_name_index + 1);
 
       DebugInfo debug_info_object = DebugInfo();
       debug_info_object.CreateAInstrDebugRecord("@SourceFile:" + \
-						input_file_name[i].substr(0, input_file_name[i].size() - 2) + "c", \
-						" ");
+      input_file_name[i].substr(0, input_file_name[i].size() - 2) + \
+						"c", " ");
 
       //open inputFile
       OpenFileAndDeal(input_file_name[i]);
