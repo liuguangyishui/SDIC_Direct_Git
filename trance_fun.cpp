@@ -4360,7 +4360,11 @@ void TranceGdb(SplitWord wordCon, string IR_name){
   }
   else if(find(VEC.begin(), VEC.end(), "distinct") != VEC.end() &&  \
 	  find(VEC.begin(), VEC.end(), "!DISubprogram") !=VEC.end()){
-    
+	  string gdb_first_name = VEC[0];
+	  string gdb_second_name = VEC[11];
+	  debug_info_object.AddInfoToCodeLink(DebugInfo::ccode_instr_file_fun_name,
+		  gdb_first_name,
+		  gdb_second_name);//yzk 将subprogram里面的行号获取
   }
   else if(find(VEC.begin(), VEC.end(), "line") != VEC.end() &&	   \
 	  find(VEC.begin(), VEC.end(), "!DILocation") != VEC.end()){

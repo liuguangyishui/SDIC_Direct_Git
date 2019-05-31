@@ -207,6 +207,10 @@ DataStoreInfo RegManage::CoreAllocateRegFun(string var_name, \
     //bigger than 1 the inter for statement is for register 
     //of a variabel
     for(int i = 0; i < type_vec.size(); i++){
+		debug_info_obj.AddAddrDebugInfoToRecord(var_name, \
+			"element: " + to_string(i));
+		debug_info_obj.AddAddrDebugInfoToRecord(var_name, \
+			"type: " + type_vec[i]);//yzk 2019.4.28 添加了struct中的元素类型信息
       int reg_num = this->HowBigType(type_vec[i]);
       //get reg and make record
       for(int j = 0; j < reg_num; j++){

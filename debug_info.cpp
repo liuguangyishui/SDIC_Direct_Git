@@ -228,14 +228,15 @@ void DebugInfo::PrintAddrDebugInfo(string output_file_name){
       fout << "2Darray: " << outer_elem.two_dimension_array_first << " x " \
 	   << outer_elem.two_dimension_array_second << endl;
     }
-    //this variable is struct type, so print the elem type
-    if(!outer_elem.inner_elem_type.empty()){
-      fout << "inner_elem_type: " << \
+	//this variable is struct type, so print the elem type
+	//yzk 这里可以注释掉，仅知道类型，无法知道地址的分界处
+	/*if(!outer_elem.inner_elem_type.empty()){
+	fout << "inner_elem_type: " << \
 	outer_elem.inner_elem_type.size() << endl;
-      for(auto struct_inner_elem : outer_elem.inner_elem_type){
+	for(auto struct_inner_elem : outer_elem.inner_elem_type){
 	fout << "\t" << struct_inner_elem << endl;
-      }
-    }
+	}
+	}*/
     fout << "addr: " << endl;
     vector<string> core_info = outer_elem.allocated_addr;
     for(auto inner_elem: core_info){

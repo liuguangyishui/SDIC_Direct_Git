@@ -18,6 +18,8 @@ class DebugInfo;
 std::ofstream f_out;
 
 map<string, string> special_reg_vec;
+//yzk 2019.4.8 record line numbers
+int trance_line;
 
 void OpenOutPutFile(string file_name){
   //out_put_file_name is a global var, be used in other function
@@ -26,6 +28,7 @@ void OpenOutPutFile(string file_name){
     f_out.open(out_put_file_name, ios_base::out);
     if(!f_out.is_open())
       throw "this file open failed";
+	trance_line = 0;//yzk 2019.4.8 line numbers initialize
   }
 }
 
@@ -117,6 +120,9 @@ void OutPut(string instr_name, string op, string IR_name){
       content_1 = "\t" +  instr_name + "\t\t" + op + ",\t0,\t1"; 
   }
   
+  trance_line++;//yzk
+				//record the instr debug info 
+				//and decide where the instr output
   //record the instr debug info 
   //and decide where the instr output
   DebugInfo debug_info_object = DebugInfo();
@@ -129,7 +135,7 @@ void OutPut(string instr_name, string op, string IR_name){
     //the op is num, so we direct output the instr, not to deal with
     //the reg and bank
     if(is_num_index){
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + "\tline:" + to_string(trance_line));
       f_out << content_1 << endl;
     }
     //the op is't num and it is the first instr, so we use the default
@@ -141,11 +147,11 @@ void OutPut(string instr_name, string op, string IR_name){
 	which_bank_index = which_bank_index_temp;
 	string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,   	\
-						    content_bank);
+						    content_bank + "\tline:" + to_string(trance_line));
 	f_out << content_bank << endl;
       }      
-      
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+	  trance_line++;
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + "\tline:" + to_string(trance_line));
       f_out << content_1 << endl;
     }
     //the op is't num and it is not first instr, so we must deal with
@@ -163,11 +169,12 @@ void OutPut(string instr_name, string op, string IR_name){
 	  which_bank_index = which_bank_index_temp;
 	  string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
 	  debug_info_object.AddInstrDebugInfoToRecord(IR_name,	    \
-						    content_bank);
+						    content_bank + "\tline:" + to_string(trance_line));
 	  f_out << content_bank << endl;  
+	  trance_line++;
 	}
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
-						    content_1);
+						    content_1 + "\tline:" + to_string(trance_line));
 	f_out << content_1 << endl;
 	
       }
@@ -181,7 +188,7 @@ void OutPut(string instr_name, string op, string IR_name){
     string which_bank_index_temp = origin_op.substr(0,1);
 
     if(is_num_index){
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + "\tline:" + to_string(trance_line));
       cout << content_1 << endl;
     }
     else if(!is_num_index && which_bank_index.empty()){
@@ -190,17 +197,18 @@ void OutPut(string instr_name, string op, string IR_name){
 	which_bank_index = which_bank_index_temp;
 	string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,	      \
-						  content_bank);
+						  content_bank + "\tline:" + to_string(trance_line));
 	cout << content_bank << endl;
+	trance_line++;
       }
 
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + "\tline:" + to_string(trance_line));
       cout << content_1 << endl;
     }
     else if(!is_num_index && !which_bank_index.empty()){
       if(!which_bank_index.compare(which_bank_index_temp)){
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
-						    content_1);
+						    content_1 + "\tline:" + to_string(trance_line));
 	cout << content_1 << endl;
       } 
       else {
@@ -210,10 +218,11 @@ void OutPut(string instr_name, string op, string IR_name){
 	  debug_info_object.AddInstrDebugInfoToRecord(IR_name,	   \
 						      content_bank);
 	  cout << content_bank << endl;
+	  trance_line++;
 	}
 	
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,	   \
-						    content_1);
+						    content_1 + "\tline:" + to_string(trance_line));
 	cout << content_1 << endl;
       }
     }
@@ -227,14 +236,14 @@ void OutPut(string instr_name, string op,int index1 = 0, \
     + to_string(index1) + ",\t" + to_string(index2);
   string content_2 = "\t" + instr_name + "\t\t" + op + ",\t"	\
     + to_string(index1) + ",\t" + to_string(index2);
-
+  trance_line++;
   DebugInfo debug_info_object = DebugInfo();
   
   if(!out_put_file_name.empty() && f_out.is_open()){
-    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + "\tline:" + to_string(trance_line));
     f_out << content_1 << endl;
   } else {
-    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_2);
+    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_2 + "\tline:" + to_string(trance_line));
     cout << content_2 << endl;
   }
 }
@@ -245,19 +254,20 @@ void OutPutOrg(string instrName, string op){
   } else {
     cout << "\t" << instrName << "\t\t" << op << "\t" << endl;
   }
+  trance_line++;
 }
 
 void OutPutJump(string instr_name, string op, string IR_name){
   string content_1 = "\t" + instr_name + "\t\t" + "Label" + "_" + op;
   string content_2 = "\t" + instr_name + "\t\t" + "Label" + "_" + op;
-
+  trance_line++;
   DebugInfo debug_info_object = DebugInfo();
 
   if(!out_put_file_name.empty() && f_out.is_open()){
-    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1);
+    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + "\tline:" + to_string(trance_line));
     f_out << content_1 << endl;
   } else {
-    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_2);
+    debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_2 + "\tline:" + to_string(trance_line));
     cout << content_2 << endl;
   }
 }
@@ -270,6 +280,7 @@ void OutPutLabel(string orderName, string IR_name){
     cout << "\n" << flush;
     cout << "Label" << "_" << orderName << ":" << endl;
   }
+  trance_line += 2;
 }
 
 void OutPutPure(string instrName){
@@ -280,6 +291,7 @@ void OutPutPure(string instrName){
     cout << "\n" << flush;
     cout << instrName  << endl;
   }
+  trance_line += 2;
 }
 
 void OutPutDirect(string instrName){
@@ -292,7 +304,8 @@ void OutPutDirect(string instrName){
 void OutPutJumpPure(string instrName, string op, string IR_name){
   string content = "\t" + instrName + "\t\t" + op;
   DebugInfo debug_info_object = DebugInfo();
-  debug_info_object.AddInstrDebugInfoToRecord(IR_name, content);
+  trance_line++;
+  debug_info_object.AddInstrDebugInfoToRecord(IR_name, content + "\tline:" + to_string(trance_line));
   if(!out_put_file_name.empty() && f_out.is_open()){
     f_out << content << endl;
   } else {

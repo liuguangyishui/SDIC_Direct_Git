@@ -182,7 +182,7 @@ string path_name = ram_info_file_name.substr(0, path_name_index + 1);
   }
   //if a . carater in the debug_file_name, remove
   string::size_type idex;
-   idex = debug_file_name.find(".");
+  idex = debug_file_name.rfind('.');//yzk 修改 解决路径中包含'.'的问题
    if(idex != string::npos){
      debug_file_name = debug_file_name.substr(0, idex);
    }

@@ -10,6 +10,8 @@
 #include <regex>
 #include <map>
 #include <vector>
+#include <sstream>
+#include <string>
 #include "trance_fun.h"
 #include "debug_info.h"
 #include "memory_manage_data.h"
@@ -232,22 +234,21 @@ void OpenFileAndDeal(string &file_name) {
     SplitWord word_con;
     int word_order = 0;
     //get every word in line
-    while(iss >> single_word){       
-      if(SDIC_operate_set.find(single_word) != SDIC_operate_set.end()){
-	auto index = SDIC_operate_set.find(single_word);	
-	word_con.instrName = static_cast<SDICKeyWord>(index->second);
-      } 
-      else if(regex_match(single_word, reg1)){
-	word_con.opCol.push_back(single_word);
-      }
-      //whether it is a gdb statement
-      else if(word_order == 0 && regex_match(single_word, gdb_index)){
-	word_con.instrName = static_cast<SDICKeyWord>(27);
-
-      }
-      word_con.vaCol.push_back(single_word);
-      ++word_order;
-    }
+	while (iss >> single_word) {      //yzk 更正了误将包含type的调试行处理为指令行的bug 
+									  //whether it is a gdb statement
+		if (word_order == 0 && regex_match(single_word, gdb_index)) {
+			word_con.instrName = static_cast<SDICKeyWord>(27);
+		}
+		else if (SDIC_operate_set.find(single_word) != SDIC_operate_set.end() && word_con.instrName == 0) {
+			auto index = SDIC_operate_set.find(single_word);
+			word_con.instrName = static_cast<SDICKeyWord>(index->second);
+		}
+		else if (regex_match(single_word, reg1)) {
+			word_con.opCol.push_back(single_word);
+		}
+		word_con.vaCol.push_back(single_word);
+		++word_order;
+	}
     //this line is invalid
     if(word_con.instrName == knull) continue; 
     
