@@ -2113,7 +2113,8 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
     int array_dimension = count(VEC.begin(), VEC.end(), "x");
     string array_name, array_elem_type;
     int array_elem_num = 0;
-  
+    RegManage* reg_manage_obj = RegManage::getInstance();
+    
     //the array is one dimension
     if(array_dimension == 1){
       array_name = wordCon.vaCol[0];
@@ -2121,6 +2122,10 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
       array_elem_num = GetArrayElemNum(wordCon);
       //get the elem type of the array from IR instr
       array_elem_type = GetArrayElemType(wordCon);
+      //allocate addr for the array
+      reg_manage_obj->AllocateRegToGlobalVal(array_name,    \
+					     array_elem_type,	\
+					     array_elem_num);
     }
     //the array is two dimension
     else if(array_dimension == 2){
@@ -2129,13 +2134,16 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
 	wordCon.vaCol[8].substr(0, wordCon.vaCol[8].size() - 2);
       array_elem_num = ChangeStrToDec(wordCon.vaCol[4].substr(1)) * \
       ChangeStrToDec(wordCon.vaCol[6].substr(1));
+      int first_size = ChangeStrToDec(VEC[4].substr(1));
+      int second_size = ChangeStrToDec(VEC[6].substr(1));
+      //allocate addr for the array
+      reg_manage_obj->AllocateRegToGlobalVal_2DArray(array_name,	\
+						     array_elem_type,	\
+						     array_elem_num,
+						     first_size,
+						     second_size);
     }
 
-    RegManage* reg_manage_obj = RegManage::getInstance();
-    //allocate addr for the array
-    reg_manage_obj->AllocateRegToGlobalVal(array_name, \
-					   array_elem_type, \
-					   array_elem_num);
     vector<string> array_addr_vec = \
       reg_manage_obj->GetAllActualAddrFromGlobalVal(array_name);
     int reg_num = reg_manage_obj->HowBigType(array_elem_type);
@@ -2159,6 +2167,7 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
     int array_dimension = count(VEC.begin(), VEC.end(), "x");
     string array_name, array_elem_type;
     int array_elem_num = 0;
+    RegManage* reg_manage_obj = RegManage::getInstance();
    
     //the array dimension is one
     if(array_dimension == 1){
@@ -2170,7 +2179,11 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
       //get the elem type of the array from IR instr
       //array_elem_type = GetArrayElemType(wordCon);
       array_elem_type = VEC[5].substr(0, VEC[5].size() - 1);
-  
+      
+      //allocate addr for the array
+      reg_manage_obj->AllocateRegToGlobalVal(array_name,    \
+					     array_elem_type,	\
+					     array_elem_num);
     }
     //the array dimenson is two
     else if(array_dimension == 2){
@@ -2179,17 +2192,22 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
           ChangeStrToDec(wordCon.vaCol[5].substr(1));
       array_elem_type = \
 	wordCon.vaCol[7].substr(0, wordCon.vaCol[7].size() - 2);
+      
+      int first_size = ChangeStrToDec(VEC[3].substr(1));
+      int second_size = ChangeStrToDec(VEC[5].substr(1));
+      //allocate addr for the array
+      reg_manage_obj->AllocateRegToGlobalVal_2DArray(array_name,    \
+						     array_elem_type,	\
+						     array_elem_num,
+						     first_size,
+						     second_size);
     }
     else if(array_dimension > 2){
       throw "Waring! contniue to do";
       
     }
-    RegManage* reg_manage_obj = RegManage::getInstance();
-    //allocate addr for the array
-    reg_manage_obj->AllocateRegToGlobalVal(array_name,	    \
-					   array_elem_type, \
-					   array_elem_num);
-    vector<string> array_addr_vec =				\
+    
+    vector<string> array_addr_vec =					\
       reg_manage_obj->GetAllActualAddrFromGlobalVal(array_name);
     int reg_num = reg_manage_obj->HowBigType(array_elem_type);
     
@@ -2211,6 +2229,7 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
     string op_des, array_elem_type;
     int array_elem_num = 0;
     vector<string> array_value_vec;
+    RegManage* reg_manage_obj = RegManage::getInstance();
 
     //the array is one dimension
     if(array_dimension == 1){
@@ -2222,6 +2241,11 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
       //get the array value from the IR instr
       getDataFromInstr(array_value_vec, wordCon);
 
+      //allocate addr to this array variable, but these addr will 
+      //store int the variable together.
+      reg_manage_obj->AllocateRegToGlobalVal(wordCon.vaCol[0],	\
+					     array_elem_type,	\
+					     array_elem_num);
     }
     //the array is two dimension
     else if(array_dimension >= 2){
@@ -2231,14 +2255,18 @@ void TranceGlobal(SplitWord wordCon, string IR_name){
       array_elem_type = VEC[7].substr(0, VEC[7].size() - 2);
       //get the array value from the IR instr
       GetElemFromTwoDimensionArray(array_value_vec, wordCon);
+      
+      int first_size = ChangeStrToDec(VEC[3].substr(1));
+      int second_size = ChangeStrToDec(VEC[5].substr(1));
+      //allocate addr to this array variable, but these addr will 
+      //store int the variable together.
+      reg_manage_obj->AllocateRegToGlobalVal_2DArray(wordCon.vaCol[0],	\
+						     array_elem_type,	\
+						     array_elem_num,
+						     first_size,
+						     second_size);
     }
     
-    RegManage* reg_manage_obj = RegManage::getInstance();
-    //allocate addr to this array variable, but these addr will 
-    //store int the variable together.
-    reg_manage_obj->AllocateRegToGlobalVal(wordCon.vaCol[0],	\
- 					   array_elem_type,	\
- 					   array_elem_num);
      //get the array addr that have been allocated
      vector<string> array_addr_vec = \
        reg_manage_obj->GetAllActualAddrFromGlobalVal(wordCon.vaCol[0]);
@@ -3181,6 +3209,8 @@ void TranceConstant(SplitWord wordCon, string IR_name){
     int array_elem_num = 0;
     vector<string> array_value_vec;
 
+    RegManage *reg_manage_obj = RegManage::getInstance();
+
     //the array is one dimension
     if(array_dimension == 1){
 
@@ -3193,28 +3223,34 @@ void TranceConstant(SplitWord wordCon, string IR_name){
       array_name = wordCon.vaCol[0];
       //get the array value from the IR instr
       getDataFromInstr(array_value_vec, wordCon);
-
+      
+      //allocate addr to this array variable, but these addr will 
+      //store in the variable together
+      reg_manage_obj->AllocateRegToGenVal(array_name,		\
+					  array_elem_type,	\
+					  array_elem_num);
     }
     //the array is two dimension
     else if(array_dimension >= 2){
-      /*      array_elem_num = ChangeStrToDec(VEC[6].substr(1)) *	\
+      /*array_elem_num = ChangeStrToDec(VEC[6].substr(1)) * \
 	ChangeStrToDec(VEC[8].substr(8).substr(1));
-      array_elem_type = VEC[10].substr(0, VEC[10].size() - 2);
+        array_elem_type = VEC[10].substr(0, VEC[10].size() - 2);
       */
       array_elem_num = ChangeStrToDec(VEC[5].substr(1)) *	\
 	ChangeStrToDec(VEC[7].substr(1));
       array_elem_type = VEC[9].substr(0, VEC[9].size() - 2);
-
+      
       array_name = wordCon.vaCol[0];
       GetElemFromTwoDimensionArray(array_value_vec, wordCon);
+      
+      int first_size = ChangeStrToDec(wordCon.vaCol[5].substr(1));
+      int second_size = ChangeStrToDec(wordCon.vaCol[5].substr(1));
+      reg_manage_obj->AllocateRegToGenVal_2DArray(array_name,
+						  array_elem_type,
+						  array_elem_num,
+						  first_size,
+						  second_size);
     }
-
-    RegManage *reg_manage_obj = RegManage::getInstance();
-    //allocate addr to this array variable, but these addr will 
-    //store in the variable together
-    reg_manage_obj->AllocateRegToGenVal(array_name, \
-					array_elem_type, \
-					array_elem_num);
     //get the array addr that have benn allocated
     //vector<string> array_addr_vec =				    \
     // reg_manage_obj->GetActualAddrFromGenVal(wordCon.vaCol[0], 0);
@@ -3302,6 +3338,10 @@ void TranceConstant(SplitWord wordCon, string IR_name){
     int array_dimension = count(VEC.begin(), VEC.end(), "x");
     string array_name, array_elem_type;
     int array_elem_num;
+
+    DataAreaManage *data_area_manage_obj =	\
+      DataAreaManage::getInstance();
+    
     //the array is one dimension
     if(array_dimension == 1){
       //get how manay elem the array have
@@ -3309,20 +3349,31 @@ void TranceConstant(SplitWord wordCon, string IR_name){
       //get the type of the array
       array_elem_type = GetArrayElemType(wordCon);
     
+      //store the begin addr of the array, we will put all the 
+      //addr together and use the array name to identifiy
+      data_area_manage_obj->AllocateDataAreaToVal(VEC[0],	 \
+						  array_elem_type, \
+						  array_elem_num);
+    
     }
     //the array is two dimension
     else if(array_dimension == 2){
       array_elem_num = ChangeStrToDec(VEC[3].substr(1)) * \
 	ChangeStrToDec(VEC[5].substr(1));
-      array_elem_type = VEC[7].substr(VEC[7].size() - 2);
+      array_elem_type = VEC[7].substr(0, VEC[7].size() - 2);
+      
+      int first_size = ChangeStrToDec(VEC[3].substr(1));
+      int second_size = ChangeStrToDec(VEC[5].substr(1));
+      
+      //store the begin addr of the array, we will put all the 
+      //addr together and use the array name to identifiy
+      data_area_manage_obj->AllocateDataAreaToVal_2DArray(VEC[0],	\
+							  array_elem_type,\
+							  array_elem_num,\
+							  first_size,\
+							  second_size);
+      
     }
-    DataAreaManage *data_area_manage_obj =	\
-      DataAreaManage::getInstance();
-    //store the begin addr of the array, we will put all the 
-    //addr together and use the array name to identifiy
-    data_area_manage_obj->AllocateDataAreaToVal(VEC[0],\
-						array_elem_type, \
-						array_elem_num);
     //Get actual all addr of the array
     vector<string> addr_name =					 \
       data_area_manage_obj->GetAllActualAddrFromVal(VEC[0]);
@@ -3362,6 +3413,10 @@ void TranceConstant(SplitWord wordCon, string IR_name){
     string array_elem_type, array_name;
     int array_elem_num = 0;
     vector<string> dataVec;
+    
+    
+    DataAreaManage *data_area_manage_obj =	\
+      DataAreaManage::getInstance();
     //the array dimension is one
     if(array_dimension == 1){
       //get how many elem the array have
@@ -3372,6 +3427,12 @@ void TranceConstant(SplitWord wordCon, string IR_name){
 
       //absort actual value from instr in wordCon 
       getDataFromInstr(dataVec, wordCon);
+      
+    //store the begin addr of the array, we will put all the 
+    //addr together and use the array name to identifiy
+    data_area_manage_obj->AllocateDataAreaToVal(wordCon.vaCol[0],\
+						array_elem_type, \
+						array_elem_num);
     }
     //the array dimension is two
     else if(array_dimension >= 2){
@@ -3386,16 +3447,19 @@ void TranceConstant(SplitWord wordCon, string IR_name){
       
       array_name = VEC[0];
       GetElemFromTwoDimensionArray(dataVec, wordCon);
+      
+      int first_size = ChangeStrToDec(VEC[4].substr(1));
+      int second_size = ChangeStrToDec(VEC[6].substr(1));
+      //store the begin addr of the array, we will put all the 
+      //addr together and use the array name to identifiy
+      data_area_manage_obj->AllocateDataAreaToVal_2DArray(wordCon.vaCol[0],
+						  array_elem_type,	
+						  array_elem_num,
+						  first_size,
+						  second_size);
+      
     }
     
-    
-    DataAreaManage *data_area_manage_obj =	\
-      DataAreaManage::getInstance();
-    //store the begin addr of the array, we will put all the 
-    //addr together and use the array name to identifiy
-    data_area_manage_obj->AllocateDataAreaToVal(wordCon.vaCol[0],\
-						array_elem_type, \
-						array_elem_num);
     
     //Get actual all addr of the array
     vector<string> addr_name = \
@@ -3436,6 +3500,9 @@ void TranceConstant(SplitWord wordCon, string IR_name){
     string array_elem_type, array_name;
     int array_elem_num = 0;
     vector<string> dataVec;
+    
+    DataAreaManage *data_area_manage_obj =	\
+      DataAreaManage::getInstance();
     //the array dimension is one
     if(array_dimension == 1){
       //get how many elem the array have
@@ -3446,6 +3513,12 @@ void TranceConstant(SplitWord wordCon, string IR_name){
 
       //absort actual value from instr in wordCon 
       getDataFromInstr(dataVec, wordCon);
+    
+      //store the begin addr of the array, we will put all the 
+      //addr together and use the array name to identifiy
+      data_area_manage_obj->AllocateDataAreaToVal(wordCon.vaCol[0],	\
+						  array_elem_type,	\
+						  array_elem_num);
     }
     //the array dimension is two
     else if(array_dimension >= 2){
@@ -3455,15 +3528,18 @@ void TranceConstant(SplitWord wordCon, string IR_name){
       
       array_name = VEC[0];
       GetElemFromTwoDimensionArray(dataVec, wordCon);
+      
+      int first_size = ChangeStrToDec(VEC[3].substr(1));
+      int second_size = ChangeStrToDec(VEC[5].substr(1));
+      //store the begin addr of the array, we will put all the 
+      //addr together and use the array name to identifiy
+      data_area_manage_obj->AllocateDataAreaToVal_2DArray(wordCon.vaCol[0],
+						  array_elem_type,	
+						  array_elem_num,
+						  first_size,
+						  second_size);
+      
     }
-    
-    DataAreaManage *data_area_manage_obj =	\
-      DataAreaManage::getInstance();
-    //store the begin addr of the array, we will put all the 
-    //addr together and use the array name to identifiy
-    data_area_manage_obj->AllocateDataAreaToVal(wordCon.vaCol[0],\
-						array_elem_type, \
-						array_elem_num);
     
     //Get actual all addr of the array
     vector<string> addr_name = \

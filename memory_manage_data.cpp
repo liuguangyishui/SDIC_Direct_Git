@@ -174,6 +174,24 @@ void DataAreaManage::AllocateDataAreaToVal(string var_name, string var_type, int
   this->CreateDataAreaMapForVal(var_name, core_info);
 }
 
+//for two dimension array 
+void DataAreaManage::AllocateDataAreaToVal_2DArray(string var_name,\
+						   string var_type, \
+						   int elem_num,   \
+						   int first_size, \
+						   int second_size){
+  DataStoreInfo core_info = this->CoreAllocateDataAreaFun(var_name, \
+							  var_type, \
+							  elem_num);
+  this->SetVarStoreWhichMap(var_name, 4);
+  this->CreateDataAreaMapForVal(var_name, core_info);
+
+  DebugInfo debug_info_obj = DebugInfo();
+  debug_info_obj.AddAddrDebugInfoToRecord_2DArray(var_name,\
+						  first_size,\
+						  second_size);
+}
+
 void DataAreaManage::CreateDataAreaMapForVal(string var_name, DataStoreInfo core_info){
   //store the core_info into data_area_addr_map
   data_area_addr_map.insert(make_pair(var_name, core_info));

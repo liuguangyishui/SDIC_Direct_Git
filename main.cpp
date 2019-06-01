@@ -1,7 +1,7 @@
 //Copyright 2019 Hust.
 //Author: HYL
 //Descriptor:
-/*main fun. All begin of the program.
+/*main fun. The begin of the program.
  */
 
 #include <iostream>
@@ -29,7 +29,7 @@ int main(int argv, char **argc){
 
   //identifiy '-' in -F -f or -o 
   regex reg("-.+"); 
-  //deal with the para
+  //processing the para
   for(int i = 0; i < argv; i++){
     //whether is valid para
     if(regex_match(argc[i], reg)){

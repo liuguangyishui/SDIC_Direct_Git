@@ -473,6 +473,30 @@ void RegManage::AllocateRegToGlobalVal(string var_name, \
 
 }
 
+void RegManage::AllocateRegToGlobalVal_2DArray(string var_name, \
+					       string var_type,
+					       int elem_num,
+					       int first_size,
+					       int second_size){
+  DataStoreInfo core_info;
+  if(elem_num != 0){
+    core_info= this->CoreAllocateRegFun(var_name, var_type, elem_num); 
+    DebugInfo debug_info_obj = DebugInfo();
+    debug_info_obj.AddAddrDebugInfoToRecord_2DArray(var_name,	\
+						    first_size,		\
+						    second_size);
+
+  } 
+  //create a recored in map, but not allocate addr
+  else if(elem_num == 0){ 
+    
+  }
+  this->SetVarStoreWhichMap(var_name, 2);
+    //create record in map
+  this->CreateMapForGlobalVal(var_name, core_info);  
+
+}
+
 void RegManage::CreateMapForGlobalVal(string var_name, \
 				      DataStoreInfo core_info){
   //store the core_info into reg_addr_map

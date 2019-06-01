@@ -60,7 +60,7 @@ class RegManage: public MemoryManage{
   //CreateMapForGlobalVal to create a record in global_addr_map
   //global val is constant value.Never change in whole program.
   void AllocateRegToGlobalVal(string, string, int);
-
+  void AllocateRegToGlobalVal_2DArray(string, string, int, int, int);
   //we should know that allocate reg for var and create map in
   //reg_addr_map is different.Thus CreateMap put the record
   //into the reg_addr_map, fun_para_map or global_addr_map

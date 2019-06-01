@@ -39,6 +39,7 @@ class DataAreaManage : public MemoryManage {
   //there are more than one type.
   //the third parameter: is the elem number of this variable
   void AllocateDataAreaToVal(string, string, int);
+  void AllocateDataAreaToVal_2DArray(string, string, int, int, int);
   //put DataStoreInfo data into data_area_addr_map
   void CreateDataAreaMapForVal(string, DataStoreInfo);
   //get actual addr via para str
