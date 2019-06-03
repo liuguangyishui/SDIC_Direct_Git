@@ -115,6 +115,7 @@ void DebugInfo::CreateCodeLink(string file_fun_name){
 
     return ;
   }
+
   CCodeLinkInstr code_link;
   ccode_and_instr_map.insert(make_pair(file_fun_name, code_link)); 
 }
@@ -130,12 +131,14 @@ DebugInfo::AddInfoToCodeLink(string file_fun_name,
     return ;
   }
   
-  CCodeLinkInstr &elem=ccode_and_instr_map.find(file_fun_name)->second;
-  elem.ccode_and_instr_elem_map.insert(make_pair(gdb_first_name, gdb_second_name));
-  
+  CCodeLinkInstr &elem = \
+    ccode_and_instr_map.find(file_fun_name)->second;
+  elem.ccode_and_instr_elem_map.insert(make_pair(gdb_first_name, \
+						 gdb_second_name));
 }
 
-string DebugInfo::GetInfoFromCodeLink(string instr_name){
+string DebugInfo::GetInfoFromCodeLink(string fun_name, \
+				      string instr_name){
   
   string instr_index;
   string temp = instr_name;
@@ -145,7 +148,8 @@ string DebugInfo::GetInfoFromCodeLink(string instr_name){
   
   instr_index = temp.substr(index_1, index_2 - index_1);
   
-  string file_name = DebugInfo::ccode_instr_file_fun_name;
+  //  string file_name = DebugInfo::ccode_instr_file_fun_name;
+  string file_name = fun_name;
 
   CCodeLinkInstr elem;
   if(!file_name.empty() && 
@@ -171,16 +175,20 @@ void DebugInfo::PrintInstrDebugInfo(string output_file_name){
     cout << "this file open failed!" << endl;
     return ;
   }
- 
+  //store the functional name
+  string fun_name;
+
   for(auto outer_elem : instr_debug_info_vec){
 
+    //output the C file path and name
     string name_for_c_file = outer_elem.Instr_name;
     regex c_file_name_regex("@SourceFile.+");
     if(regex_match(name_for_c_file, c_file_name_regex)){
       fout << name_for_c_file << endl;
       fout << endl;
+      auto index = name_for_c_file.find(":");
+      fun_name = name_for_c_file.substr(index+1);
       continue;
-
     }
 
 
@@ -190,11 +198,11 @@ void DebugInfo::PrintInstrDebugInfo(string output_file_name){
     for(int i = 0; i < core_info.size(); i++){
       if(i == 0){
 	fout << core_info[i] << endl;
-
 	string instr_name = core_info[i];
 	regex gdb(".*!dbg.*");
 	if(regex_match(instr_name, gdb)){
-	  string ccode_line = this->GetInfoFromCodeLink(instr_name);
+	  string ccode_line = this->GetInfoFromCodeLink(fun_name, instr_name);
+	  
 	  if(!ccode_line.empty())
 	    fout << "!C CODE : " << ccode_line << "  LINE" << endl;;
 	}
@@ -222,11 +230,12 @@ void DebugInfo::PrintAddrDebugInfo(string output_file_name){
     fout << outer_elem.IR_name << ": " << endl;
     fout << "type: " << outer_elem.var_type << endl;
     
-    //this variable is two dimension, print the array size and elemt size
+    //this variable is two dimension, print the array size 
+    //and elemt size
     if(outer_elem.two_dimension_array_first > 0 && \
        outer_elem.two_dimension_array_second > 0) {
-      fout << "2Darray: " << outer_elem.two_dimension_array_first << " x " \
-	   << outer_elem.two_dimension_array_second << endl;
+      fout << "2Darray: " << outer_elem.two_dimension_array_first \
+	   << " x " << outer_elem.two_dimension_array_second << endl;
     }
 	//this variable is struct type, so print the elem type
 	//yzk 这里可以注释掉，仅知道类型，无法知道地址的分界处

@@ -4431,8 +4431,6 @@ void TranceGdb(SplitWord wordCon, string IR_name){
       VEC[4].substr(0, temp.size() - 2);    //Windows
 #endif
     debug_info_object.CreateCodeLink(DebugInfo::ccode_instr_file_fun_name);
-    
-    
   }
   else if(find(VEC.begin(), VEC.end(), "distinct") != VEC.end() &&  \
 	  find(VEC.begin(), VEC.end(), "!DISubprogram") !=VEC.end()){

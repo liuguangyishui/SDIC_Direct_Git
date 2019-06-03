@@ -69,7 +69,7 @@ class DebugInfo {
   
   void CreateCodeLink(string);
 
-  string GetInfoFromCodeLink(string);
+  string GetInfoFromCodeLink(string, string);
 
   void AddInfoToCodeLink(string, string, string);
 
