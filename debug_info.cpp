@@ -111,11 +111,11 @@ void DebugInfo::CreateCodeLink(string file_fun_name){
   if(file_fun_name.empty() ||
      ccode_and_instr_map.find(file_fun_name) != 
      ccode_and_instr_map.end()){
-    cout << "DebugInfo::CreateCodeLink: file_fun_name fail" << endl;
+    //cout << "DebugInfo::CreateCodeLink: file_fun_name fail" << endl;
 
     return ;
   }
-
+  //cout << file_fun_name << endl;
   CCodeLinkInstr code_link;
   ccode_and_instr_map.insert(make_pair(file_fun_name, code_link)); 
 }
@@ -186,8 +186,10 @@ void DebugInfo::PrintInstrDebugInfo(string output_file_name){
     if(regex_match(name_for_c_file, c_file_name_regex)){
       fout << name_for_c_file << endl;
       fout << endl;
+	  //cout << name_for_c_file << endl;
       auto index = name_for_c_file.find("@SourceFile:");
       fun_name = name_for_c_file.substr(index+12);
+	  //cout << fun_name << endl;
 
       continue;
     }

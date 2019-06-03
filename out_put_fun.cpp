@@ -161,7 +161,7 @@ void OutPut(string instr_name, string op, string IR_name){
       //last instr. so we don't change it
       if(!which_bank_index.compare(which_bank_index_temp)){
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
-						    content_1);
+						    content_1 + "\tline:" + to_string(trance_line));
 	f_out << content_1 << endl;
       } 
       else {
@@ -216,7 +216,7 @@ void OutPut(string instr_name, string op, string IR_name){
 	  which_bank_index = which_bank_index_temp;
 	  string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
 	  debug_info_object.AddInstrDebugInfoToRecord(IR_name,	   \
-						      content_bank);
+						      content_bank + "\tline:" + to_string(trance_line));
 	  cout << content_bank << endl;
 	  trance_line++;
 	}

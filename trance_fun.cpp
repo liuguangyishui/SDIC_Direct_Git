@@ -4428,9 +4428,13 @@ void TranceGdb(SplitWord wordCon, string IR_name){
 #elif defined(_WIN32)    
     string temp =VEC[5];  //Windows
     DebugInfo::ccode_instr_file_fun_name =		\
-      VEC[4].substr(0, temp.size() - 2);    //Windows
+      VEC[4].substr(1,VEC[4].size()-1)+":"+VEC[5].substr(0,VEC[5].size()-1);    //Windows
+	while (DebugInfo::ccode_instr_file_fun_name.find("\\5C") != -1) {
+		DebugInfo::ccode_instr_file_fun_name.erase(DebugInfo::ccode_instr_file_fun_name.find("\\5C")+1, 2);//yzk 2019/6/3
+	}
 #endif
     debug_info_object.CreateCodeLink(DebugInfo::ccode_instr_file_fun_name);
+	//cout << DebugInfo::ccode_instr_file_fun_name << endl;
   }
   else if(find(VEC.begin(), VEC.end(), "distinct") != VEC.end() &&  \
 	  find(VEC.begin(), VEC.end(), "!DISubprogram") !=VEC.end()){
