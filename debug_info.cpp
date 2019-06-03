@@ -186,11 +186,12 @@ void DebugInfo::PrintInstrDebugInfo(string output_file_name){
     if(regex_match(name_for_c_file, c_file_name_regex)){
       fout << name_for_c_file << endl;
       fout << endl;
-      auto index = name_for_c_file.find(":");
-      fun_name = name_for_c_file.substr(index+1);
+      auto index = name_for_c_file.find("@SourceFile:");
+      fun_name = name_for_c_file.substr(index+12);
+
       continue;
     }
-
+    
 
     fout << "!Single Statement------------------------------"<< endl;
     fout << "!IR INSTR: " << endl;;
@@ -201,12 +202,11 @@ void DebugInfo::PrintInstrDebugInfo(string output_file_name){
 	string instr_name = core_info[i];
 	regex gdb(".*!dbg.*");
 	if(regex_match(instr_name, gdb)){
-	  string ccode_line = this->GetInfoFromCodeLink(fun_name, instr_name);
-	  
+	  string ccode_line = this->GetInfoFromCodeLink(fun_name, \
+							instr_name);
 	  if(!ccode_line.empty())
 	    fout << "!C CODE : " << ccode_line << "  LINE" << endl;;
 	}
-	
 	fout << "!ASSEMBLY INSTR: " << endl;
       }
       else {
