@@ -177,7 +177,7 @@ void DealWithSpecialRegInfo(map<string, string>& special_reg_map, \
   for(auto elem : output_vec){
     f_out << elem;
   }
-  cout << output_file << endl;
+  //cout << output_file << endl;
   f_out.close();
   
 
