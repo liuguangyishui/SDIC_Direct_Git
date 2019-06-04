@@ -145,7 +145,7 @@ void GetParameterNameAndParameterType(SplitWord,		\
 				       vector<string>&);
 
 //deal with gdb statement
-void TranceGdb(SplitWord, string);
+void TranceGdb(SplitWord, string, string);
 
 //deal with switch statement
 void TranceSwitch(SplitWord, string);
