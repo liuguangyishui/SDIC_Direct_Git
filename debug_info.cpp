@@ -116,6 +116,7 @@ void DebugInfo::CreateCodeLink(string file_fun_name){
     return ;
   }
   //cout << file_fun_name << endl;
+
   CCodeLinkInstr code_link;
   ccode_and_instr_map.insert(make_pair(file_fun_name, code_link)); 
 }
@@ -188,9 +189,10 @@ void DebugInfo::PrintInstrDebugInfo(string output_file_name){
       fout << endl;
 	  //cout << name_for_c_file << endl;
       auto index = name_for_c_file.find("@SourceFile:");
+      //index + 12. fun_name not incldue @SourceFile:
       fun_name = name_for_c_file.substr(index+12);
-	  //cout << fun_name << endl;
 
+	  //cout << fun_name << endl;
       continue;
     }
     
