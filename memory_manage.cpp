@@ -83,7 +83,7 @@ MemoryManage::GetSplitSectionOfANum(string src_val_str,\
   long long int src_val = ChangeStrToDec(src_val_str);
   vector<string> res;
   regex reg_minus("-.*");
-  
+
   //src_val_str is null
   if(src_val_str.empty()){
     for(int i = 0; i < var_type; i++){
