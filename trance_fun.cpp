@@ -4426,9 +4426,14 @@ void TranceGdb(SplitWord wordCon, string IR_name){
     DebugInfo::ccode_instr_file_fun_name =		\
       VEC[4].substr(1, temp.size() - 2);  //Linux
 #elif defined(_WIN32)    
-    string temp =VEC[5];  //Windows
+	  int i = 5;  //Windows
+	  string temp = VEC[4].substr(1, VEC[4].size() - 1) + ":";//yzk 2019/6/4
+	  while (VEC[i].find("\"") == -1) {
+		  temp += VEC[i]+" ";
+		  i++;
+	}
     DebugInfo::ccode_instr_file_fun_name =		\
-      VEC[4].substr(1,VEC[4].size()-1)+":"+VEC[5].substr(0,VEC[5].size()-1);    //Windows
+      temp + VEC[i].substr(0,VEC[i].size()-1);    //Windows
 	while (DebugInfo::ccode_instr_file_fun_name.find("\\5C") != -1) {
 		DebugInfo::ccode_instr_file_fun_name.erase(DebugInfo::ccode_instr_file_fun_name.find("\\5C")+1, 2);//yzk 2019/6/3
 	}
