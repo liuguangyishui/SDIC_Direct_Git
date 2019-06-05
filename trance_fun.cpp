@@ -4183,7 +4183,12 @@ void getDataFromInstr(vector<string> &dataVec, SplitWord wordCon){
   //we should deal the single character and int type data
   //like char example[5] = {'1', 'd', 100}
   if((*index)[0] == 'c'){ 
+    //processing the blank space
+    //auto front_index = (*(index)).find("\"");
+    //auto end_index = (*(index)).rfind("\"");
+    
     string data = (*(index)).substr(2);
+    
     for(int i = 0; i < data.size()-1; i++){
       
       if(data[i] == '\\'){
@@ -4237,8 +4242,10 @@ void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
   //i64] or i64]]
   regex no_elem_regex_1("i.+\\]");
   regex last_elem_regex(".+\\]+");
-  regex type_char_regex("c\".+\"");
-   for(int i = 0; i < elem_vec.size(); i++){
+  //  regex type_char_regex("c\".+\"");
+  regex type_char_regex("c\".*\"");
+ 
+  for(int i = 0; i < elem_vec.size(); i++){
      string elem = elem_vec[i];
 
      if(regex_match(elem, type_regex) && elem.compare("i8")){
@@ -4274,7 +4281,7 @@ void GetElemFromTwoDimensionArray(vector<string> &data_vec, \
      else if(regex_match(elem, type_char_regex)){
        //delete the c"
        elem = elem.substr(2);
-       
+     
        for(int i = 0; i < elem.size(); i++){
       
 	 string temp_elem;
