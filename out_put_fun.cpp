@@ -60,6 +60,7 @@ void OutPut(string instr_name, string op, string IR_name){
   regex special_reg_regex("0s.+");
   //0x num
   regex addr_regex("0a.+");
+  regex mul_div_regex("0k.+");
   if(regex_match(op, general_reg_regex)){
     //register name no 0x
     origin_op = op.substr(2);    
@@ -88,6 +89,12 @@ void OutPut(string instr_name, string op, string IR_name){
     op =  origin_op;
     is_num_index = true;
 
+  }
+  else if(regex_match(op, mul_div_regex)){
+    //register name no 0k
+    //ex: 0k0Divdend
+    origin_op = op.substr(2);
+    op = op.substr(3);
   }
   else {
     is_num_index = true;
@@ -135,7 +142,8 @@ void OutPut(string instr_name, string op, string IR_name){
     //the op is num, so we direct output the instr, not to deal with
     //the reg and bank
     if(is_num_index){
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + "\tline:" + to_string(trance_line));
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + \
+				      "\tline:" + to_string(trance_line));
       f_out << content_1 << endl;
     }
     //the op is't num and it is the first instr, so we use the default
@@ -147,11 +155,12 @@ void OutPut(string instr_name, string op, string IR_name){
 	which_bank_index = which_bank_index_temp;
 	string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,   	\
-						    content_bank + "\tline:" + to_string(trance_line));
+		      content_bank + "\tline:" + to_string(trance_line));
 	f_out << content_bank << endl;
       }      
 	  trance_line++;
-      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + "\tline:" + to_string(trance_line));
+      debug_info_object.AddInstrDebugInfoToRecord(IR_name, content_1 + \
+			   "\tline:" + to_string(trance_line));
       f_out << content_1 << endl;
     }
     //the op is't num and it is not first instr, so we must deal with
@@ -161,7 +170,7 @@ void OutPut(string instr_name, string op, string IR_name){
       //last instr. so we don't change it
       if(!which_bank_index.compare(which_bank_index_temp)){
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
-						    content_1 + "\tline:" + to_string(trance_line));
+			 content_1 + "\tline:" + to_string(trance_line));
 	f_out << content_1 << endl;
       } 
       else {
@@ -169,12 +178,12 @@ void OutPut(string instr_name, string op, string IR_name){
 	  which_bank_index = which_bank_index_temp;
 	  string content_bank = "\tmovlb\t\t0x0" + which_bank_index; 
 	  debug_info_object.AddInstrDebugInfoToRecord(IR_name,	    \
-						    content_bank + "\tline:" + to_string(trance_line));
+			content_bank + "\tline:" + to_string(trance_line));
 	  f_out << content_bank << endl;  
 	  trance_line++;
 	}
 	debug_info_object.AddInstrDebugInfoToRecord(IR_name,\
-						    content_1 + "\tline:" + to_string(trance_line));
+			content_1 + "\tline:" + to_string(trance_line));
 	f_out << content_1 << endl;
 	
       }

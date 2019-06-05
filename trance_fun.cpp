@@ -4585,13 +4585,13 @@ void TranceGdb(SplitWord wordCon, string IR_name, string file_name){
 
      for(int i = 0; i < reg_num; i++){
        OutPut("movf", op_value1[i], IR_name);
-       OutPut("movwf", "Multiplicand + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Multiplicand + " + to_string(i), IR_name);
        OutPut("movf", op_value2[i], IR_name);
-       OutPut("movwf", "Multiplier + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Multiplier + " + to_string(i), IR_name);
      }
      OutPutJumpPure("call", "Multiplication", IR_name);
      for(int i = 0; i < reg_num; i++){
-       OutPut("movf", "Product + " + to_string(i), IR_name);
+       OutPut("movf", "0k1Product + " + to_string(i), IR_name);
        OutPut("movwf", op_des_vec[i], IR_name);
      }
 
@@ -4607,13 +4607,13 @@ void TranceGdb(SplitWord wordCon, string IR_name, string file_name){
 
      for(int i = 0; i < reg_num; i++){
        OutPut("movf", op_value1[i], IR_name);
-       OutPut("movwf", "Multiplicand + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Multiplicand + " + to_string(i), IR_name);
        OutPut("movlw", "." + op_value2[i], IR_name);
-       OutPut("movwf", "Multiplier + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Multiplier + " + to_string(i), IR_name);
      }
      OutPutJumpPure("call", "Multiplication", IR_name);
      for(int i = 0; i < reg_num; i++){
-       OutPut("movf", "Product + " + to_string(i), IR_name);
+       OutPut("movf", "0k1Product + " + to_string(i), IR_name);
        OutPut("movwf", op_des_vec[i], IR_name);
      }
 
@@ -4629,13 +4629,13 @@ void TranceGdb(SplitWord wordCon, string IR_name, string file_name){
 
      for(int i = 0; i < reg_num; i++){
        OutPut("movlw", "." + op_value1[i], IR_name);
-       OutPut("movwf", "Multiplicand + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Multiplicand + " + to_string(i), IR_name);
        OutPut("movf", op_value2[i], IR_name);
-       OutPut("movwf", "Multiplier + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Multiplier + " + to_string(i), IR_name);
      }
      OutPutJumpPure("call", "Multiplication", IR_name);
       for(int i = 0; i < reg_num; i++){
-       OutPut("movf", "Product + " + to_string(i), IR_name);
+       OutPut("movf", "0k1Product + " + to_string(i), IR_name);
        OutPut("movwf", op_des_vec[i], IR_name);
      }
 
@@ -4675,13 +4675,13 @@ void TranceSdiv(SplitWord wordCon, string IR_name){
 
      for(int i = 0; i < reg_num; i++){
        OutPut("movf", op_value1[i], IR_name);
-       OutPut("movwf", "Divdend + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Divdend + " + to_string(i), IR_name);
        OutPut("movf", op_value2[i], IR_name);
-       OutPut("movwf", "Divsor + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Divsor + " + to_string(i), IR_name);
      }
      OutPutJumpPure("call", "Division", IR_name);
      for(int i = 0; i < reg_num; i++){
-       OutPut("movf", "Quotient + " + to_string(i), IR_name);
+       OutPut("movf", "0k1Quotient + " + to_string(i), IR_name);
        OutPut("movwf", op_des_vec[i], IR_name);
      }
    }
@@ -4696,13 +4696,13 @@ void TranceSdiv(SplitWord wordCon, string IR_name){
 
      for(int i = 0; i < reg_num; i++){
        OutPut("movf", op_value1[i], IR_name);
-       OutPut("movwf", "Divdend + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Divdend + " + to_string(i), IR_name);
        OutPut("movlw", "." + op_value2[i], IR_name);
-       OutPut("movwf", "Divsor + " + to_string(i), IR_name);
+       OutPut("movwf", "0k1Divsor + " + to_string(i), IR_name);
      }
      OutPutJumpPure("call", "Division", IR_name);
      for(int i = 0; i < reg_num; i++){
-       OutPut("movf", "Quotient + " + to_string(i), IR_name);
+       OutPut("movf", "0k1Quotient + " + to_string(i), IR_name);
        OutPut("movwf", op_des_vec[i], IR_name);
      }
 
@@ -4718,13 +4718,13 @@ void TranceSdiv(SplitWord wordCon, string IR_name){
     
     for(int i = 0; i < reg_num; i++){
       OutPut("movlw", "." + op_value1[i], IR_name);
-      OutPut("movwf", "Divdend + " + to_string(i), IR_name);
+      OutPut("movwf", "0k1Divdend + " + to_string(i), IR_name);
       OutPut("movf", op_value2[i], IR_name);
-      OutPut("movwf", "Divsor + " + to_string(i), IR_name);
+      OutPut("movwf", "0k1Divsor + " + to_string(i), IR_name);
     }
     OutPutJumpPure("call", "Division", IR_name);
      for(int i = 0; i < reg_num; i++){
-      OutPut("movf", "Quotient + " + to_string(i), IR_name);
+      OutPut("movf", "0k1Quotient + " + to_string(i), IR_name);
       OutPut("movwf", op_des_vec[i], IR_name);
     }
     
