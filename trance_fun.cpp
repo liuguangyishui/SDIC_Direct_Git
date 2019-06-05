@@ -4422,23 +4422,34 @@ GetParameterNameAndParameterType(SplitWord wordCon,		    \
 }
 
 //deal with the gdb statement
-void TranceGdb(SplitWord wordCon, string IR_name){
+void TranceGdb(SplitWord wordCon, string IR_name, string file_name){
 #define VEC wordCon.vaCol
   DebugInfo debug_info_object = DebugInfo();
   
   if(find(VEC.begin(), VEC.end(), "filename") != VEC.end() &&	\
      find(VEC.begin(), VEC.end(), "!DIFile") != VEC.end()){
 #if defined(__linux__)
-    string temp = VEC[4];   //Linux
-    DebugInfo::ccode_instr_file_fun_name =		\
-      VEC[4].substr(1, temp.size() - 2);  //Linux
+    //string temp = VEC[4];   //Linux
+    //DebugInfo::ccode_instr_file_fun_name =		\
+    //  VEC[4].substr(1, temp.size() - 2);  //Linux
+	DebugInfo::ccode_instr_file_fun_name = \
+		file_name.substr(0, file_name.size() - 2) + \
+		"c";
 #elif defined(_WIN32)    
-    string temp =VEC[5];  //Windows
-    DebugInfo::ccode_instr_file_fun_name =		\
-      VEC[4].substr(1,VEC[4].size()-1)+":"+VEC[5].substr(0,VEC[5].size()-1);    //Windows
-	while (DebugInfo::ccode_instr_file_fun_name.find("\\5C") != -1) {
-		DebugInfo::ccode_instr_file_fun_name.erase(DebugInfo::ccode_instr_file_fun_name.find("\\5C")+1, 2);//yzk 2019/6/3
-	}
+	//  int i = 5;  //Windows
+	//  string temp = VEC[4].substr(1, VEC[4].size() - 1) + ":";//yzk 2019/6/4
+	//  while (VEC[i].find("\"") == -1) {
+	//	  temp += VEC[i]+" ";
+	//	  i++;
+	//}
+ //   DebugInfo::ccode_instr_file_fun_name =		\
+ //     temp + VEC[i].substr(0,VEC[i].size()-1);    //Windows
+	//while (DebugInfo::ccode_instr_file_fun_name.find("\\5C") != -1) {
+	//	DebugInfo::ccode_instr_file_fun_name.erase(DebugInfo::ccode_instr_file_fun_name.find("\\5C")+1, 2);//yzk 2019/6/3
+	//}
+	  DebugInfo::ccode_instr_file_fun_name = \
+		  file_name.substr(0, file_name.size() - 2) + \
+		  "c";
 #endif
     debug_info_object.CreateCodeLink(DebugInfo::ccode_instr_file_fun_name);
 	//cout << DebugInfo::ccode_instr_file_fun_name << endl;

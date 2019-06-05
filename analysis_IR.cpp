@@ -395,7 +395,7 @@ void OpenFileAndDeal(string &file_name) {
 						single_line_debug);
       TranceSelect(word_con, "select"); break;}
     case gdb: {
-      TranceGdb(word_con, "gdb"); break;
+      TranceGdb(word_con, "gdb",file_name); break;
       
     }
     case switch_begin: {
