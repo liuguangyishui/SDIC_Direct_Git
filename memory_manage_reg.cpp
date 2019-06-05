@@ -117,6 +117,9 @@ RegManage::InitialRamRange(vector<string> &ram_range_vec, string &core_name){
   }
   //which bank that the register belong
   string which_bank_index;
+  //for clearRam fun. #define ICRAMXXXBYTE
+  int total_reg_size = reserve_reg_size + available_use_reg_size;
+  f_out << "#define ICRAM_" + to_string(total_reg_size) + "BYTE\n";
 
   //for reserve_reg
   for(int i = 0; i < reserve_reg_size; i++){
@@ -758,4 +761,14 @@ RegManage::GetElemAddrFromPtrAddr(string ptr_addr, \
     throw "Error! The ptr not data";
   }
   return res;
+}
+
+//get the size of avaliable reg size
+int RegManage::GetAvailableUseRegSize(){
+  return available_use_reg.size();
+}
+//get the size of reserve reg size
+int RegManage::GetReserveRegSize(){
+
+  return reserve_reg.size();
 }

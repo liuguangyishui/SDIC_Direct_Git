@@ -107,6 +107,8 @@ int main(int argv, char **argc){
     cerr << msg << endl;
     return 0;
   } 
+
+ 
   //deal with ram info include ram and rom 
   DealWithRamAndRomInfo(ram_range_vec,   \
 			rom_range_vec, \
@@ -122,7 +124,7 @@ int main(int argv, char **argc){
     cerr << msg << endl;
     return 0;
   }
-
+ 
   try {
   //open outputFile
   OpenOutPutFile(output_file_name);

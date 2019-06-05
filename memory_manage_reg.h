@@ -132,6 +132,10 @@ class RegManage: public MemoryManage{
   string GetAvailableReg();
   
   string ReturnReg();
+  //get the size of available reg size
+  int GetAvailableUseRegSize();
+  int GetReserveRegSize();
+  
   static string reserve_reg_1;
 
   //reserve reg 

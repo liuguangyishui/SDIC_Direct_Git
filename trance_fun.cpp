@@ -48,6 +48,7 @@ void ProgramBegin(){
   //  OutPutLabel("begin");
   OutPutOrg("org", "0x0020");
   OutPutLabel("Preprocess", " ");
+  OutPutJumpPure("call", "ClearRam", " ");
 }
 
 //the interrupt of the program
