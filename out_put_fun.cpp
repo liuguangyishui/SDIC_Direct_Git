@@ -260,6 +260,10 @@ void OutPutOrg(string instrName, string op){
 void OutPutJump(string instr_name, string op, string IR_name){
   string content_1 = "\t" + instr_name + "\t\t" + "Label" + "_" + op;
   string content_2 = "\t" + instr_name + "\t\t" + "Label" + "_" + op;
+  if (instr_name == "call") {//yzk 2019/6/5 修改call指令使参数为1从而使用影子寄存器
+	  content_1 += ",1";
+	  content_2 += ",1";
+  }
   trance_line++;
   DebugInfo debug_info_object = DebugInfo();
 
@@ -303,6 +307,9 @@ void OutPutDirect(string instrName){
 }
 void OutPutJumpPure(string instrName, string op, string IR_name){
   string content = "\t" + instrName + "\t\t" + op;
+  if (instrName == "call") {//yzk 2019/6/5 修改call指令使参数为1从而使用影子寄存器
+	  content += ",1";
+  }
   DebugInfo debug_info_object = DebugInfo();
   trance_line++;
   debug_info_object.AddInstrDebugInfoToRecord(IR_name, content + "\tline:" + to_string(trance_line));
