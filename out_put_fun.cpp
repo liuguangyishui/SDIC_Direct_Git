@@ -71,7 +71,7 @@ void OutPut(string instr_name, string op, string IR_name){
     //register name no 0x
     origin_op = op.substr(2);
     //PCL EQU 0XXXH (XXX)
-    string special_reg = op.substr(2);
+    string special_reg = op.substr(2); 
     if(special_reg_vec.find(special_reg) != special_reg_vec.end()){
       
       auto result = special_reg_vec.find(special_reg);

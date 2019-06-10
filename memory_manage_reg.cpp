@@ -377,7 +377,6 @@ RegManage::GetAllActualAddrFromGenVal(string var_name){
 
   if(reg_addr_map.find(var_name) == reg_addr_map.end()){
     throw "This var haven't actual addr!";
-    
   }
   DataStoreInfo core_info = this->GetAllInfoFromGenVal(var_name);
   return core_info.actual_addr;

@@ -16,7 +16,9 @@ using namespace::std;
 vector<AddrDebugInfoElem> DebugInfo::addr_debug_info_vec;
 vector<InstrDebugInfoElem> DebugInfo::instr_debug_info_vec;
 unordered_map<string, CCodeLinkInstr> DebugInfo::ccode_and_instr_map;
+unordered_map<string, VarCInfoStruct> DebugInfo::var_c_info_map;
 string DebugInfo::ccode_instr_file_fun_name;
+
 
 void DebugInfo::CreateAAddrDebugRecord(string var_name, string type){
   AddrDebugInfoElem debug_info;
@@ -257,4 +259,19 @@ void DebugInfo::PrintAddrDebugInfo(string output_file_name){
     }
     fout << endl;
   }
+}
+
+void 
+DebugInfo::AddVarCInfoInMap(string IR_name,			\
+			    VarCInfoStruct var_c_info_elem){
+  if(IR_name.empty())
+    throw "Error: AddVarCInfoInMap() IR_name is empty";
+  var_c_info_map.insert(make_pair(IR_name, var_c_info_elem));
+}
+
+VarCInfoStruct
+DebugInfo::GetVarCInfoFromMap(string IR_name){
+  if(var_c_info_map.find(IR_name) == var_c_info_map.end())
+    throw "Error: GetVarCInfoFromMap() No IR_name in map";
+  return var_c_info_map.find(IR_name)->second;
 }

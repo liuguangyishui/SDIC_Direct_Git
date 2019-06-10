@@ -163,21 +163,16 @@ void DealWithSpecialRegInfo(map<string, string>& special_reg_map, \
     }
     //this single line is #define long long long
     if(index <= 4)      continue;
-    
-    special_reg_map.insert(make_pair(map_index, map_string));
+    //0xFD9 <-> FSR2L map
+    //FD9 <-> FSR2L
+    special_reg_map.insert(make_pair(map_string.substr(2), map_index));
     output_vec.push_back(output_single_line);
   }
   //output the map to the .inc file
   std::ofstream f_out;
   f_out.open(output_file, ios_base::out);  
-  if(!f_out.is_open()){
-     throw "Error: output file open failed!";
-  }
-  
-  for(auto elem : output_vec){
-    f_out << elem;
-  }
-  //cout << output_file << endl;
+  if(!f_out.is_open())          throw "Error: output file open failed!";
+  for(auto elem : output_vec)   f_out << elem;
   f_out.close();
   
 
@@ -209,6 +204,64 @@ void DealWithSpecialRegInfo(map<string, string>& special_reg_map, \
   }
   */
 }
+
+void FirstOpenFileAndProcessGdbInfo(string &file_name){
+  //Open file
+  ifstream IR_file(file_name,ios_base::in);
+  if(!IR_file.is_open()){
+    throw "Error: FirstOpenFileAndProcessDbgInfo() Open file failed!";
+  }
+
+  string single_line;
+  //get every line
+  while(getline(IR_file, single_line)){
+    //deal with the special char
+    ChangeComma(single_line);
+    //deal debug info and create a record in Instr_degbug_info
+    DebugInfo debug_info_object = DebugInfo();
+    string single_line_debug = single_line;
+    
+    string single_word;
+    istringstream iss(single_line);
+    //    regex reg1("\%\\d＋\b");        //for operator %x
+    regex reg1("\%.+");
+    //regex reg2("^\@\w＋\b=\bglobal");//for global var @varName ＝ global
+    regex gdb_index("!.*");
+    SplitWord word_con;
+    int word_order = 0;
+    //get every word in line
+    // yzk 更正了误将包含type的调试行处理为指令行的bug 
+    while (iss >> single_word) { 
+      //whether it is a gdb statement
+      if (word_order == 0 && regex_match(single_word, gdb_index)) {
+	word_con.instrName = static_cast<SDICKeyWord>(27);
+      }
+      else if (SDIC_operate_set.find(single_word) != \
+	       SDIC_operate_set.end() &&	     \
+	       word_con.instrName == 0) {
+ 
+	auto index = SDIC_operate_set.find(single_word);
+	word_con.instrName = static_cast<SDICKeyWord>(index->second);
+      }
+      word_con.vaCol.push_back(single_word);
+      ++word_order;
+    }
+    //this line is invalid
+    if(word_con.instrName == knull) continue; 
+    switch(word_con.instrName){
+    case gdb: {
+      
+      TranceFirstGdb(word_con, "gdb"); break;
+    }
+    default: break;
+    }
+  }
+  
+  if(IR_file.is_open()){
+    IR_file.close();
+  }
+}
+
 void OpenFileAndDeal(string &file_name) {
   //Open file
   ifstream IR_file(file_name,ios_base::in);
@@ -234,21 +287,25 @@ void OpenFileAndDeal(string &file_name) {
     SplitWord word_con;
     int word_order = 0;
     //get every word in line
-	while (iss >> single_word) {      //yzk 更正了误将包含type的调试行处理为指令行的bug 
-									  //whether it is a gdb statement
-		if (word_order == 0 && regex_match(single_word, gdb_index)) {
-			word_con.instrName = static_cast<SDICKeyWord>(27);
-		}
-		else if (SDIC_operate_set.find(single_word) != SDIC_operate_set.end() && word_con.instrName == 0) {
-			auto index = SDIC_operate_set.find(single_word);
-			word_con.instrName = static_cast<SDICKeyWord>(index->second);
-		}
-		else if (regex_match(single_word, reg1)) {
-			word_con.opCol.push_back(single_word);
-		}
-		word_con.vaCol.push_back(single_word);
-		++word_order;
-	}
+    while (iss >> single_word) {  //yzk 更正了误将包含type的调试行处理为指令行的bug 
+      //whether it is a gdb statement
+      if (word_order == 0 && regex_match(single_word, gdb_index)) {
+	word_con.instrName = static_cast<SDICKeyWord>(27);
+      }
+      else if (SDIC_operate_set.find(single_word) != \
+	       SDIC_operate_set.end() &&	     \
+	       word_con.instrName == 0) {
+ 
+	auto index = SDIC_operate_set.find(single_word);
+	word_con.instrName = static_cast<SDICKeyWord>(index->second);
+      }
+      else if (regex_match(single_word, reg1)) {
+	word_con.opCol.push_back(single_word);
+      }
+
+      word_con.vaCol.push_back(single_word);
+      ++word_order;
+    }
     //this line is invalid
     if(word_con.instrName == knull) continue; 
     
@@ -422,7 +479,7 @@ void OpenFileAndDeal(string &file_name) {
 	TranceLabelSwitch(word_con, "switch"); break;
       }
     }
-    case switch_end: {
+    case switch_end: { 
       debug_info_object.CreateAInstrDebugRecord("switch", \
 						single_line_debug);  
       TranceSwitchEnd(word_con, "switch"); break;
@@ -447,11 +504,24 @@ void OpenFileAndDeal(string &file_name) {
 						single_line_debug);
       TranceSdiv(word_con, "udiv"); break;
     }
+    case srem: {
+      debug_info_object.CreateAInstrDebugRecord("srem", \
+						single_line_debug);
+      TranceRem(word_con, "srem"); break;
+    }
+    case urem: {
+      debug_info_object.CreateAInstrDebugRecord("urem",			\
+					       single_line_debug);
+      TranceRem(word_con, "urem"); break;
+    }
     default: break;
     }
     
     //    debug_info_object.CreateAInstrDebugRecord(case_name,	   \
     //					      single_line_debug); 
   }
- 
+  //Close file
+  if(IR_file.is_open()){
+    IR_file.close();
+  }
 };

@@ -142,3 +142,18 @@ vector<string> DealWithDoubleTypeData(string double_data, int data_size){
 	vector<string> res;
 	return res;
 }
+
+void Check(string op1, string op2, string op_type){
+  // RegManage* reg_manage_obj = RegManage::getInstance();
+  int op_size;// = reg_manage_obj->HowBigType(op_type);
+  
+  if(op_size == 1){ 
+    
+
+
+  }
+  else if(op_size == 2){ }
+  else if(op_size == 4){ }
+  else if(op_size == 8){ }
+
+}

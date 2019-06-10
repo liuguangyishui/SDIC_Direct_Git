@@ -31,7 +31,7 @@ int MemoryManage::HowBigType(string var_type){
     return 1;
   }
   else if(!var_type.compare("i16")){
-    return 2;
+    return 1;
   }
   else if(!var_type.compare("i32")){
     return 2;

@@ -159,7 +159,8 @@ string path_name = ram_info_file_name.substr(0, path_name_index + 1);
       debug_info_object.CreateAInstrDebugRecord("@SourceFile:" + \
       input_file_name[i].substr(0, input_file_name[i].size() - 2) + \
 						"c", " ");
-
+      //open inputFile and get dbg info that used in tranfrom instr
+      //FirstOpenFileAndProcessGdbInfo(input_file_name[i]);
       //open inputFile
       OpenFileAndDeal(input_file_name[i]);
     } catch (const char*msg){

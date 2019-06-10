@@ -146,7 +146,8 @@ void GetParameterNameAndParameterType(SplitWord,		\
 
 //deal with gdb statement
 void TranceGdb(SplitWord, string, string);
-
+//process the first gdb info
+void TranceFirstGdb(SplitWord, string);
 //deal with switch statement
 void TranceSwitch(SplitWord, string);
 
@@ -159,6 +160,11 @@ void TranceMul(SplitWord, string);
 void TranceSdiv(SplitWord, string);
 
 void TrancePtrToInt(SplitWord, string);
+
+void CheckDifferentSignal(string, string, string, string);
+
+void TranceRem(SplitWord, string);
+
 //for ret instr
 void TranceRet(SplitWord, string);
 

@@ -48,6 +48,15 @@ struct CCodeLinkInstr {
   unordered_map<string, string> ccode_and_instr_elem_map;
 };
 
+struct VarCInfoStruct {
+  //the variable name in .ll file
+  string IR_name;
+  //the variable anme in .c file
+  string C_name;
+  //the variable type in .c file
+  string C_type;
+};
+
 class DebugInfo {
  public:
   //for debug info of ccode and instr
@@ -77,6 +86,10 @@ class DebugInfo {
   
   void PrintInstrDebugInfo(string);
   
+  void AddVarCInfoInMap(string, VarCInfoStruct);
+  
+  VarCInfoStruct GetVarCInfoFromMap(string);
+
  private:
 
   /* When we allocated addr for a var, we should record the map info
@@ -87,6 +100,8 @@ class DebugInfo {
   static vector<InstrDebugInfoElem> instr_debug_info_vec;
 
   static unordered_map<string, CCodeLinkInstr> ccode_and_instr_map;
+  //the map store infomation that come from c file
+  static unordered_map<string, VarCInfoStruct> var_c_info_map;
 };
 
 #endif

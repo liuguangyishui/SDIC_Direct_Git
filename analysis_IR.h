@@ -24,6 +24,10 @@ void DealWithRamAndRomInfo(vector<string>&, vector<string>&, string&);
 //string& is the special reg path name
 //string& is the core name
 void DealWithSpecialRegInfo(map<string, string>&, string&, string&);
+
+//first open file and process dbg info
+void FirstOpenFileAndProcessGdbInfo(string &);
+
 //parameter string& is the name of .ll file
 void OpenFileAndDeal(string &);
 
