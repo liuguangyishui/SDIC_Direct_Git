@@ -1613,6 +1613,7 @@ string kPositiveNegativeSrc1;
 string kPositiveNegativeSrc2;
 string kPositiveNegativeRes;
 string kPositiveNegativeSrcType;
+bool	kIsUnsigned = false;
 void 
 TranceFcmp(SplitWord wordCon, string IR_name){
   string instr_name = wordCon.vaCol[3];
@@ -1657,6 +1658,10 @@ TranceFcmp(SplitWord wordCon, string IR_name){
     TranceSub(wordCon, IR_name);
     lastInstrName = "eq";
   }
+  if (instr_name[0] == 'u')
+	  kIsUnsigned = true;
+  else
+	  kIsUnsigned = false;
 }
 
 //The BR instr is for the control statement.
@@ -1722,7 +1727,8 @@ void TranceBr(SplitWord wordCon, string IR_name){
      //Instr: a <= b
      if(!instrName.compare("le")){
        //////+ - or - +
-       CheckDifferentSignal(inner_label, opBlock1, opBlock2, IR_name);
+		 if(!kIsUnsigned)
+			CheckDifferentSignal(inner_label, opBlock1, opBlock2, IR_name);
        //////end
        for(int i = 0; i < reg_num - 1; i++){
 	 OutPut("tstfsz", reg_name_test[i], IR_name);
@@ -1741,6 +1747,7 @@ void TranceBr(SplitWord wordCon, string IR_name){
      } 
      //Instr: a >= b
      else if(!instrName.compare("ge")){  
+		 if (!kIsUnsigned)
        CheckDifferentSignal(inner_label, opBlock2, opBlock1, IR_name);
 
        OutPut("btfsc", "STATUS", 0, 0, IR_name);
@@ -1756,7 +1763,8 @@ void TranceBr(SplitWord wordCon, string IR_name){
        }
        OutPut("cpfseq", reg_name_test[reg_num - 1], IR_name);
        */
-       CheckDifferentSignal(inner_label, opBlock1, opBlock2, IR_name);
+		 if (!kIsUnsigned)
+			CheckDifferentSignal(inner_label, opBlock1, opBlock2, IR_name);
        for(int i = 0; i < reg_num - 1; i++){
 	 OutPut("tstfsz", reg_name_test[i], IR_name);
 	 OutPutJump("bra", inner_label, IR_name);
@@ -1770,7 +1778,8 @@ void TranceBr(SplitWord wordCon, string IR_name){
      }
      //Instr: a > b
      else if(!instrName.compare("gt")){
-       CheckDifferentSignal(inner_label, opBlock2, opBlock1, IR_name);
+		 if (!kIsUnsigned)
+			CheckDifferentSignal(inner_label, opBlock2, opBlock1, IR_name);
        for(int i = 0; i < reg_num - 1; i++){
 	 OutPut("tstfsz", reg_name_test[i], IR_name);
 	 OutPutJump("bra", inner_label, IR_name);
@@ -5058,43 +5067,52 @@ void CheckDifferentSignal(string label1,	\
   if(reg_num == 1)	         hide_code = 128;
   else if(reg_num == 2) 	 hide_code = 32768;
   else if(reg_num == 4)	         hide_code = 2147483648;
-  
   vector<string> hide_code_vec =			  \
     reg_manage_obj->GetSplitSectionOfANum(to_string(hide_code),	\
 					  reg_num);
+  regex reg_name_regex(".+%.+");
   for(int i = 0; i < reg_num; i++){
     OutPut("movlw", "." + hide_code_vec[i], IR_name);
-    OutPut("andlw", origin_src1_vec[i], IR_name);
+	if (regex_match(origin_src1, reg_name_regex))
+		OutPut("andwf", origin_src1_vec[i], IR_name);
+	else
+		OutPut("andlw", origin_src1_vec[i], IR_name);
     OutPut("movwf", origin_res_vec[i], IR_name);
   }
   for(int i = 0; i < reg_num; i++){
-    OutPut("tsfsz", origin_res_vec[i], IR_name);
+    OutPut("tstfsz", origin_res_vec[i], IR_name);
     OutPutJump("bra", inner_label + "_JudgeSignal_0", IR_name);
-    OutPutJump("bra", inner_label + "_JudgeSignal_1", IR_name);
   }
+  OutPutJump("bra", inner_label + "_JudgeSignal_1", IR_name);
   
   OutPutLabel(inner_label + "_JudgeSignal_0", IR_name);
   for(int i = 0; i < reg_num; i++){
     OutPut("movlw", "." + hide_code_vec[i], IR_name);
-    OutPut("andlw", origin_src2_vec[i], IR_name);
+	if (regex_match(origin_src2, reg_name_regex))
+		OutPut("andwf", origin_src2_vec[i], IR_name);
+	else
+		OutPut("andlw", origin_src2_vec[i], IR_name);
     OutPut("movwf", origin_res_vec[i], IR_name);
   }
   for(int i = 0; i < reg_num; i++){
-    OutPut("tsfsz", origin_res_vec[i], IR_name);
+    OutPut("tstfsz", origin_res_vec[i], IR_name);
     OutPutJump("bra", inner_label + "_JudgeSignal_3", IR_name);
-    OutPutJump("bra", inner_label + "_JudgeSignal_4", IR_name);
   }
+  OutPutJump("bra", inner_label + "_JudgeSignal_4", IR_name);
   OutPutLabel(inner_label + "_JudgeSignal_1", IR_name);
   for(int i = 0; i < reg_num; i++){
     OutPut("movlw", "." + hide_code_vec[i], IR_name);
-    OutPut("andlw", origin_src2_vec[i], IR_name);
+	if (regex_match(origin_src2, reg_name_regex))
+		OutPut("andwf", origin_src2_vec[i], IR_name);
+	else
+		OutPut("andlw", origin_src2_vec[i], IR_name);
     OutPut("movwf", origin_res_vec[i], IR_name);
   }
   for(int i = 0; i < reg_num; i++){
-    OutPut("tsfsz", origin_res_vec[i], IR_name);
+    OutPut("tstfsz", origin_res_vec[i], IR_name);
     OutPutJump("bra", inner_label + "_JudgeSignal_5", IR_name);
-    OutPutJump("bra", inner_label + "_JudgeSignal_3", IR_name);
   }
+  OutPutJump("bra", inner_label + "_JudgeSignal_3", IR_name);
   
   OutPutLabel(inner_label + "_JudgeSignal_4", IR_name);
   OutPutJump("bra", label2, IR_name);

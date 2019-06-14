@@ -211,7 +211,7 @@ void DebugInfo::PrintInstrDebugInfo(string output_file_name){
 	  string ccode_line = this->GetInfoFromCodeLink(fun_name, \
 							instr_name);
 	  if(!ccode_line.empty())
-	    fout << "!C CODE : " << ccode_line << "  LINE" << endl;;
+	    fout << "!C CODE : " << ccode_line << "  LINE" << endl;
 	}
 	fout << "!ASSEMBLY INSTR: " << endl;
       }
