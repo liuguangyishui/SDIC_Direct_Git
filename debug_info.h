@@ -55,6 +55,8 @@ struct VarCInfoStruct {
   string C_name;
   //the variable type in .c file
   string C_type;
+  //the variable scope in .c file
+  string C_scope;
 };
 
 class DebugInfo {
@@ -89,6 +91,8 @@ class DebugInfo {
   void AddVarCInfoInMap(string, VarCInfoStruct);
   
   VarCInfoStruct GetVarCInfoFromMap(string);
+
+  unordered_map<string, VarCInfoStruct>* GetVarCInfoMap() { return &var_c_info_map; }
 
  private:
 

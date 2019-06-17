@@ -4631,7 +4631,7 @@ GetParameterNameAndParameterType(SplitWord wordCon,		    \
 }
 
 //deal with the gdb statement
-void TranceGdb(SplitWord wordCon, string IR_name, string file_name){
+void TranceGdb(SplitWord wordCon, string IR_name, string file_name, unordered_map<string, string>& typemap){
 #define VEC wordCon.vaCol
   DebugInfo debug_info_object = DebugInfo();
   
@@ -4669,6 +4669,7 @@ void TranceGdb(SplitWord wordCon, string IR_name, string file_name){
 	  debug_info_object.AddInfoToCodeLink(DebugInfo::ccode_instr_file_fun_name,
 					      gdb_first_name,
 					      gdb_second_name);
+	  typemap.insert(pair<string,string>(VEC[0], VEC[5].substr(1,VEC[5].size()-2)));
   }
   else if(find(VEC.begin(), VEC.end(), "line") != VEC.end() &&		\
 	  find(VEC.begin(), VEC.end(), "!DILocation") != VEC.end()){
@@ -4682,14 +4683,72 @@ void TranceGdb(SplitWord wordCon, string IR_name, string file_name){
   //line: 2, type: !11)
   else if(find(VEC.begin(), VEC.end(), "name") != VEC.end() && \
 	  find(VEC.begin(), VEC.end(), "!DILocalVariable") != VEC.end()){
-    
-
+	  string name = VEC[4];
+	  name = name.substr(1, name.size() - 2);
+	  string type = VEC[VEC.size() - 1];
+	  string scope = VEC[6];
+	  //处理var在type前的情况
+	  auto iter = typemap.find(type);
+	  if (iter != typemap.end()) {
+		  type = iter->second;
+	  }
+	  iter = typemap.find(scope);
+	  if (iter != typemap.end()) {
+		  scope = iter->second;
+	  }
+	  VarCInfoStruct varinfo;
+	  varinfo.IR_name = "%" + name;
+	  varinfo.C_name = name;
+	  varinfo.C_type = type;
+	  varinfo.C_scope = scope;
+	  //cout << "var:" << name << ";" << type << endl;
+	  debug_info_object.AddVarCInfoInMap(scope + "." + name, varinfo);
   }
   //!11 = !DIBasicType(name: "unsigned int", size: 32, \
   //align: 32, encoding: DW_ATE_unsigned)
   else if(find(VEC.begin(), VEC.end(), "name") != VEC.end() && \
 	  find(VEC.begin(), VEC.end(), "!DIBasicType") != VEC.end()){
-
+	  int n = 5;
+	  string type = VEC[4];
+		while (type.back() != '\"') {
+			type += " " + VEC[n];
+			n++;
+		}
+	  type = type.substr(1, type.size() - 2);
+	  typemap.insert(pair<string, string>(VEC[0], type));
+	  //处理type在var后面的情况
+	  for (auto iter = typemap.begin(); iter != typemap.end(); iter++) {
+		  if (iter->second == VEC[0]) {
+			  iter->second = type;
+			  for (auto iter2 = debug_info_object.GetVarCInfoMap()->begin(); iter2 != debug_info_object.GetVarCInfoMap()->end(); iter2++) {
+				  if (iter2->second.C_type == iter->first)
+					  iter2->second.C_type = type;
+				  //cout <<"var:"<< iter->second.C_name << ";" << iter->second.C_type << endl;
+			  }
+		  }
+	  }
+	  for (auto iter = debug_info_object.GetVarCInfoMap()->begin(); iter != debug_info_object.GetVarCInfoMap()->end();iter++) {
+		  if (iter->second.C_type == VEC[0])
+			  iter->second.C_type = type;
+		  //cout <<"var:"<< iter->second.C_name << ";" << iter->second.C_type << endl;
+	  }
+	  //cout << "type:" << VEC[0] << ";" << type << endl;
+  }
+  //!40 = !DICompositeType(tag: DW_TAG_array_type, baseType:
+  //!7, size: 96, align: 32, elements: !41)  处理array类型
+  else if (find(VEC.begin(), VEC.end(), "baseType") != VEC.end() && \
+	  find(VEC.begin(), VEC.end(), "!DICompositeType") != VEC.end()) {
+	  string type = VEC[6];
+	  auto iter = typemap.find(VEC[6]);
+	  if (iter != typemap.end()) {
+		  type = iter->second;
+	  }
+	  typemap.insert(pair<string, string>(VEC[0], type));
+	  //处理type在var之后的情况
+	  for (auto iter = debug_info_object.GetVarCInfoMap()->begin(); iter != debug_info_object.GetVarCInfoMap()->end(); iter++) {
+		  if (iter->second.C_type == VEC[0])
+			  iter->second.C_type = type;
+	  }
   }
 	  
 #undef VEC

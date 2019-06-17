@@ -234,8 +234,18 @@ void DebugInfo::PrintAddrDebugInfo(string output_file_name){
   }
   for(auto outer_elem: addr_debug_info_vec){
     fout << outer_elem.IR_name << ": " << endl;
+	string name = outer_elem.IR_name;
+	if (name.find("@") != -1)
+		name.erase(name.find("@"),1);
+	if (name.find("%") != -1)
+		name.erase(name.find("%"), 1);
+	if (var_c_info_map.find(name) != var_c_info_map.end()) {
+		string type = GetVarCInfoFromMap(name).C_type;
+		//cout << GetVarCInfoFromMap(name).C_name <<":"<< type << endl;
+		if (type.find("unsigned") != -1)
+			outer_elem.var_type = "unsigned_" + outer_elem.var_type;
+	}
     fout << "type: " << outer_elem.var_type << endl;
-    
     //this variable is two dimension, print the array size 
     //and elemt size
     if(outer_elem.two_dimension_array_first > 0 && \

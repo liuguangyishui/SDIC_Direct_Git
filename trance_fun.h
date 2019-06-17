@@ -12,7 +12,7 @@
 #ifndef _TRANCE_FUN_H_
 #define _TRANCE_FUN_H_
 
-using namespace::std;
+using namespace std;
 
 /*During the transform of some statement like the 
  *control statement in tranceBr fun, we should use 
@@ -145,7 +145,7 @@ void GetParameterNameAndParameterType(SplitWord,		\
 				       vector<string>&);
 
 //deal with gdb statement
-void TranceGdb(SplitWord, string, string);
+void TranceGdb(SplitWord, string, string, unordered_map<string, string>&);
 //process the first gdb info
 void TranceFirstGdb(SplitWord, string);
 //deal with switch statement

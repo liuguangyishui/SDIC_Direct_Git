@@ -268,7 +268,7 @@ void OpenFileAndDeal(string &file_name) {
   if(!IR_file.is_open()){
     throw "Error: OpenFileAndDeal() Open file failed!";
   }
-  
+  unordered_map<string, string> gdb_var_type;//用于存储gdb中var的type、scope等信息
   string single_line;
   while(getline(IR_file, single_line)){//get every line
   
@@ -452,7 +452,7 @@ void OpenFileAndDeal(string &file_name) {
 						single_line_debug);
       TranceSelect(word_con, "select"); break;}
     case gdb: {
-      TranceGdb(word_con, "gdb",file_name); 
+      TranceGdb(word_con, "gdb",file_name,gdb_var_type); 
 		break;
       
     }
